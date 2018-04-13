@@ -23,3 +23,11 @@ class PLInterpretation(Interpretation):
 
     def __contains__(self, item:Symbol):
         return item in self.true_propositions
+
+class PLTrueInterpretation(PLInterpretation):
+    def __contains__(self, item):
+        return True
+
+class PLFalseInterpretation(PLInterpretation):
+    def __contains__(self, item):
+        return False

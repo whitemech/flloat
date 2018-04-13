@@ -13,6 +13,8 @@ class Formula(ABC):
 
     def __eq__(self, other):
         if type(other) is type(self):
+            a = self._members()
+            b = other._members()
             return self._members() == other._members()
         else:
             return False

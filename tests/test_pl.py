@@ -1,7 +1,7 @@
 from flloat.base.Symbol import Symbol
 from flloat.parser.pl import PLParser
 from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies
+from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
 
 
 def test_truth():
@@ -36,6 +36,18 @@ def test_truth():
     assert material_implication.truth(i_b)
     assert material_implication.truth(i_ab)
 
+    a_and_false_and_true = PLAnd({a, PLFalse(), PLTrue()})
+    assert not a_and_false_and_true.truth(i_)
+    assert not a_and_false_and_true.truth(i_a)
+    assert not a_and_false_and_true.truth(i_b)
+    assert not a_and_false_and_true.truth(i_ab)
+
+    a_or_false_or_true = PLOr({a, PLFalse(), PLTrue()})
+    assert a_or_false_or_true.truth(i_)
+    assert a_or_false_or_true.truth(i_a)
+    assert a_or_false_or_true.truth(i_b)
+    assert a_or_false_or_true.truth(i_ab)
+
 
 def test_parser():
     parser = PLParser()
@@ -55,5 +67,7 @@ def test_parser():
 
     assert material_implication == true_material_implication
 
+    true_a_and_false_and_true = PLAnd({a, PLFalse(), PLTrue()})
+    a_and_false_and_true = parser("A & false & true")
 
-
+    assert a_and_false_and_true == true_a_and_false_and_true

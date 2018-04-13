@@ -4,28 +4,32 @@ Grammar
 
 Rule 0     S' -> formula
 Rule 1     formula -> ATOM
-Rule 2     formula -> NOT formula
-Rule 3     formula -> formula OR formula
-Rule 4     formula -> formula AND formula
-Rule 5     formula -> formula IMPLIES formula
-Rule 6     formula -> formula EQUIVALENCE formula
-Rule 7     formula -> LPAREN formula RPAREN
+Rule 2     formula -> TRUE
+Rule 3     formula -> FALSE
+Rule 4     formula -> NOT formula
+Rule 5     formula -> formula OR formula
+Rule 6     formula -> formula AND formula
+Rule 7     formula -> formula IMPLIES formula
+Rule 8     formula -> formula EQUIVALENCE formula
+Rule 9     formula -> LPAREN formula RPAREN
 
 Terminals, with rules where they appear
 
-AND                  : 4
+AND                  : 6
 ATOM                 : 1
-EQUIVALENCE          : 6
-IMPLIES              : 5
-LPAREN               : 7
-NOT                  : 2
-OR                   : 3
-RPAREN               : 7
+EQUIVALENCE          : 8
+FALSE                : 3
+IMPLIES              : 7
+LPAREN               : 9
+NOT                  : 4
+OR                   : 5
+RPAREN               : 9
+TRUE                 : 2
 error                : 
 
 Nonterminals, with rules where they appear
 
-formula              : 2 3 3 4 4 5 5 6 6 7 0
+formula              : 4 5 5 6 6 7 7 8 8 9 0
 
 Parsing method: LALR
 
@@ -33,37 +37,50 @@ state 0
 
     (0) S' -> . formula
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
-    formula                        shift and go to state 3
+    formula                        shift and go to state 2
 
 state 1
 
-    (7) formula -> LPAREN . formula RPAREN
-    (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> TRUE .
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    OR              reduce using rule 2 (formula -> TRUE .)
+    AND             reduce using rule 2 (formula -> TRUE .)
+    IMPLIES         reduce using rule 2 (formula -> TRUE .)
+    EQUIVALENCE     reduce using rule 2 (formula -> TRUE .)
+    $end            reduce using rule 2 (formula -> TRUE .)
+    RPAREN          reduce using rule 2 (formula -> TRUE .)
 
-    formula                        shift and go to state 5
 
 state 2
+
+    (0) S' -> formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
+
+    OR              shift and go to state 8
+    AND             shift and go to state 10
+    IMPLIES         shift and go to state 7
+    EQUIVALENCE     shift and go to state 9
+
+
+state 3
 
     (1) formula -> ATOM .
 
@@ -75,233 +92,272 @@ state 2
     RPAREN          reduce using rule 1 (formula -> ATOM .)
 
 
-state 3
-
-    (0) S' -> formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
-
-    OR              shift and go to state 6
-    AND             shift and go to state 9
-    IMPLIES         shift and go to state 8
-    EQUIVALENCE     shift and go to state 7
-
-
 state 4
 
-    (2) formula -> NOT . formula
+    (9) formula -> LPAREN . formula RPAREN
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
-    formula                        shift and go to state 10
+    formula                        shift and go to state 11
 
 state 5
 
-    (7) formula -> LPAREN formula . RPAREN
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
-
-    RPAREN          shift and go to state 11
-    OR              shift and go to state 6
-    AND             shift and go to state 9
-    IMPLIES         shift and go to state 8
-    EQUIVALENCE     shift and go to state 7
-
-
-state 6
-
-    (3) formula -> formula OR . formula
+    (4) formula -> NOT . formula
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
     formula                        shift and go to state 12
 
+state 6
+
+    (3) formula -> FALSE .
+
+    OR              reduce using rule 3 (formula -> FALSE .)
+    AND             reduce using rule 3 (formula -> FALSE .)
+    IMPLIES         reduce using rule 3 (formula -> FALSE .)
+    EQUIVALENCE     reduce using rule 3 (formula -> FALSE .)
+    $end            reduce using rule 3 (formula -> FALSE .)
+    RPAREN          reduce using rule 3 (formula -> FALSE .)
+
+
 state 7
 
-    (6) formula -> formula EQUIVALENCE . formula
+    (7) formula -> formula IMPLIES . formula
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
     formula                        shift and go to state 13
 
 state 8
 
-    (5) formula -> formula IMPLIES . formula
+    (5) formula -> formula OR . formula
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
     formula                        shift and go to state 14
 
 state 9
 
-    (4) formula -> formula AND . formula
+    (8) formula -> formula EQUIVALENCE . formula
     (1) formula -> . ATOM
-    (2) formula -> . NOT formula
-    (3) formula -> . formula OR formula
-    (4) formula -> . formula AND formula
-    (5) formula -> . formula IMPLIES formula
-    (6) formula -> . formula EQUIVALENCE formula
-    (7) formula -> . LPAREN formula RPAREN
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    ATOM            shift and go to state 2
-    NOT             shift and go to state 4
-    LPAREN          shift and go to state 1
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
     formula                        shift and go to state 15
 
 state 10
 
-    (2) formula -> NOT formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
+    (6) formula -> formula AND . formula
+    (1) formula -> . ATOM
+    (2) formula -> . TRUE
+    (3) formula -> . FALSE
+    (4) formula -> . NOT formula
+    (5) formula -> . formula OR formula
+    (6) formula -> . formula AND formula
+    (7) formula -> . formula IMPLIES formula
+    (8) formula -> . formula EQUIVALENCE formula
+    (9) formula -> . LPAREN formula RPAREN
 
-    OR              reduce using rule 2 (formula -> NOT formula .)
-    AND             reduce using rule 2 (formula -> NOT formula .)
-    IMPLIES         reduce using rule 2 (formula -> NOT formula .)
-    EQUIVALENCE     reduce using rule 2 (formula -> NOT formula .)
-    $end            reduce using rule 2 (formula -> NOT formula .)
-    RPAREN          reduce using rule 2 (formula -> NOT formula .)
+    ATOM            shift and go to state 3
+    TRUE            shift and go to state 1
+    FALSE           shift and go to state 6
+    NOT             shift and go to state 5
+    LPAREN          shift and go to state 4
 
-  ! OR              [ shift and go to state 6 ]
-  ! AND             [ shift and go to state 9 ]
-  ! IMPLIES         [ shift and go to state 8 ]
-  ! EQUIVALENCE     [ shift and go to state 7 ]
-
+    formula                        shift and go to state 16
 
 state 11
 
-    (7) formula -> LPAREN formula RPAREN .
+    (9) formula -> LPAREN formula . RPAREN
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
 
-    OR              reduce using rule 7 (formula -> LPAREN formula RPAREN .)
-    AND             reduce using rule 7 (formula -> LPAREN formula RPAREN .)
-    IMPLIES         reduce using rule 7 (formula -> LPAREN formula RPAREN .)
-    EQUIVALENCE     reduce using rule 7 (formula -> LPAREN formula RPAREN .)
-    $end            reduce using rule 7 (formula -> LPAREN formula RPAREN .)
-    RPAREN          reduce using rule 7 (formula -> LPAREN formula RPAREN .)
+    RPAREN          shift and go to state 17
+    OR              shift and go to state 8
+    AND             shift and go to state 10
+    IMPLIES         shift and go to state 7
+    EQUIVALENCE     shift and go to state 9
 
 
 state 12
 
-    (3) formula -> formula OR formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
+    (4) formula -> NOT formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
 
-    OR              reduce using rule 3 (formula -> formula OR formula .)
-    IMPLIES         reduce using rule 3 (formula -> formula OR formula .)
-    EQUIVALENCE     reduce using rule 3 (formula -> formula OR formula .)
-    $end            reduce using rule 3 (formula -> formula OR formula .)
-    RPAREN          reduce using rule 3 (formula -> formula OR formula .)
-    AND             shift and go to state 9
+    OR              reduce using rule 4 (formula -> NOT formula .)
+    AND             reduce using rule 4 (formula -> NOT formula .)
+    IMPLIES         reduce using rule 4 (formula -> NOT formula .)
+    EQUIVALENCE     reduce using rule 4 (formula -> NOT formula .)
+    $end            reduce using rule 4 (formula -> NOT formula .)
+    RPAREN          reduce using rule 4 (formula -> NOT formula .)
 
-  ! AND             [ reduce using rule 3 (formula -> formula OR formula .) ]
-  ! OR              [ shift and go to state 6 ]
-  ! IMPLIES         [ shift and go to state 8 ]
-  ! EQUIVALENCE     [ shift and go to state 7 ]
+  ! OR              [ shift and go to state 8 ]
+  ! AND             [ shift and go to state 10 ]
+  ! IMPLIES         [ shift and go to state 7 ]
+  ! EQUIVALENCE     [ shift and go to state 9 ]
 
 
 state 13
 
-    (6) formula -> formula EQUIVALENCE formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
+    (7) formula -> formula IMPLIES formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
 
-    EQUIVALENCE     reduce using rule 6 (formula -> formula EQUIVALENCE formula .)
-    $end            reduce using rule 6 (formula -> formula EQUIVALENCE formula .)
-    RPAREN          reduce using rule 6 (formula -> formula EQUIVALENCE formula .)
-    OR              shift and go to state 6
-    AND             shift and go to state 9
-    IMPLIES         shift and go to state 8
+    IMPLIES         reduce using rule 7 (formula -> formula IMPLIES formula .)
+    EQUIVALENCE     reduce using rule 7 (formula -> formula IMPLIES formula .)
+    $end            reduce using rule 7 (formula -> formula IMPLIES formula .)
+    RPAREN          reduce using rule 7 (formula -> formula IMPLIES formula .)
+    OR              shift and go to state 8
+    AND             shift and go to state 10
 
-  ! OR              [ reduce using rule 6 (formula -> formula EQUIVALENCE formula .) ]
-  ! AND             [ reduce using rule 6 (formula -> formula EQUIVALENCE formula .) ]
-  ! IMPLIES         [ reduce using rule 6 (formula -> formula EQUIVALENCE formula .) ]
-  ! EQUIVALENCE     [ shift and go to state 7 ]
+  ! OR              [ reduce using rule 7 (formula -> formula IMPLIES formula .) ]
+  ! AND             [ reduce using rule 7 (formula -> formula IMPLIES formula .) ]
+  ! IMPLIES         [ shift and go to state 7 ]
+  ! EQUIVALENCE     [ shift and go to state 9 ]
 
 
 state 14
 
-    (5) formula -> formula IMPLIES formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
+    (5) formula -> formula OR formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
 
-    IMPLIES         reduce using rule 5 (formula -> formula IMPLIES formula .)
-    EQUIVALENCE     reduce using rule 5 (formula -> formula IMPLIES formula .)
-    $end            reduce using rule 5 (formula -> formula IMPLIES formula .)
-    RPAREN          reduce using rule 5 (formula -> formula IMPLIES formula .)
-    OR              shift and go to state 6
-    AND             shift and go to state 9
+    OR              reduce using rule 5 (formula -> formula OR formula .)
+    IMPLIES         reduce using rule 5 (formula -> formula OR formula .)
+    EQUIVALENCE     reduce using rule 5 (formula -> formula OR formula .)
+    $end            reduce using rule 5 (formula -> formula OR formula .)
+    RPAREN          reduce using rule 5 (formula -> formula OR formula .)
+    AND             shift and go to state 10
 
-  ! OR              [ reduce using rule 5 (formula -> formula IMPLIES formula .) ]
-  ! AND             [ reduce using rule 5 (formula -> formula IMPLIES formula .) ]
-  ! IMPLIES         [ shift and go to state 8 ]
-  ! EQUIVALENCE     [ shift and go to state 7 ]
+  ! AND             [ reduce using rule 5 (formula -> formula OR formula .) ]
+  ! OR              [ shift and go to state 8 ]
+  ! IMPLIES         [ shift and go to state 7 ]
+  ! EQUIVALENCE     [ shift and go to state 9 ]
 
 
 state 15
 
-    (4) formula -> formula AND formula .
-    (3) formula -> formula . OR formula
-    (4) formula -> formula . AND formula
-    (5) formula -> formula . IMPLIES formula
-    (6) formula -> formula . EQUIVALENCE formula
+    (8) formula -> formula EQUIVALENCE formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
 
-    OR              reduce using rule 4 (formula -> formula AND formula .)
-    AND             reduce using rule 4 (formula -> formula AND formula .)
-    IMPLIES         reduce using rule 4 (formula -> formula AND formula .)
-    EQUIVALENCE     reduce using rule 4 (formula -> formula AND formula .)
-    $end            reduce using rule 4 (formula -> formula AND formula .)
-    RPAREN          reduce using rule 4 (formula -> formula AND formula .)
+    EQUIVALENCE     reduce using rule 8 (formula -> formula EQUIVALENCE formula .)
+    $end            reduce using rule 8 (formula -> formula EQUIVALENCE formula .)
+    RPAREN          reduce using rule 8 (formula -> formula EQUIVALENCE formula .)
+    OR              shift and go to state 8
+    AND             shift and go to state 10
+    IMPLIES         shift and go to state 7
 
-  ! OR              [ shift and go to state 6 ]
-  ! AND             [ shift and go to state 9 ]
-  ! IMPLIES         [ shift and go to state 8 ]
-  ! EQUIVALENCE     [ shift and go to state 7 ]
+  ! OR              [ reduce using rule 8 (formula -> formula EQUIVALENCE formula .) ]
+  ! AND             [ reduce using rule 8 (formula -> formula EQUIVALENCE formula .) ]
+  ! IMPLIES         [ reduce using rule 8 (formula -> formula EQUIVALENCE formula .) ]
+  ! EQUIVALENCE     [ shift and go to state 9 ]
+
+
+state 16
+
+    (6) formula -> formula AND formula .
+    (5) formula -> formula . OR formula
+    (6) formula -> formula . AND formula
+    (7) formula -> formula . IMPLIES formula
+    (8) formula -> formula . EQUIVALENCE formula
+
+    OR              reduce using rule 6 (formula -> formula AND formula .)
+    AND             reduce using rule 6 (formula -> formula AND formula .)
+    IMPLIES         reduce using rule 6 (formula -> formula AND formula .)
+    EQUIVALENCE     reduce using rule 6 (formula -> formula AND formula .)
+    $end            reduce using rule 6 (formula -> formula AND formula .)
+    RPAREN          reduce using rule 6 (formula -> formula AND formula .)
+
+  ! OR              [ shift and go to state 8 ]
+  ! AND             [ shift and go to state 10 ]
+  ! IMPLIES         [ shift and go to state 7 ]
+  ! EQUIVALENCE     [ shift and go to state 9 ]
+
+
+state 17
+
+    (9) formula -> LPAREN formula RPAREN .
+
+    OR              reduce using rule 9 (formula -> LPAREN formula RPAREN .)
+    AND             reduce using rule 9 (formula -> LPAREN formula RPAREN .)
+    IMPLIES         reduce using rule 9 (formula -> LPAREN formula RPAREN .)
+    EQUIVALENCE     reduce using rule 9 (formula -> LPAREN formula RPAREN .)
+    $end            reduce using rule 9 (formula -> LPAREN formula RPAREN .)
+    RPAREN          reduce using rule 9 (formula -> LPAREN formula RPAREN .)
 

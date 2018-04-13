@@ -1,12 +1,18 @@
 from flloat.base.Symbol import Symbol
+from flloat.base.Symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
-from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence
+from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
 
 
 class PLLexer(Lexer):
 
     def __init__(self):
         super().__init__()
+
+    reserved = {
+        'true': 'TRUE',
+        'false': 'FALSE',
+    }
 
     # List of token names.   This is always required
     tokens = (
@@ -18,10 +24,9 @@ class PLLexer(Lexer):
         'EQUIVALENCE',
         'LPAREN',
         'RPAREN'
-    )
+    ) + tuple(reserved.values())
 
     # Regular expression rules for simple tokens
-    t_ATOM         = r'[a-zA-Z0-9]+'
     t_NOT          = r'~'
     t_AND          = r'&'
     t_OR           = r'\|'
@@ -29,6 +34,13 @@ class PLLexer(Lexer):
     t_EQUIVALENCE  = r'<->'
     t_LPAREN       = r'\('
     t_RPAREN       = r'\)'
+
+
+    def t_ATOM(self, t):
+        r'[a-zA-Z_][a-zA-Z_0-9]*'
+        t.type = PLLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
+        return t
+
 
 
 # Yacc example
@@ -46,8 +58,16 @@ class PLParser(Parser):
         super().__init__("pl", lexer.tokens, lexer, precedence)
 
     def p_formula_atom(self, p):
-        'formula : ATOM'
-        p[0] = PLAtomic(Symbol(p[1]))
+        """formula : ATOM
+                   | TRUE
+                   | FALSE"""
+        if p[1]==Symbols.TRUE.value:
+            p[0] = PLTrue()
+        elif p[1]==Symbols.FALSE.value:
+            p[0] = PLFalse()
+        else:
+            p[0] = PLAtomic(Symbol(p[1]))
+
 
     def p_formula_not(self, p):
         'formula : NOT formula'

@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftEQUIVALENCEleftIMPLIESleftORleftANDrightNOTAND ATOM EQUIVALENCE IMPLIES LPAREN NOT OR RPARENformula : ATOMformula : NOT formulaformula : formula OR formulaformula : formula AND formulaformula : formula IMPLIES formulaformula : formula EQUIVALENCE formulaformula : LPAREN formula RPAREN'
+_lr_signature = 'leftEQUIVALENCEleftIMPLIESleftORleftANDrightNOTAND ATOM EQUIVALENCE FALSE IMPLIES LPAREN NOT OR RPAREN TRUEformula : ATOM\n                   | TRUE\n                   | FALSEformula : NOT formulaformula : formula OR formulaformula : formula AND formulaformula : formula IMPLIES formulaformula : formula EQUIVALENCE formulaformula : LPAREN formula RPAREN'
     
-_lr_action_items = {'OR':([2,3,5,10,11,12,13,14,15,],[-1,6,6,-2,-7,-3,6,6,-4,]),'$end':([2,3,10,11,12,13,14,15,],[-1,0,-2,-7,-3,-6,-5,-4,]),'EQUIVALENCE':([2,3,5,10,11,12,13,14,15,],[-1,7,7,-2,-7,-3,-6,-5,-4,]),'ATOM':([0,1,4,6,7,8,9,],[2,2,2,2,2,2,2,]),'RPAREN':([2,5,10,11,12,13,14,15,],[-1,11,-2,-7,-3,-6,-5,-4,]),'IMPLIES':([2,3,5,10,11,12,13,14,15,],[-1,8,8,-2,-7,-3,8,-5,-4,]),'NOT':([0,1,4,6,7,8,9,],[4,4,4,4,4,4,4,]),'AND':([2,3,5,10,11,12,13,14,15,],[-1,9,9,-2,-7,9,9,9,-4,]),'LPAREN':([0,1,4,6,7,8,9,],[1,1,1,1,1,1,1,]),}
+_lr_action_items = {'TRUE':([0,4,5,7,8,9,10,],[1,1,1,1,1,1,1,]),'RPAREN':([1,3,6,11,12,13,14,15,16,17,],[-2,-1,-3,17,-4,-7,-5,-8,-6,-9,]),'EQUIVALENCE':([1,2,3,6,11,12,13,14,15,16,17,],[-2,9,-1,-3,9,-4,-7,-5,-8,-6,-9,]),'AND':([1,2,3,6,11,12,13,14,15,16,17,],[-2,10,-1,-3,10,-4,10,10,10,-6,-9,]),'ATOM':([0,4,5,7,8,9,10,],[3,3,3,3,3,3,3,]),'LPAREN':([0,4,5,7,8,9,10,],[4,4,4,4,4,4,4,]),'IMPLIES':([1,2,3,6,11,12,13,14,15,16,17,],[-2,7,-1,-3,7,-4,-7,-5,7,-6,-9,]),'OR':([1,2,3,6,11,12,13,14,15,16,17,],[-2,8,-1,-3,8,-4,8,-5,8,-6,-9,]),'$end':([1,2,3,6,12,13,14,15,16,17,],[-2,0,-1,-3,-4,-7,-5,-8,-6,-9,]),'NOT':([0,4,5,7,8,9,10,],[5,5,5,5,5,5,5,]),'FALSE':([0,4,5,7,8,9,10,],[6,6,6,6,6,6,6,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'formula':([0,1,4,6,7,8,9,],[3,5,10,12,13,14,15,]),}
+_lr_goto_items = {'formula':([0,4,5,7,8,9,10,],[2,11,12,13,14,15,16,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,11 +27,13 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> formula","S'",1,None,None,None),
-  ('formula -> ATOM','formula',1,'p_formula_atom','pl.py',49),
-  ('formula -> NOT formula','formula',2,'p_formula_not','pl.py',53),
-  ('formula -> formula OR formula','formula',3,'p_formula_or','pl.py',57),
-  ('formula -> formula AND formula','formula',3,'p_formula_and','pl.py',61),
-  ('formula -> formula IMPLIES formula','formula',3,'p_formula_implies','pl.py',65),
-  ('formula -> formula EQUIVALENCE formula','formula',3,'p_formula_equivalence','pl.py',69),
-  ('formula -> LPAREN formula RPAREN','formula',3,'p_factor_expr','pl.py',73),
+  ('formula -> ATOM','formula',1,'p_formula_atom','pl.py',61),
+  ('formula -> TRUE','formula',1,'p_formula_atom','pl.py',62),
+  ('formula -> FALSE','formula',1,'p_formula_atom','pl.py',63),
+  ('formula -> NOT formula','formula',2,'p_formula_not','pl.py',73),
+  ('formula -> formula OR formula','formula',3,'p_formula_or','pl.py',77),
+  ('formula -> formula AND formula','formula',3,'p_formula_and','pl.py',81),
+  ('formula -> formula IMPLIES formula','formula',3,'p_formula_implies','pl.py',85),
+  ('formula -> formula EQUIVALENCE formula','formula',3,'p_formula_equivalence','pl.py',89),
+  ('formula -> LPAREN formula RPAREN','formula',3,'p_factor_expr','pl.py',93),
 ]

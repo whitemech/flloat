@@ -32,6 +32,8 @@ class Symbols(Enum):
     LOGICAL_TRUE = "⊤⊤"
     LOGICAL_FALSE = "⊥⊥"
     CARET = "^"
+    TRUE="true"
+    FALSE = "false"
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}

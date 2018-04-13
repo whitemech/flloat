@@ -4,6 +4,7 @@ from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperato
     CommOperatorChilds
 from flloat.base.Interpretation import Interpretation
 from flloat.base.Symbol import Symbol
+from flloat.base.Symbols import Symbols
 
 
 class PLFormula(Formula):
@@ -30,6 +31,22 @@ class PLAtomic(PLFormula):
 
     def __str__(self):
         return str(self.s)
+
+
+class PLTrue(PLAtomic):
+    def __init__(self):
+        super().__init__(Symbol(Symbols.TRUE.value))
+
+    def truth(self, i:Interpretation):
+        return True
+
+class PLFalse(PLAtomic):
+    def __init__(self):
+        super().__init__(Symbol(Symbols.FALSE.value))
+
+    def truth(self, i: Interpretation):
+        return False
+
 
 
 class PLNot(PLFormula, UnaryOperator):
