@@ -1,0 +1,59 @@
+from flloat.base.Symbol import Symbol
+from flloat.parser.pl import PLParser
+from flloat.semantics.pl import PLInterpretation
+from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies
+
+
+def test_truth():
+    sa, sb = Symbol("a"), Symbol("b")
+    a, b = PLAtomic(sa), PLAtomic(sb)
+    i_ = PLInterpretation(set())
+    i_a = PLInterpretation({sa})
+    i_b = PLInterpretation({sb})
+    i_ab = PLInterpretation({sa, sb})
+
+    a_and_b = PLAnd({a, b})
+    assert not a_and_b.truth(i_)
+    assert not a_and_b.truth(i_a)
+    assert not a_and_b.truth(i_b)
+    assert     a_and_b.truth(i_ab)
+
+    not_a_and_not_b = PLAnd({PLNot(a), PLNot(b)})
+    assert      not_a_and_not_b.truth(i_)
+    assert not  not_a_and_not_b.truth(i_a)
+    assert not  not_a_and_not_b.truth(i_b)
+    assert not  not_a_and_not_b.truth(i_ab)
+
+    material_implication = PLEquivalence({
+        PLOr({PLNot(a), b}),
+        PLNot(PLAnd({a, PLNot(b)})),
+        PLImplies([a, b])
+    })
+
+    # the equivalence is valid (i.e. satisfied for every interpretation)
+    assert material_implication.truth(i_)
+    assert material_implication.truth(i_a)
+    assert material_implication.truth(i_b)
+    assert material_implication.truth(i_ab)
+
+
+def test_parser():
+    parser = PLParser()
+    sa, sb = Symbol("A"), Symbol("B")
+    a, b = PLAtomic(sa), PLAtomic(sb)
+
+    a_and_b = parser("A & B")
+    true_a_and_b = PLAnd({a, b})
+    assert a_and_b == true_a_and_b
+
+    material_implication = parser("~A | B <-> ~(A & ~B) <-> A->B")
+    true_material_implication = PLEquivalence({
+        PLOr({PLNot(a), b}),
+        PLNot(PLAnd({a, PLNot(b)})),
+        PLImplies([a, b])
+    })
+
+    assert material_implication == true_material_implication
+
+
+
