@@ -25,9 +25,15 @@ class PLInterpretation(Interpretation):
         return item in self.true_propositions
 
 class PLTrueInterpretation(PLInterpretation):
+    def _members(self):
+        return PLTrueInterpretation
+
     def __contains__(self, item):
         return True
 
 class PLFalseInterpretation(PLInterpretation):
+    def __init__(self):
+        super().__init__(set())
+
     def __contains__(self, item):
         return False

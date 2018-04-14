@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftEQUIVALENCEleftIMPLIESleftORleftANDrightNOTAND ATOM EQUIVALENCE FALSE IMPLIES LPAREN NOT OR RPAREN TRUEformula : ATOM\n                   | TRUE\n                   | FALSEformula : NOT formulaformula : formula OR formulaformula : formula AND formulaformula : formula IMPLIES formulaformula : formula EQUIVALENCE formulaformula : LPAREN formula RPAREN'
+_lr_signature = 'leftEQUIVALENCErightIMPLIESleftORleftANDrightNOTAND ATOM EQUIVALENCE FALSE IMPLIES LPAREN NOT OR RPAREN TRUEformula : ATOM\n                   | TRUE\n                   | FALSEformula : NOT formulaformula : formula OR formulaformula : formula AND formulaformula : formula IMPLIES formulaformula : formula EQUIVALENCE formulaformula : LPAREN formula RPAREN'
     
-_lr_action_items = {'TRUE':([0,4,5,7,8,9,10,],[1,1,1,1,1,1,1,]),'RPAREN':([1,3,6,11,12,13,14,15,16,17,],[-2,-1,-3,17,-4,-7,-5,-8,-6,-9,]),'EQUIVALENCE':([1,2,3,6,11,12,13,14,15,16,17,],[-2,9,-1,-3,9,-4,-7,-5,-8,-6,-9,]),'AND':([1,2,3,6,11,12,13,14,15,16,17,],[-2,10,-1,-3,10,-4,10,10,10,-6,-9,]),'ATOM':([0,4,5,7,8,9,10,],[3,3,3,3,3,3,3,]),'LPAREN':([0,4,5,7,8,9,10,],[4,4,4,4,4,4,4,]),'IMPLIES':([1,2,3,6,11,12,13,14,15,16,17,],[-2,7,-1,-3,7,-4,-7,-5,7,-6,-9,]),'OR':([1,2,3,6,11,12,13,14,15,16,17,],[-2,8,-1,-3,8,-4,8,-5,8,-6,-9,]),'$end':([1,2,3,6,12,13,14,15,16,17,],[-2,0,-1,-3,-4,-7,-5,-8,-6,-9,]),'NOT':([0,4,5,7,8,9,10,],[5,5,5,5,5,5,5,]),'FALSE':([0,4,5,7,8,9,10,],[6,6,6,6,6,6,6,]),}
+_lr_action_items = {'EQUIVALENCE':([3,4,5,6,7,8,13,14,15,16,17,],[11,-2,-1,-3,-4,11,-9,-7,-6,-8,-5,]),'NOT':([0,1,2,9,10,11,12,],[1,1,1,1,1,1,1,]),'LPAREN':([0,1,2,9,10,11,12,],[2,2,2,2,2,2,2,]),'AND':([3,4,5,6,7,8,13,14,15,16,17,],[10,-2,-1,-3,-4,10,-9,10,-6,10,10,]),'$end':([3,4,5,6,7,13,14,15,16,17,],[0,-2,-1,-3,-4,-9,-7,-6,-8,-5,]),'IMPLIES':([3,4,5,6,7,8,13,14,15,16,17,],[9,-2,-1,-3,-4,9,-9,9,-6,9,-5,]),'OR':([3,4,5,6,7,8,13,14,15,16,17,],[12,-2,-1,-3,-4,12,-9,12,-6,12,-5,]),'TRUE':([0,1,2,9,10,11,12,],[4,4,4,4,4,4,4,]),'ATOM':([0,1,2,9,10,11,12,],[5,5,5,5,5,5,5,]),'FALSE':([0,1,2,9,10,11,12,],[6,6,6,6,6,6,6,]),'RPAREN':([4,5,6,7,8,13,14,15,16,17,],[-2,-1,-3,-4,13,-9,-7,-6,-8,-5,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'formula':([0,4,5,7,8,9,10,],[2,11,12,13,14,15,16,]),}
+_lr_goto_items = {'formula':([0,1,2,9,10,11,12,],[3,7,8,14,15,16,17,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,13 +27,13 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> formula","S'",1,None,None,None),
-  ('formula -> ATOM','formula',1,'p_formula_atom','pl.py',61),
-  ('formula -> TRUE','formula',1,'p_formula_atom','pl.py',62),
-  ('formula -> FALSE','formula',1,'p_formula_atom','pl.py',63),
-  ('formula -> NOT formula','formula',2,'p_formula_not','pl.py',73),
-  ('formula -> formula OR formula','formula',3,'p_formula_or','pl.py',77),
-  ('formula -> formula AND formula','formula',3,'p_formula_and','pl.py',81),
-  ('formula -> formula IMPLIES formula','formula',3,'p_formula_implies','pl.py',85),
-  ('formula -> formula EQUIVALENCE formula','formula',3,'p_formula_equivalence','pl.py',89),
-  ('formula -> LPAREN formula RPAREN','formula',3,'p_factor_expr','pl.py',93),
+  ('formula -> ATOM','formula',1,'p_formula_atom','pl.py',60),
+  ('formula -> TRUE','formula',1,'p_formula_atom','pl.py',61),
+  ('formula -> FALSE','formula',1,'p_formula_atom','pl.py',62),
+  ('formula -> NOT formula','formula',2,'p_formula_not','pl.py',72),
+  ('formula -> formula OR formula','formula',3,'p_formula_or','pl.py',76),
+  ('formula -> formula AND formula','formula',3,'p_formula_and','pl.py',80),
+  ('formula -> formula IMPLIES formula','formula',3,'p_formula_implies','pl.py',84),
+  ('formula -> formula EQUIVALENCE formula','formula',3,'p_formula_equivalence','pl.py',88),
+  ('formula -> LPAREN formula RPAREN','formula',3,'p_formula_expression','pl.py',92),
 ]

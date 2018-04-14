@@ -71,3 +71,19 @@ def test_parser():
     a_and_false_and_true = parser("A & false & true")
 
     assert a_and_false_and_true == true_a_and_false_and_true
+
+
+def test_nnf():
+    parser = PLParser()
+
+    not_a_and_b = parser("~(A&B)")
+    nnf_not_a_and_b = parser("~A | ~B")
+    assert not_a_and_b.to_nnf() == nnf_not_a_and_b
+    assert nnf_not_a_and_b == nnf_not_a_and_b.to_nnf()
+
+    material_implication = parser("~A | B <-> ~(A & ~B) <-> A->B")
+    nnf_material_implication = parser("((~A | B) & (~A | B) & (~A | B)) | ((A & ~B) & (A & ~B) & (A & ~B))")
+    assert material_implication.to_nnf() == nnf_material_implication
+    assert nnf_material_implication == nnf_material_implication.to_nnf()
+
+

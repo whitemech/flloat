@@ -42,7 +42,6 @@ class PLLexer(Lexer):
         return t
 
 
-
 # Yacc example
 class PLParser(Parser):
 
@@ -50,7 +49,7 @@ class PLParser(Parser):
         lexer = PLLexer()
         precedence = (
             ('left', 'EQUIVALENCE'),
-            ('left', 'IMPLIES'),
+            ('right', 'IMPLIES'),
             ('left', 'OR'),
             ('left', 'AND'),
             ('right', 'NOT'),
@@ -89,6 +88,18 @@ class PLParser(Parser):
         'formula : formula EQUIVALENCE formula'
         p[0] = PLEquivalence({p[1], p[3]})
 
-    def p_factor_expr(self, p):
+    def p_formula_expression(self, p):
         'formula : LPAREN formula RPAREN'
         p[0] = p[2]
+
+
+if __name__ == '__main__':
+    parser = PLParser()
+    while True:
+        try:
+            s = input('calc > ')
+        except EOFError:
+            break
+        if not s: continue
+        result = parser(s)
+        print(result)

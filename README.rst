@@ -41,7 +41,9 @@ From repo (e.g. from branch develop):
 Features
 --------
 
-* TODO
+* Syntax, semantics and parsing support for the following formal languages:
+    * Propositional Logic;
+    * Linear Dynamic Logic on Finite Traces;
 
 Credits
 -------
