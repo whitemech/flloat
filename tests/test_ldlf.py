@@ -1,11 +1,11 @@
 from flloat.base.Symbol import Symbol
 from flloat.parser.ldlf import LDLfParser
-from flloat.parser.pl import PLParser
 from flloat.semantics.ldlf import FiniteTraceInterpretation
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
-    RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, LDLfEnd
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
+    RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
+    LDLfEnd, RegExpTest, LDLfLast
+from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
 
 
 def test_truth():
@@ -74,6 +74,23 @@ def test_parser():
         LDLfEnd()
     )
 
+    assert parser("~(<~(A<->D)+(B;C)*+(~last)?>[(true)*]end)") == LDLfNot(
+        LDLfDiamond(
+            RegExpUnion({
+                RegExpPropositional(PLNot(PLEquivalence({PLAtomic(Symbol("A")), PLAtomic(Symbol("D")),}))),
+                RegExpStar(RegExpSequence([
+                    RegExpPropositional(PLAtomic(Symbol("B"))),
+                    RegExpPropositional(PLAtomic(Symbol("C"))),
+                ])),
+                RegExpTest(LDLfNot(LDLfLast()))
+            }),
+            LDLfBox(
+                RegExpStar(RegExpPropositional(PLTrue())),
+                LDLfEnd()
+            )
+        )
+    )
+
 
 def test_nnf():
     parser = LDLfParser()
@@ -81,4 +98,90 @@ def test_nnf():
 
     f = parser("~(<~(A<->D)+(B;C)*+(~last)?>[(true)*]end)")
     assert f.to_nnf() == parser("[(([true]<true>tt)? + ((B ; C))* + ((A | D) & (~(D) | ~(A))))]<(true)*><true>tt")
+    assert f.to_nnf() == f.to_nnf().to_nnf().to_nnf().to_nnf()
 
+def test_delta():
+    parser = LDLfParser()
+    sa, sb = Symbol("A"), Symbol("B")
+    a, b = PLAtomic(sa), PLAtomic(sb)
+
+    i_ = PLFalseInterpretation()
+    i_a = PLInterpretation({sa})
+    i_b = PLInterpretation({sb})
+    i_ab = PLInterpretation({sa, sb})
+
+    true = PLTrue()
+    false = PLFalse()
+    tt = LDLfLogicalTrue()
+    ff = LDLfLogicalFalse()
+
+    assert parser("<A>tt").delta(i_)   == false
+    assert parser("<A>tt").delta(i_a)  == tt
+    assert parser("<A>tt").delta(i_b)  == false
+    assert parser("<A>tt").delta(i_ab) == tt
+
+    assert parser("[B]ff").delta(i_)   == true
+    assert parser("[B]ff").delta(i_a)  == true
+    assert parser("[B]ff").delta(i_b)  == ff
+    assert parser("[B]ff").delta(i_ab) == ff
+
+    # TODO: many other cases!
+
+    f = parser("~(<~(A<->B)+(B;A)*+(~last)?>[(true)*]end)")
+    assert f.delta(i_) == f.to_nnf().delta(i_)
+    assert f.delta(i_ab) == f.to_nnf().delta(i_ab)
+
+    assert f.delta(i_, epsilon=True) == f.to_nnf().delta(i_, epsilon=True)
+    assert f.delta(i_ab, epsilon=True) == f.to_nnf().delta(i_ab, epsilon=True)
+    # with epsilon=True, the result is either PLTrue or PLFalse
+    assert f.delta(i_, epsilon=True) in [PLTrue(), PLFalse()]
+
+
+def test_nfa():
+    parser = LDLfParser()
+    a, b, c = Symbol("A"), Symbol("B"), Symbol("C")
+    alphabet = {a, b, c}
+
+    i_ = PLInterpretation(set())
+    i_a = PLInterpretation({a})
+    i_b = PLInterpretation({b})
+    i_ab = PLInterpretation({a, b})
+
+    dfa = parser("<A>tt").to_nfa(alphabet).determinize().minimize().trim()
+    assert not dfa.word_acceptance([])
+    assert not dfa.word_acceptance([i_, i_b])
+    assert dfa.word_acceptance([i_a])
+    assert dfa.word_acceptance([i_a, i_, i_ab, i_b])
+    assert not dfa.word_acceptance([i_, i_ab])
+
+    f = "< (~(A | B | C ))* ; (A | C) ; (~(A | B | C))* ; (B | C) ><true>tt"
+    dfa = parser(f).to_nfa(alphabet).determinize().minimize().trim()
+    assert not dfa.word_acceptance([])
+    assert not dfa.word_acceptance([i_, i_b])
+    assert dfa.word_acceptance([i_a, i_b, i_])
+    assert dfa.word_acceptance([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
+    assert not dfa.word_acceptance([i_b, i_b])
+
+    f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
+    dfa = parser(f).to_nfa(alphabet).determinize().minimize().trim()
+    assert not dfa.word_acceptance([])
+    assert not dfa.word_acceptance([i_b, i_b, i_b])
+    assert dfa.word_acceptance([i_b, i_b, i_ab])
+
+    f = "(<true>tt) & ([A]<B>tt)"
+    dfa = parser(f).to_nfa(alphabet).determinize().minimize().trim()
+    assert not dfa.word_acceptance([])
+    assert dfa.word_acceptance([i_b])
+    assert dfa.word_acceptance([i_])
+    assert not dfa.word_acceptance([i_a])
+    assert not dfa.word_acceptance([i_ab])
+    assert dfa.word_acceptance([i_ab, i_ab])
+    assert dfa.word_acceptance([i_a, i_b])
+
+    # f = parser("(<true>tt) & ([A]<B>tt)")
+    # nfa = f.to_nfa(alphabet)
+    # nfa.to_dot("temp_nfa.NFA")
+    # dfa = nfa.determinize()
+    # dfa.to_dot("temp_det.DFA")
+    # dfa = dfa.minimize().trim()
+    # dfa.to_dot("temp_min.DFA")

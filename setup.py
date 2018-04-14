@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['ply']
+requirements = ['ply', 'git+https://github.com/MarcoFavorito/pythomata@develop#egg=pythomata']
 
 setup_requirements = ['pytest-runner', ]
 

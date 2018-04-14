@@ -4,11 +4,12 @@ from typing import Iterable, Set
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
     CommOperatorChilds, AtomicFormula
 from flloat.base.nnf import NNF, NotNNF
-from flloat.base.Interpretation import Interpretation
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
 from flloat.semantics.pl import PLInterpretation
+from flloat.utils import powerset
+
 
 class PLTruth(Truth):
     @abstractmethod
@@ -16,9 +17,44 @@ class PLTruth(Truth):
         raise NotImplementedError
 
 class PLFormula(Formula, Truth, NNF):
+    def all_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
+        """Find all the models of a given formula.
+        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
+        """
+        all_possible_interpretations = sorted(powerset(alphabet), key=len)
+        models = set()
+        for i in all_possible_interpretations:
+            # compute current Interpretation, considering False
+            # all propositional symbols not present in current interpretation
+            current_interpretation = PLInterpretation(set(i))
+            if self.truth(current_interpretation):
+                models.add(current_interpretation)
+
+        return models
+
+    def minimal_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
+        """Find models of min size (i.e. the less number of proposition to True)."""
+        models = self.all_models(alphabet)
+        size2models = {}
+
+        for m in models:
+            size = len(m.true_propositions)
+            if size not in size2models:
+                size2models[size] = set()
+            size2models[size].add(m)
+
+        if not size2models:
+            return set()
+        else:
+            return size2models[min(size2models.keys())]
+
+    def __repr__(self):
+        return self.__str__()
+
+class PLBinaryOperator(PLFormula, BinaryOperator):
     pass
 
-class PLCommBinaryOperator(PLFormula, CommutativeBinaryOperator):
+class PLCommBinaryOperator(PLBinaryOperator, CommutativeBinaryOperator):
     pass
 
 class PLAtomic(PLFormula, AtomicFormula):
@@ -77,7 +113,7 @@ class PLOr(PLCommBinaryOperator, OrTruth):
         return PLAnd(childs)
 
 
-class PLImplies(PLFormula, ImpliesTruth):
+class PLImplies(PLBinaryOperator, ImpliesTruth):
     operator_symbol = "->"
 
     def _convert(self):
