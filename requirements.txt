@@ -1,2 +1,2 @@
 ply==3.11
-pythomata
+pythomata==0.1.3b1
