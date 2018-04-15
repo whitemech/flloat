@@ -91,6 +91,7 @@ class CommutativeBinaryOperator(BinaryOperator):
 
     def __init__(self, formulas:CommOperatorChilds, idempotence=True):
         # Assuming idempotence: e.g. A & A === A
+        assert len(formulas)>0
         if len(formulas)<2:
             f = formulas.pop()
             fs = [f, f]

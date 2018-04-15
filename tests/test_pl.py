@@ -58,7 +58,7 @@ def test_parser():
     true_a_and_b = PLAnd({a, b})
     assert a_and_b == true_a_and_b
 
-    material_implication = parser("~A | B <-> ~(A & ~B) <-> A->B")
+    material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
     true_material_implication = PLEquivalence({
         PLOr({PLNot(a), b}),
         PLNot(PLAnd({a, PLNot(b)})),
@@ -76,13 +76,13 @@ def test_parser():
 def test_nnf():
     parser = PLParser()
 
-    not_a_and_b = parser("~(A&B)")
-    nnf_not_a_and_b = parser("~A | ~B")
+    not_a_and_b = parser("!(A&B)")
+    nnf_not_a_and_b = parser("!A | !B")
     assert not_a_and_b.to_nnf() == nnf_not_a_and_b
     assert nnf_not_a_and_b == nnf_not_a_and_b.to_nnf()
 
-    material_implication = parser("~A | B <-> ~(A & ~B) <-> A->B")
-    nnf_material_implication = parser("((~A | B) & (~A | B) & (~A | B)) | ((A & ~B) & (A & ~B) & (A & ~B))")
+    material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
+    nnf_material_implication = parser("((!A | B) & (!A | B) & (!A | B)) | ((A & !B) & (A & !B) & (A & !B))")
     assert material_implication.to_nnf() == nnf_material_implication
     assert nnf_material_implication == nnf_material_implication.to_nnf()
 

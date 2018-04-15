@@ -8,6 +8,8 @@ from itertools import chain, combinations
 #
 from typing import Set, FrozenSet
 
+from flloat.base.Symbols import Symbols
+
 
 def powerset(iterable) -> FrozenSet:
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -17,6 +19,12 @@ def powerset(iterable) -> FrozenSet:
     # res = map(frozenset, combs)
     return res
 
+def sym2regexp(sym:Symbols):
+    s = sym.value
+    if s in r"|()+?*.[]":
+        return r"\%s"%s
+    else:
+        return s
 
 # def my_str(obj):
 #     s = str(obj)

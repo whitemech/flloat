@@ -1,11 +1,12 @@
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
-from flloat.parser.pl import PLParser
+
 from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfOr, LDLfEquivalence, LDLfImplies, \
     LDLfAnd, LDLfDiamond, LDLfBox, RegExpTest, RegExpStar, RegExpUnion, RegExpSequence, RegExpPropositional, LDLfEnd, \
     LDLfLast
 from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.utils import sym2regexp
 
 
 class LDLfLexer(Lexer):
@@ -43,21 +44,21 @@ class LDLfLexer(Lexer):
     ) + tuple(reserved.values())
 
     # Regular expression rules for simple tokens
-    t_NOT               = r'~'
-    t_AND               = r'&'
-    t_OR                = r'\|'
-    t_IMPLIES           = r'->'
-    t_EQUIVALENCE       = r'<->'
-    t_TEST              = r'\?'
-    t_SEQ               = r';'
-    t_UNION             = r'\+'
-    t_STAR              = r'\*'
-    t_LPAREN            = r'\('
-    t_RPAREN            = r'\)'
-    t_BOXLSEPARATOR     = r'\['
-    t_BOXRSEPARATOR     = r'\]'
-    t_DIAMONDLSEPARATOR = r'<'
-    t_DIAMONDRSEPARATOR = r'>'
+    t_NOT               = sym2regexp(Symbols.NOT)
+    t_AND               = sym2regexp(Symbols.AND)
+    t_OR                = sym2regexp(Symbols.OR)
+    t_IMPLIES           = sym2regexp(Symbols.IMPLIES)
+    t_EQUIVALENCE       = sym2regexp(Symbols.EQUIVALENCE)
+    t_TEST              = sym2regexp(Symbols.PATH_TEST)
+    t_SEQ               = sym2regexp(Symbols.PATH_SEQUENCE)
+    t_UNION             = sym2regexp(Symbols.PATH_UNION)
+    t_STAR              = sym2regexp(Symbols.PATH_STAR)
+    t_LPAREN            = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
+    t_RPAREN            = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
+    t_BOXLSEPARATOR     = sym2regexp(Symbols.ALWAYS_BRACKET_LEFT)
+    t_BOXRSEPARATOR     = sym2regexp(Symbols.ALWAYS_BRACKET_RIGHT)
+    t_DIAMONDLSEPARATOR = sym2regexp(Symbols.EVENTUALLY_BRACKET_LEFT)
+    t_DIAMONDRSEPARATOR = sym2regexp(Symbols.EVENTUALLY_BRACKET_RIGHT)
 
     def t_ATOM(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -115,20 +116,20 @@ class LDLfParser(Parser):
             p[0] = LDLfNot(p[2])
         elif len(p) == 4:
             l, o, r = p[1:]
-            if o == '<->':
+            if o == Symbols.EQUIVALENCE.value:
                 p[0] = LDLfEquivalence({l, r})
-            elif o == '->':
+            elif o == Symbols.IMPLIES.value:
                 p[0] = LDLfImplies([l, r])
-            elif o == '|':
+            elif o == Symbols.OR.value:
                 p[0] = LDLfOr({l, r})
-            elif o == '&':
+            elif o == Symbols.AND.value:
                 p[0] = LDLfAnd({l, r})
             else:
                 raise ValueError
         elif len(p) == 5:
-            if p[1] == '[':
+            if p[1] == Symbols.ALWAYS_BRACKET_LEFT.value:
                 p[0] = LDLfBox(p[2], p[4])
-            elif p[1] == '<':
+            elif p[1] == Symbols.EVENTUALLY_BRACKET_LEFT.value:
                 p[0] = LDLfDiamond(p[2], p[4])
             else:
                 raise ValueError
@@ -149,16 +150,16 @@ class LDLfParser(Parser):
         if len(p)==2:
             p[0] = RegExpPropositional(p[1])
         elif len(p)==3:
-            if p[2]=="?":
+            if p[2]==Symbols.PATH_TEST.value:
                 p[0] = RegExpTest(p[1])
-            elif p[2] == "*":
+            elif p[2] == Symbols.PATH_STAR.value:
                 p[0] = RegExpStar(p[1])
             else:
                 raise ValueError
         elif len(p)==4:
-            if p[2]=="+":
+            if p[2]==Symbols.PATH_UNION.value:
                 p[0] = RegExpUnion({p[1], p[3]})
-            elif p[2] == ";":
+            elif p[2] == Symbols.PATH_SEQUENCE.value:
                 p[0] = RegExpSequence([p[1], p[3]])
             else:
                 raise ValueError
@@ -176,13 +177,13 @@ class LDLfParser(Parser):
                          | TRUE
                          | ATOM"""
         if len(p)==4:
-            if p[2] == "<->":
+            if p[2] == Symbols.EQUIVALENCE.value:
                 p[0] = PLEquivalence({p[1], p[3]})
-            elif p[2] == "->":
+            elif p[2] == Symbols.IMPLIES.value:
                 p[0] = PLImplies([p[1], p[3]])
-            elif p[2] == "|":
+            elif p[2] == Symbols.OR.value:
                 p[0] = PLOr({p[1], p[3]})
-            elif p[2] == "&":
+            elif p[2] == Symbols.AND.value:
                 p[0] = PLAnd({p[1], p[3]})
             else:
                 raise ValueError

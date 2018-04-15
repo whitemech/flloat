@@ -2,6 +2,7 @@ from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
 from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.utils import sym2regexp
 
 
 class PLLexer(Lexer):
@@ -10,8 +11,8 @@ class PLLexer(Lexer):
         super().__init__()
 
     reserved = {
-        'true': 'TRUE',
-        'false': 'FALSE',
+        Symbols.TRUE.value  : 'TRUE',
+        Symbols.FALSE.value : 'FALSE',
     }
 
     # List of token names.   This is always required
@@ -27,13 +28,14 @@ class PLLexer(Lexer):
     ) + tuple(reserved.values())
 
     # Regular expression rules for simple tokens
-    t_NOT          = r'~'
-    t_AND          = r'&'
-    t_OR           = r'\|'
-    t_IMPLIES      = r'->'
-    t_EQUIVALENCE  = r'<->'
-    t_LPAREN       = r'\('
-    t_RPAREN       = r'\)'
+    t_NOT          = sym2regexp(Symbols.NOT)
+    t_AND          = sym2regexp(Symbols.AND)
+    t_OR           = sym2regexp(Symbols.OR)
+    t_IMPLIES      = sym2regexp(Symbols.IMPLIES)
+    t_EQUIVALENCE  = sym2regexp(Symbols.EQUIVALENCE)
+    t_LPAREN       = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
+    t_RPAREN       = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
+
 
 
     def t_ATOM(self, t):
@@ -66,7 +68,6 @@ class PLParser(Parser):
             p[0] = PLFalse()
         else:
             p[0] = PLAtomic(Symbol(p[1]))
-
 
     def p_formula_not(self, p):
         'formula : NOT formula'

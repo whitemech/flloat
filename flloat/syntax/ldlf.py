@@ -9,7 +9,7 @@ from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
 from flloat.base.nnf import NNF, NotNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
-from flloat.flloat import to_nfa
+from flloat.flloat import to_automaton, DFAOTF
 from flloat.semantics.ldlf import FiniteTraceInterpretation
 from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
@@ -51,8 +51,13 @@ class LDLfFormula(Formula, LDLfTruth, NNF, Delta):
     def __repr__(self):
         return self.__str__()
 
-    def to_nfa(self, labels:Set[Symbol]) -> NFA:
-        return to_nfa(self, labels)
+    def to_automaton(self, labels:Set[Symbol], on_the_fly=False, determinize=False, minimize=True):
+        if on_the_fly:
+            return DFAOTF(self)
+        else:
+            return to_automaton(self, labels, determinize, minimize)
+
+
 
 
 class LDLfCommBinaryOperator(LDLfFormula, CommutativeBinaryOperator):
@@ -481,6 +486,10 @@ class T(Formula, Delta):
 def _expand(f:Formula):
     if isinstance(f, F) or isinstance(f, T):
         return _expand(f.f)
+    # elif isinstance(f, LDLfLogicalTrue):
+    #     return PLTrue()
+    # elif isinstance(f, LDLfLogicalFalse):
+    #     return PLFalse()
     elif isinstance(f, LDLfDiamond) or isinstance(f, LDLfBox):
         return type(f)(f.r, _expand(f.f))
     else:
