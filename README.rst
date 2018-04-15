@@ -38,12 +38,16 @@ From repo (e.g. from branch develop):
     pip install git+https://github.com/MarcoFavorito/flloat@develop#egg=flloat
 
 
+You might need to complete some extra step. Please check the following installation guides:
+* `pythomata <https://github.com/MarcoFavorito/pythomata#install>`_
+
 Features
 --------
 
 * Syntax, semantics and parsing support for the following formal languages:
     * Propositional Logic;
     * Linear Dynamic Logic on Finite Traces;
+* Conversion from LDLf formula to NFA, DFA and DFA on-the-fly
 
 Credits
 -------

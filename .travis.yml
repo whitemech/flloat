@@ -1,28 +1,16 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
 python:
-  - 3.6
-  - 3.5
-  - 3.4
-  - 2.7
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+- 3.6
+- 3.5
 install: pip install -U tox-travis
-
-# Command to run tests, e.g. python setup.py test
 script: tox
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
-  user: A library for generating automata from LTL and LDL formulas with finite-trace semantics.
+  user: A library for generating automata from LTL and LDL formulas with finite-trace
+    semantics.
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: uGSJn+VDyktOnEJqWlfkMOIpmR+I4TYUId0o0xJ8aXhNqduxOEJVoFDvHcBxhkaw7+5Sn6UuzDh56AaJ50WzN3fJG42r+jkcvTF/8zhRqxl6fO8EvjIaPto1xxS0a4m3BrhsGORiPHAUKfikvaKtkHvF9SmdEUUxgQ+Y9//f/9Zv+W/6IBJi1e/aCwbphVJYblwylx2oTIkNDLm3xbb5HBGrnkCM/tlv0uAMCTX5KkvZXnRrEr1UXKIXfdquZUeTrYlqZot8OwGsqOI5bb0Og/WTbNryZdS4VZKyX9LJwg1igFdxkZ0OIMQE0+L+CDAfWPZFx7hcdFKaxUIA781ImBmvgsXMtM7cmyC1x+hMz6jnFqytS0J1bWpaRetBTLPJ8ehL1Na7f9RJuqmLPucEK/g0aF8cCu/VW/ix22od0f2fRv+xpWMS5C+49WqCRwc5SiMcX+P2yU4HvW+8Ew2EmIxk/4Aoq+ae/hj1yL2aNkLqJSyPN00L6bGxh4KsgIqynLfmrLgj8xbCRPDAg6hwqL10VwdtHX/BXC0CP28NOaLgWhJNboXfh8aZjb7fArKUsBNK7+u29TcHjsC98NxuSt0BJL2r3FFZ2dK8wGjyvB9A3uKdBllIraUcT4Ry7jXHta5IPWtHYEG+85MyJJUT3er4uzxPggPCyypC6zTxHbk=
   on:
     tags: true
     repo: MarcoFavorito/flloat
