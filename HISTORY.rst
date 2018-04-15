@@ -6,3 +6,11 @@ History
 ------------------
 
 * First release on PyPI.
+
+0.1.1 (2018-04-15)
+------------------
+
+* Syntax, semantics and parsing support for the following formal languages:
+    * Propositional Logic;
+    * Linear Dynamic Logic on Finite Traces;
+* Conversion from LDLf formula to NFA, DFA and DFA on-the-fly
