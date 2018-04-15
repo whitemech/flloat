@@ -17,8 +17,6 @@ setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['pytest', ]
 
-dependency_links = []
-
 setup(
     author="Marco Favorito",
     author_email='marco.favorito@gmail.com',
@@ -36,7 +34,6 @@ setup(
     ],
     description="A Python implementation of the FLLOAT library. link: https://github.com/RiccardoDeMasellis/FLLOAT.git",
     install_requires=requirements,
-    dependency_links=dependency_links,
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
