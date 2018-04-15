@@ -1,2 +1,2 @@
 ply==3.11
-git+https://github.com/MarcoFavorito/pythomata@develop#egg=pythomata
+pythomata
