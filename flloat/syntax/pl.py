@@ -1,102 +1,157 @@
+from abc import abstractmethod
 from typing import Iterable, Set
 
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
-    CommOperatorChilds
-from flloat.base.Interpretation import Interpretation
+    CommOperatorChilds, AtomicFormula
+from flloat.base.nnf import NNF, NotNNF
 from flloat.base.Symbol import Symbol
+from flloat.base.Symbols import Symbols
+from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
+from flloat.semantics.pl import PLInterpretation
+from flloat.utils import powerset
 
 
-class PLFormula(Formula):
+class PLTruth(Truth):
+    @abstractmethod
+    def truth(self, i: PLInterpretation, *args):
+        raise NotImplementedError
+
+class PLFormula(Formula, Truth, NNF):
+    def all_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
+        """Find all the models of a given formula.
+        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
+        """
+        all_possible_interpretations = sorted(powerset(alphabet), key=len)
+        models = set()
+        for i in all_possible_interpretations:
+            # compute current Interpretation, considering False
+            # all propositional symbols not present in current interpretation
+            current_interpretation = PLInterpretation(set(i))
+            if self.truth(current_interpretation):
+                models.add(current_interpretation)
+
+        return models
+
+    def minimal_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
+        """Find models of min size (i.e. the less number of proposition to True)."""
+        models = self.all_models(alphabet)
+        size2models = {}
+
+        for m in models:
+            size = len(m.true_propositions)
+            if size not in size2models:
+                size2models[size] = set()
+            size2models[size].add(m)
+
+        if not size2models:
+            return set()
+        else:
+            return size2models[min(size2models.keys())]
+
+    def __repr__(self):
+        return self.__str__()
+
+class PLBinaryOperator(PLFormula, BinaryOperator):
     pass
 
+class PLCommBinaryOperator(PLBinaryOperator, CommutativeBinaryOperator):
+    pass
 
-class PLCommBinaryOperator(PLFormula, CommutativeBinaryOperator):
-    def __init__(self, formulas:CommOperatorChilds):
-        PLFormula.__init__(self)
-        CommutativeBinaryOperator.__init__(self, formulas)
-
-    def __str__(self):
-        return CommutativeBinaryOperator.__str__(self)
-
-class PLAtomic(PLFormula):
-    def __init__(self, s:Symbol):
-        self.s = s
-
-    def _members(self):
-        return self.s
-
-    def truth(self, i:Interpretation):
+class PLAtomic(PLFormula, AtomicFormula):
+    def truth(self, i:PLInterpretation, *args):
         return self.s in i
 
-    def __str__(self):
-        return str(self.s)
+    def to_nnf(self):
+        return self
+
+    def negate(self):
+        return PLNot(self)
+
+class PLTrue(PLAtomic):
+    def __init__(self):
+        super().__init__(Symbol(Symbols.TRUE.value))
+
+    def truth(self, i: PLInterpretation, *args):
+        return True
+
+    def negate(self):
+        return PLFalse()
+
+class PLFalse(PLAtomic):
+    def __init__(self):
+        super().__init__(Symbol(Symbols.FALSE.value))
+
+    def truth(self, i: PLInterpretation, *args):
+        return False
+
+    def negate(self):
+        return PLTrue()
 
 
-class PLNot(PLFormula, UnaryOperator):
+class PLNot(PLFormula, NotTruth, NotNNF):
     operator_symbol = "~"
 
-    def __init__(self, f:Formula):
-        PLFormula.__init__(self)
-        UnaryOperator.__init__(self, f)
-
-    def truth(self, i:Interpretation):
-        return not self.f.truth(i)
-
-
-class PLAnd(PLCommBinaryOperator):
+class PLAnd(PLCommBinaryOperator, AndTruth):
     operator_symbol = "&"
+    def to_nnf(self):
+        childs = set([child.to_nnf() for child in self.formulas])
+        return PLAnd(childs)
 
-    def truth(self, i:Interpretation):
-        return all(f.truth(i) for f in self.formulas)
+    def negate(self):
+        childs = set([child.negate() for child in self.formulas])
+        return PLOr(childs)
 
-
-class PLOr(PLCommBinaryOperator):
+class PLOr(PLCommBinaryOperator, OrTruth):
     operator_symbol = "|"
 
-    def truth(self, i:Interpretation):
-        return any(f.truth(i) for f in self.formulas)
+    def to_nnf(self):
+        childs = set([child.to_nnf() for child in self.formulas])
+        return PLOr(childs)
+
+    def negate(self):
+        childs = set([child.negate() for child in self.formulas])
+        return PLAnd(childs)
 
 
-class PLImplies(PLFormula, BinaryOperator):
+class PLImplies(PLBinaryOperator, ImpliesTruth):
     operator_symbol = "->"
-
-    def __init__(self, formulas:OperatorChilds):
-        PLFormula.__init__(self)
-        BinaryOperator.__init__(self, formulas)
 
     def _convert(self):
         fs = self.formulas
-        N = len(fs)
-        res = PLOr({PLNot(fs[0]), fs[1]})
-        for i in range(2, N):
-            res = PLOr({PLNot(res), fs[i]})
-
+        a, b = PLAnd(set(fs[:-1])), fs[-1]
+        res = PLOr({PLNot(a), b})
         return res
 
-    def truth(self, i:Interpretation):
-        # eq_formula = self._convert()
-        # return eq_formula.truth(i)
-        fs = self.formulas
-        N = len(fs)
-        evaluation = lambda x, y: not x or y
-        truth = evaluation(fs[0].truth(i), fs[1].truth(i))
-        for idx in range(2, N):
-            if not truth:
-                return True
-            else:
-                truth = evaluation(truth, fs[idx].truth(i))
+    def to_nnf(self):
+        return self._convert().to_nnf()
 
-        return truth
+    def negate(self):
+        return self._convert().negate()
+
+    def truth(self, *args):
+        return self._convert().truth(*args)
 
 
-class PLEquivalence(PLCommBinaryOperator):
+class PLEquivalence(PLCommBinaryOperator, EquivalenceTruth):
     operator_symbol = "<->"
 
-    def truth(self, i: Interpretation):
+    def _convert(self):
         fs = self.formulas
-        N = len(fs)
-        t = [f.truth(i) for f in fs]
-        # either all true or all false
-        return all(t) or not any(t)
+        pos = PLAnd(set(fs))
+        neg = PLAnd(set(PLNot(f) for f in fs))
+
+        res = PLOr({pos, neg})
+        return res
+
+    def to_nnf(self):
+        return self._convert().to_nnf()
+
+    def negate(self):
+        return self._convert().negate()
+
+    def truth(self, *args):
+        return self._convert().truth(*args)
+
+
 
 

@@ -50,4 +50,4 @@ class Parser(ABC):
 
     # Error rule for syntax errors
     def p_error(self, p):
-        raise ValueError("Syntax error in input!")
+        raise ValueError("Syntax error in input! %s" %str(p))
