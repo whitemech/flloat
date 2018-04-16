@@ -89,10 +89,9 @@ class PLFalse(PLAtomic):
 
 
 class PLNot(PLFormula, NotTruth, NotNNF):
-    operator_symbol = "~"
+    pass
 
 class PLAnd(PLCommBinaryOperator, AndTruth):
-    operator_symbol = "&"
     def to_nnf(self):
         childs = set([child.to_nnf() for child in self.formulas])
         return PLAnd(childs)
@@ -102,7 +101,6 @@ class PLAnd(PLCommBinaryOperator, AndTruth):
         return PLOr(childs)
 
 class PLOr(PLCommBinaryOperator, OrTruth):
-    operator_symbol = "|"
 
     def to_nnf(self):
         childs = set([child.to_nnf() for child in self.formulas])
@@ -114,8 +112,6 @@ class PLOr(PLCommBinaryOperator, OrTruth):
 
 
 class PLImplies(PLBinaryOperator, ImpliesTruth):
-    operator_symbol = "->"
-
     def _convert(self):
         fs = self.formulas
         a, b = PLAnd(set(fs[:-1])), fs[-1]
@@ -133,7 +129,6 @@ class PLImplies(PLBinaryOperator, ImpliesTruth):
 
 
 class PLEquivalence(PLCommBinaryOperator, EquivalenceTruth):
-    operator_symbol = "<->"
 
     def _convert(self):
         fs = self.formulas

@@ -157,7 +157,6 @@ def test_to_automaton():
         test_function(dfa)
 
     ##################################################################################
-    # <A>tt
     f = "<A>tt"
     def test_f(dfa):
         assert not dfa.word_acceptance([])
@@ -216,8 +215,10 @@ def test_to_automaton():
     #################################################################################
 
     # f = "[true*](<A>tt -> <true*><B>tt)"
+    # r0, r1, r2 = Symbol("r0"), Symbol("r1"), Symbol("r2")
+    # f = "<(!r0 & !r1 & !r2)*;(r0 & !r1 & !r2)*;(r0 & r1 & !r2)*; (r0 & r1 & r2)>tt"
     # f = parser(f)
-    # nfa = f.to_automaton(alphabet_abc)
+    # nfa = f.to_automaton({r0, r1, r2})
     # nfa.to_dot("temp_nfa.NFA")
     # dfa = nfa.determinize()
     # dfa.to_dot("temp_det.DFA")
