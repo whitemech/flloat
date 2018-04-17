@@ -157,7 +157,6 @@ def test_to_automaton():
         test_function(dfa)
 
     ##################################################################################
-    # <A>tt
     f = "<A>tt"
     def test_f(dfa):
         assert not dfa.word_acceptance([])
@@ -214,13 +213,4 @@ def test_to_automaton():
         assert not dfa.word_acceptance([i_a, i_a])
     _dfa_test(parser, f, alphabet_abc, test_f)
     #################################################################################
-
-    # f = "[true*](<A>tt -> <true*><B>tt)"
-    # f = parser(f)
-    # nfa = f.to_automaton(alphabet_abc)
-    # nfa.to_dot("temp_nfa.NFA")
-    # dfa = nfa.determinize()
-    # dfa.to_dot("temp_det.DFA")
-    # dfa = dfa.minimize().trim()
-    # dfa.to_dot("temp_min.DFA")
 

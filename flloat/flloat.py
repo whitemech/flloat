@@ -2,6 +2,7 @@ from typing import Set, List
 
 from pythomata.base.Alphabet import Alphabet
 from pythomata.base.NFA import NFA
+from pythomata.base.Simulator import Simulator
 
 from flloat.base.Formula import Formula
 from flloat.base.Symbol import Symbol
@@ -29,7 +30,7 @@ def _tranform_delta(f:Formula, formula2AtomicFormula):
     with non-propositional subformulas replaced with a "freezed" atomic formula."""
     if isinstance(f, PLNot):
         return PLNot(_tranform_delta(f, formula2AtomicFormula))
-    elif isinstance(f, PLBinaryOperator):
+    elif isinstance(f, PLBinaryOperator): #PLAnd, PLOr, PLImplies, PLEquivalence
         return type(f)([_tranform_delta(subf, formula2AtomicFormula) for subf in f.formulas])
     elif isinstance(f, PLTrue) or isinstance(f, PLFalse):
         return f
@@ -139,7 +140,7 @@ def to_automaton(f, labels:Set[Symbol], determinize=False, minimize=True):
         return nfa
 
 
-class DFAOTF(object):
+class DFAOTF(Simulator):
     """DFA on the fly"""
 
     def __init__(self, f):
@@ -157,14 +158,6 @@ class DFAOTF(object):
 
     def is_true(self):
         # TODO: check if it is right
-        # if frozenset() in self.cur_state:
-        #     return True
-        # conj = {subf.delta(None, epsilon=True) for q in self.cur_state for subf in q}
-        # if len(conj) == 0:
-        #     conj = PLFalse()
-        # else:
-        #     conj = PLAnd(set(conj))
-        # return conj.truth(None)
 
         if frozenset() in self.cur_state:
             return True
@@ -175,20 +168,6 @@ class DFAOTF(object):
             conj = PLOr(conj)
         return conj.truth(None)
 
-
-        # if len(self.cur_state)==0:
-        #     return False
-        # return frozenset() in self.cur_state
-
-        # if frozenset() in self.cur_state:
-        #     return True
-        # conj = {subf.delta(None, epsilon=True) for q in self.cur_state for subf in q}
-        # if len(conj) == 0:
-        #     return False
-        # elif PLFalse() in conj:
-        #     return False
-        # else:
-        #     return True
 
     def make_transition(self, i:PLInterpretation):
         actions_set = i.true_propositions

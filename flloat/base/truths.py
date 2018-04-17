@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from flloat.base.Formula import Formula, UnaryOperator, BinaryOperator
+from flloat.base.Symbols import Symbols
 
 
 class Truth(ABC):
@@ -10,20 +11,26 @@ class Truth(ABC):
 
 
 class NotTruth(UnaryOperator, Truth):
+    operator_symbol = Symbols.NOT.value
     def truth(self, *args):
         return not self.f.truth(*args)
 
 
 class AndTruth(BinaryOperator, Truth):
+    operator_symbol = Symbols.AND.value
     def truth(self, *args):
         return all(f.truth(*args) for f in self.formulas)
 
 class OrTruth(BinaryOperator, Truth):
+    operator_symbol = Symbols.OR.value
     def truth(self, *args):
         return any(f.truth(*args) for f in self.formulas)
 
 
 class ImpliesTruth(BinaryOperator, Truth):
+    operator_symbol = Symbols.IMPLIES.value
+
+
     def truth(self, *args):
         # eq_formula = self._convert()
         # return eq_formula.truth(i)
@@ -41,6 +48,8 @@ class ImpliesTruth(BinaryOperator, Truth):
         return truth
 
 class EquivalenceTruth(BinaryOperator, Truth):
+    operator_symbol = Symbols.EQUIVALENCE.value
+
     def truth(self, *args):
         fs = self.formulas
         N = len(fs)

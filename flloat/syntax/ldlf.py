@@ -134,7 +134,6 @@ class LDLfLogicalFalse(LDLfAtomic):
 
 
 class LDLfNot(LDLfFormula, NotTruth, NotNNF):
-    operator_symbol = "~"
 
     def to_nnf(self):
         return self.f.negate().to_nnf()
@@ -148,8 +147,6 @@ class LDLfNot(LDLfFormula, NotTruth, NotNNF):
 
 
 class LDLfAnd(LDLfCommBinaryOperator, AndTruth):
-    operator_symbol = "&"
-
     def to_nnf(self):
         childs = set([child.to_nnf() for child in self.formulas])
         return LDLfAnd(childs)
@@ -163,7 +160,6 @@ class LDLfAnd(LDLfCommBinaryOperator, AndTruth):
 
 
 class LDLfOr(LDLfCommBinaryOperator, OrTruth):
-    operator_symbol = "|"
 
     def to_nnf(self):
         childs = set([child.to_nnf() for child in self.formulas])
@@ -178,7 +174,7 @@ class LDLfOr(LDLfCommBinaryOperator, OrTruth):
 
 
 class LDLfImplies(LDLfFormula, ImpliesTruth):
-    operator_symbol = "->"
+
     def _convert(self):
         fs = self.formulas
         a, b = LDLfAnd(set(fs[:-1])), fs[-1]
@@ -199,7 +195,6 @@ class LDLfImplies(LDLfFormula, ImpliesTruth):
 
 
 class LDLfEquivalence(LDLfCommBinaryOperator, EquivalenceTruth):
-    operator_symbol = "<->"
 
     def _convert(self):
         fs = self.formulas
