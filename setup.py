@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['ply', 'pythomata']
+requirements = ['ply', 'pythomata==0.1.3b1']
 
 setup_requirements = ['pytest-runner', ]
 
@@ -41,6 +41,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/MarcoFavorito/flloat',
-    version='0.1.2',
+    version='0.1.2post1',
     zip_safe=False,
 )
