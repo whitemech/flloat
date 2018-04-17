@@ -4,12 +4,13 @@ python:
   - 3.5
 install:
   - pip install -U tox-travis
-  - pip  install codecov
+  - pip install codecov
+  - pip install pytest-cov
   - pip  install -r requirements.txt
 script:
   - python -m pytest
   - tox
-  - coverage run --source pythomata setup.py test
+  - pytest --cov=./
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
