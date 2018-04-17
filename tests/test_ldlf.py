@@ -214,14 +214,23 @@ def test_to_automaton():
     _dfa_test(parser, f, alphabet_abc, test_f)
     #################################################################################
 
-    # f = "[true*](<A>tt -> <true*><B>tt)"
+
     # r0, r1, r2 = Symbol("r0"), Symbol("r1"), Symbol("r2")
-    # f = "<(!r0 & !r1 & !r2)*;(r0 & !r1 & !r2)*;(r0 & r1 & !r2)*; (r0 & r1 & r2)>tt"
+    # labels = {r0, r1, r2}
+    # # f = "<(!r0 & !r1 & !r2)*;(r0 & !r1 & !r2)*;(r0 & r1 & !r2)*; (r0 & r1 & r2)>tt"
+    #
+    # cc = ["c%d" % d for d in range(6)]
+    # labels = [Symbol(d) for d in cc]
+    # f = "<%s>tt" % ";".join(cc)
+    #
     # f = parser(f)
-    # nfa = f.to_automaton({r0, r1, r2})
+    # nfa = f.to_automaton(labels)
     # nfa.to_dot("temp_nfa.NFA")
+    # print("nfa")
     # dfa = nfa.determinize()
     # dfa.to_dot("temp_det.DFA")
+    # print("dfa")
     # dfa = dfa.minimize().trim()
     # dfa.to_dot("temp_min.DFA")
+    # print("dfatrim")
 
