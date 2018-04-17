@@ -6,12 +6,20 @@ FLLOAT
 .. image:: https://img.shields.io/pypi/v/flloat.svg
         :target: https://pypi.python.org/pypi/flloat
 
+.. image:: https://img.shields.io/pypi/pyversions/flloat.svg
+        :target: https://pypi.python.org/pypi/flloat
+
 .. image:: https://img.shields.io/travis/MarcoFavorito/flloat.svg
         :target: https://travis-ci.org/MarcoFavorito/flloat
 
 .. image:: https://readthedocs.org/projects/flloat/badge/?version=latest
         :target: https://flloat.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
+
+.. image:: https://codecov.io/gh/MarcoFavorito/flloat/branch/master/graph/badge.svg
+        :alt: Codecov coverage
+        :target: https://codecov.io/gh/MarcoFavorito/flloat/branch/master/graph/badge.svg
+
 
 
 A Python implementation of the `FLLOAT`_ library.
