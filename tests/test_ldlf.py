@@ -137,6 +137,16 @@ def test_delta():
     assert f.delta(i_, epsilon=True) in [PLTrue(), PLFalse()]
 
 
+def test_find_labels():
+    parser = LDLfParser()
+
+    f = "< (!(A | B | C ))* ; (A | C) ; (!(A | B | C))* ; (B | C) ><true>tt"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol(c) for c in "ABC"}
+
+    f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol(c) for c in "AB"}
 
 
 def test_to_automaton():
