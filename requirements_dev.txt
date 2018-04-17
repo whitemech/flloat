@@ -42,3 +42,4 @@ urllib3==1.22
 virtualenv==15.2.0
 watchdog==0.8.3
 wheel==0.30.0
+pytest-cov
