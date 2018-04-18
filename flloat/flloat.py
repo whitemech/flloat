@@ -38,10 +38,24 @@ def _tranform_delta(f:Formula, formula2AtomicFormula):
         return formula2AtomicFormula[f]
 
 
-def to_automaton(f, labels:Set[Symbol], determinize=False, minimize=True):
+def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
+    """
+    From a LDLfFormula, build the automaton.
+    :param f:               a LDLfFormula;
+    :param labels:          a set of Symbol, the fluents of our domain. If None, retrieve them from the formula;
+    :param determinize:     True if you need to determinize the NFA, obtaining a DFA;
+    :param minimize:        True if you need to minimize the DFA (if determinize is False this flag has no effect.)
+    :return:                a NFA or a DFA which accepts the same traces that makes the formula True.
+    """
 
     nnf = f.to_nnf()
 
+    if labels is None:
+        # if the labels of the formula are not specified in input,
+        # retrieve them from the formula
+        labels = nnf.find_labels()
+
+    # the alphabet is the powerset of the set of fluents
     alphabet = powerset(labels)
     initial_states = {frozenset([nnf])}
     final_states = {frozenset()}

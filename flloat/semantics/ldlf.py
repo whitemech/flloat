@@ -1,12 +1,21 @@
 from typing import List, Set
 
 from flloat.base.Interpretation import Interpretation
+from flloat.base.Symbol import Symbol
 from flloat.semantics.pl import PLInterpretation
 
 
-class FiniteTraceInterpretation(Interpretation):
+class FiniteTrace(Interpretation):
     def __init__(self, trace: List[PLInterpretation]):
         self.trace = trace
+
+    @staticmethod
+    def fromSymbolSets(l:List[Set[Symbol]]):
+        return FiniteTrace([PLInterpretation(s) for s in l])
+
+    @staticmethod
+    def fromStringSets(l:List[Set[str]]):
+        return FiniteTrace([PLInterpretation({Symbol(string) for string in s}) for s in l])
 
     def length(self):
         return len(self.trace)
@@ -24,7 +33,7 @@ class FiniteTraceInterpretation(Interpretation):
     def segment(self, start:int, end:int) :
         if not self._position_is_legal(start) or not self._position_is_legal(end):
             raise ValueError("Start or end position are not valid")
-        return FiniteTraceInterpretation(self.trace[start: end])
+        return FiniteTrace(self.trace[start: end])
 
     def __str__(self):
         return "Trace (length=%s)" %self.length() + "\n\t" + \

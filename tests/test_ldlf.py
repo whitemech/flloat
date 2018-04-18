@@ -1,38 +1,11 @@
 from flloat.base.Symbol import Symbol
 from flloat.parser.ldlf import LDLfParser
-from flloat.semantics.ldlf import FiniteTraceInterpretation
+from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
     RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
     LDLfEnd, RegExpTest, LDLfLast
 from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
-
-
-def test_truth():
-    sa, sb = Symbol("a"), Symbol("b")
-    a, b =   PLAtomic(sa), PLAtomic(sb)
-
-    i_ = PLFalseInterpretation()
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
-
-    tr_false_a_b_ab = FiniteTraceInterpretation([
-        i_,
-        i_a,
-        i_b,
-        i_ab
-    ])
-
-    tt = LDLfLogicalTrue()
-    ff = LDLfLogicalFalse()
-
-    assert      tt.truth(tr_false_a_b_ab, 0)
-    assert not  ff.truth(tr_false_a_b_ab, 0)
-    assert not  LDLfNot(tt).truth(tr_false_a_b_ab, 0)
-    assert      LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    assert      LDLfAnd({LDLfPropositional(a), LDLfPropositional(b)}).truth(tr_false_a_b_ab, 3)
-    assert not  LDLfDiamond(RegExpPropositional(PLAnd({a, b})), tt).truth(tr_false_a_b_ab, 0)
 
 
 def test_parser():
@@ -92,6 +65,45 @@ def test_parser():
     )
 
 
+
+def test_truth():
+    sa, sb = Symbol("a"), Symbol("b")
+    a, b =   PLAtomic(sa), PLAtomic(sb)
+
+    i_ = PLFalseInterpretation()
+    i_a = PLInterpretation({sa})
+    i_b = PLInterpretation({sb})
+    i_ab = PLInterpretation({sa, sb})
+
+    tr_false_a_b_ab = FiniteTrace([
+        i_,
+        i_a,
+        i_b,
+        i_ab
+    ])
+
+    tt = LDLfLogicalTrue()
+    ff = LDLfLogicalFalse()
+
+    assert      tt.truth(tr_false_a_b_ab, 0)
+    assert not  ff.truth(tr_false_a_b_ab, 0)
+    assert not  LDLfNot(tt).truth(tr_false_a_b_ab, 0)
+    assert      LDLfNot(ff).truth(tr_false_a_b_ab, 0)
+    assert      LDLfAnd({LDLfPropositional(a), LDLfPropositional(b)}).truth(tr_false_a_b_ab, 3)
+    assert not  LDLfDiamond(RegExpPropositional(PLAnd({a, b})), tt).truth(tr_false_a_b_ab, 0)
+
+    parser = LDLfParser()
+    trace = FiniteTrace.fromStringSets([
+        {},
+        {"A"},
+        {"A"},
+        {"A", "B"}
+    ])
+    formula = "<true*;A&B>tt"
+    parsed_formula = parser(formula)
+    assert parsed_formula.truth(trace, 0)
+
+
 def test_nnf():
     parser = LDLfParser()
     assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
@@ -137,6 +149,16 @@ def test_delta():
     assert f.delta(i_, epsilon=True) in [PLTrue(), PLFalse()]
 
 
+def test_find_labels():
+    parser = LDLfParser()
+
+    f = "< (!(A | B | C ))* ; (A | C) ; (!(A | B | C))* ; (B | C) ><true>tt"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol(c) for c in "ABC"}
+
+    f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol(c) for c in "AB"}
 
 
 def test_to_automaton():

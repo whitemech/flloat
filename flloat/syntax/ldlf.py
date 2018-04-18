@@ -10,19 +10,19 @@ from flloat.base.Symbols import Symbols
 from flloat.base.nnf import NNF, NotNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
 from flloat.flloat import to_automaton, DFAOTF
-from flloat.semantics.ldlf import FiniteTraceInterpretation
+from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
 
 
 class LDLfTruth(Truth):
     @abstractmethod
-    def truth(self, i: FiniteTraceInterpretation, pos: int):
+    def truth(self, i: FiniteTrace, pos: int):
         raise NotImplementedError
 
 class RegExpTruth(Truth):
     @abstractmethod
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         raise NotImplementedError
 
 class Delta(ABC):
@@ -51,7 +51,7 @@ class LDLfFormula(Formula, LDLfTruth, NNF, Delta):
     def __repr__(self):
         return self.__str__()
 
-    def to_automaton(self, labels:Set[Symbol], on_the_fly=False, determinize=False, minimize=True):
+    def to_automaton(self, labels:Set[Symbol]=None, on_the_fly=False, determinize=False, minimize=True):
         if on_the_fly:
             return DFAOTF(self)
         else:
@@ -93,10 +93,16 @@ class LDLfTemporalFormula(LDLfFormula):
     def __str__(self):
         return self.temporal_brackets[0] + str(self.r) + self.temporal_brackets[1] + "(" + str(self.f) + ")"
 
+    def find_labels(self):
+        return self.f.find_labels().union(self.r.find_labels())
+
 
 class LDLfAtomic(LDLfFormula, AtomicFormula):
     def __str__(self):
         return AtomicFormula.__str__(self)
+
+    def find_labels(self):
+        return set()
 
 
 class LDLfLogicalTrue(LDLfAtomic):
@@ -220,7 +226,7 @@ class LDLfEquivalence(LDLfCommBinaryOperator, EquivalenceTruth):
 class LDLfDiamond(LDLfTemporalFormula, LDLfTruth):
     temporal_brackets = "<>"
 
-    def truth(self, i: FiniteTraceInterpretation, pos: int):
+    def truth(self, i: FiniteTrace, pos: int):
         return any(self.r.truth(i, pos, j) and self.f.truth(i, j) for j in range(pos, i.length()+1))
         # length + 1 in order to include the last step
 
@@ -237,7 +243,7 @@ class LDLfDiamond(LDLfTemporalFormula, LDLfTruth):
 class LDLfBox(LDLfTemporalFormula):
     temporal_brackets = "[]"
 
-    def truth(self, i: FiniteTraceInterpretation, pos: int):
+    def truth(self, i: FiniteTrace, pos: int):
         return LDLfNot(LDLfDiamond(self.r, LDLfNot(self.f))).truth(i, pos)
 
     def to_nnf(self):
@@ -254,7 +260,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
     def __init__(self, pl_formula:PLFormula):
         self.pl_formula = pl_formula
 
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         return end == start + 1 \
                 and start < tr.length() \
                 and self.pl_formula.truth(tr.get(start))
@@ -287,6 +293,9 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         else:
             return PLTrue()
 
+    def find_labels(self):
+        return self.pl_formula.find_labels()
+
 
 class RegExpTest(RegExpFormula, UnaryOperator):
     operator_symbol = "?"
@@ -294,7 +303,7 @@ class RegExpTest(RegExpFormula, UnaryOperator):
     def __init__(self, f:LDLfFormula):
         super().__init__(f)
 
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         return start == end and self.f.truth(tr, start)
 
     def __str__(self):
@@ -311,10 +320,13 @@ class RegExpTest(RegExpFormula, UnaryOperator):
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
         return PLOr({LDLfNot(self.f).to_nnf()._delta(i, epsilon), f._delta(i, epsilon)})
 
+    def find_labels(self):
+        return self.f.find_labels()
+
 class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
     operator_symbol = "+"
 
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         return any(f.truth(tr, start, end) for f in self.formulas)
 
     def to_nnf(self):
@@ -333,7 +345,7 @@ class RegExpSequence(RegExpFormula, BinaryOperator):
         RegExpFormula.__init__(self)
         BinaryOperator.__init__(self, formulas)
 
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         if len(self.formulas)==2:
             return any(self.formulas[0].truth(tr, start, k) and self.formulas[1].truth(tr, k, end) for k in range(start, end + 1))
         else:
@@ -360,7 +372,7 @@ class RegExpSequence(RegExpFormula, BinaryOperator):
 class RegExpStar(RegExpFormula, UnaryOperator):
     operator_symbol = "*"
 
-    def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int, end: int):
         return start == end \
             or any(self.f.truth(tr, start, k) and self.truth(tr, k, end)
                    for k in range(start, end + 1))
@@ -387,7 +399,7 @@ class LDLfPropositional(LDLfFormula):
     def _convert(self):
         return LDLfDiamond(RegExpPropositional(self.pl_formula), LDLfLogicalTrue())
 
-    def truth(self, i: FiniteTraceInterpretation, pos: int):
+    def truth(self, i: FiniteTrace, pos: int):
         return self._convert().truth(i, pos)
 
     def _members(self):
@@ -401,6 +413,9 @@ class LDLfPropositional(LDLfFormula):
 
     def _delta(self, i:PLInterpretation, epsilon=False):
         return self._convert()._delta(i, epsilon)
+
+    def find_labels(self):
+        return self.pl_formula.find_labels()
 
 
 
@@ -461,6 +476,9 @@ class F(Formula, Delta):
     def to_nnf(self):
         return self
 
+    def find_labels(self):
+        return super().find_labels()
+
 
 class T(Formula, Delta):
     def __init__(self, f: Formula):
@@ -477,6 +495,9 @@ class T(Formula, Delta):
 
     def to_nnf(self):
         return self
+
+    def find_labels(self):
+        return super().find_labels()
 
 def _expand(f:Formula):
     if isinstance(f, F) or isinstance(f, T):
