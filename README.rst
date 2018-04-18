@@ -47,7 +47,9 @@ From repo (e.g. from branch develop):
 
 
 You might need to complete some extra step. Please check the following installation guides:
+
 * `pythomata <https://github.com/MarcoFavorito/pythomata#install>`_
+* `Graphviz <https://graphviz.gitlab.io/download/>`_
 
 How to use
 --------
@@ -90,7 +92,8 @@ How to use
     # print the automaton
     dfa.to_dot("./automaton.DFA")
 
-Info about how to use a ``pythomata.DFA`` please look at the `docs <https://github.com/MarcoFavorito/pythomata>`_.
+Notice: ``to_dot`` requires `Graphviz <https://graphviz.gitlab.io/download/>`_.
+For info about how to use a ``pythomata.DFA`` please look at the `docs <https://github.com/MarcoFavorito/pythomata>`_.
 
 Features
 --------
