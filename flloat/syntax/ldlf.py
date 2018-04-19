@@ -15,7 +15,7 @@ from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
 
 
-class LDLfTruth(Truth):
+class FiniteTraceTruth(Truth):
     @abstractmethod
     def truth(self, i: FiniteTraceInterpretation, pos: int):
         raise NotImplementedError
@@ -31,7 +31,7 @@ class Delta(ABC):
         raise NotImplementedError
 
 
-class LDLfFormula(Formula, LDLfTruth, NNF, Delta):
+class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
 
     def delta(self, i: PLInterpretation, epsilon=False):
         f = self.to_nnf()
@@ -217,7 +217,7 @@ class LDLfEquivalence(LDLfCommBinaryOperator, EquivalenceTruth):
         return self._convert()._delta(i, epsilon)
 
 
-class LDLfDiamond(LDLfTemporalFormula, LDLfTruth):
+class LDLfDiamond(LDLfTemporalFormula, FiniteTraceTruth):
     temporal_brackets = "<>"
 
     def truth(self, i: FiniteTraceInterpretation, pos: int):
@@ -289,7 +289,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
 
 
 class RegExpTest(RegExpFormula, UnaryOperator):
-    operator_symbol = "?"
+    operator_symbol = Symbols.PATH_TEST.value
 
     def __init__(self, f:LDLfFormula):
         super().__init__(f)
@@ -312,7 +312,7 @@ class RegExpTest(RegExpFormula, UnaryOperator):
         return PLOr({LDLfNot(self.f).to_nnf()._delta(i, epsilon), f._delta(i, epsilon)})
 
 class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
-    operator_symbol = "+"
+    operator_symbol = Symbols.PATH_UNION.value
 
     def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
         return any(f.truth(tr, start, end) for f in self.formulas)
@@ -327,7 +327,7 @@ class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
         return PLAnd({LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas})
 
 class RegExpSequence(RegExpFormula, BinaryOperator):
-    operator_symbol = ";"
+    operator_symbol = Symbols.PATH_SEQUENCE.value
 
     def __init__(self, formulas: OperatorChilds):
         RegExpFormula.__init__(self)
@@ -358,7 +358,7 @@ class RegExpSequence(RegExpFormula, BinaryOperator):
 
 
 class RegExpStar(RegExpFormula, UnaryOperator):
-    operator_symbol = "*"
+    operator_symbol = Symbols.PATH_STAR.value
 
     def truth(self, tr: FiniteTraceInterpretation, start: int, end: int):
         return start == end \
