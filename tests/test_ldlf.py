@@ -154,61 +154,61 @@ def test_to_automaton():
         dfa = parser(string_formula).to_automaton(alphabet, on_the_fly=True)
         test_function(dfa)
 
-    # ##################################################################################
-    # f = "<A>tt"
-    # def test_f(dfa):
-    #     assert not dfa.word_acceptance([])
-    #     assert not dfa.word_acceptance([i_, i_b])
-    #     assert dfa.word_acceptance([i_a])
-    #     assert dfa.word_acceptance([i_a, i_, i_ab, i_b])
-    #     assert not dfa.word_acceptance([i_, i_ab])
-    # _dfa_test(parser, f, alphabet_abc, test_f)
-    # ##################################################################################
-    #
-    # ##################################################################################
-    # f = "< (!(A | B | C ))* ; (A | C) ; (!(A | B | C))* ; (B | C) ><true>tt"
-    # def test_f(dfa):
-    #     assert not dfa.word_acceptance([])
-    #     assert not dfa.word_acceptance([i_, i_b])
-    #     assert dfa.word_acceptance([i_a, i_b, i_])
-    #     assert dfa.word_acceptance([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
-    #     assert not dfa.word_acceptance([i_b, i_b])
-    # _dfa_test(parser, f, alphabet_abc, test_f)
-    # ##################################################################################
-    #
-    # ##################################################################################
-    # f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
-    # def test_f(dfa):
-    #     assert not dfa.word_acceptance([])
-    #     assert not dfa.word_acceptance([i_b, i_b, i_b])
-    #     assert dfa.word_acceptance([i_b, i_b, i_ab])
-    # _dfa_test(parser, f, alphabet_abc, test_f)
-    # ##################################################################################
-    #
-    # ##################################################################################
-    # f = "(<true>tt) & ([A]<B>tt)"
-    # def test_f(dfa):
-    #     assert not dfa.word_acceptance([])
-    #     assert dfa.word_acceptance([i_b])
-    #     assert dfa.word_acceptance([i_])
-    #     assert not dfa.word_acceptance([i_a])
-    #     assert not dfa.word_acceptance([i_ab])
-    #     assert dfa.word_acceptance([i_ab, i_ab])
-    #     assert dfa.word_acceptance([i_a, i_b])
-    # _dfa_test(parser, f, alphabet_abc, test_f)
-    # ##################################################################################
-    #
-    # #################################################################################
-    # f = "[true*](<A>tt -> <true*><B>tt)"
-    # def test_f(dfa):
-    #     assert dfa.word_acceptance([])
-    #     assert dfa.word_acceptance([i_b])
-    #     assert dfa.word_acceptance([i_])
-    #     assert not dfa.word_acceptance([i_a])
-    #     assert dfa.word_acceptance([i_ab])
-    #     assert dfa.word_acceptance([i_ab, i_ab])
-    #     assert dfa.word_acceptance([i_a, i_b])
-    #     assert not dfa.word_acceptance([i_a, i_a])
-    # _dfa_test(parser, f, alphabet_abc, test_f)
-    # #################################################################################
+    ##################################################################################
+    f = "<A>tt"
+    def test_f(dfa):
+        assert not dfa.word_acceptance([])
+        assert not dfa.word_acceptance([i_, i_b])
+        assert dfa.word_acceptance([i_a])
+        assert dfa.word_acceptance([i_a, i_, i_ab, i_b])
+        assert not dfa.word_acceptance([i_, i_ab])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    ##################################################################################
+
+    ##################################################################################
+    f = "< (!(A | B | C ))* ; (A | C) ; (!(A | B | C))* ; (B | C) ><true>tt"
+    def test_f(dfa):
+        assert not dfa.word_acceptance([])
+        assert not dfa.word_acceptance([i_, i_b])
+        assert dfa.word_acceptance([i_a, i_b, i_])
+        assert dfa.word_acceptance([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
+        assert not dfa.word_acceptance([i_b, i_b])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    ##################################################################################
+
+    ##################################################################################
+    f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
+    def test_f(dfa):
+        assert not dfa.word_acceptance([])
+        assert not dfa.word_acceptance([i_b, i_b, i_b])
+        assert dfa.word_acceptance([i_b, i_b, i_ab])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    ##################################################################################
+
+    ##################################################################################
+    f = "(<true>tt) & ([A]<B>tt)"
+    def test_f(dfa):
+        assert not dfa.word_acceptance([])
+        assert dfa.word_acceptance([i_b])
+        assert dfa.word_acceptance([i_])
+        assert not dfa.word_acceptance([i_a])
+        assert not dfa.word_acceptance([i_ab])
+        assert dfa.word_acceptance([i_ab, i_ab])
+        assert dfa.word_acceptance([i_a, i_b])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    ##################################################################################
+
+    #################################################################################
+    f = "[true*](<A>tt -> <true*><B>tt)"
+    def test_f(dfa):
+        assert dfa.word_acceptance([])
+        assert dfa.word_acceptance([i_b])
+        assert dfa.word_acceptance([i_])
+        assert not dfa.word_acceptance([i_a])
+        assert dfa.word_acceptance([i_ab])
+        assert dfa.word_acceptance([i_ab, i_ab])
+        assert dfa.word_acceptance([i_a, i_b])
+        assert not dfa.word_acceptance([i_a, i_a])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    #################################################################################
 

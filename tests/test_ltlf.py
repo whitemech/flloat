@@ -216,7 +216,6 @@ def test_to_automaton():
     def _dfa_test(parser, string_formula, alphabet, test_function):
         """temporary function to easily test both the full DFA and the on-the-fly DFA"""
         dfa = parser(string_formula).to_automaton(alphabet, determinize=True, minimize=True)
-        dfa.to_dot("temp")
         test_function(dfa)
         dfa = parser(string_formula).to_automaton(alphabet, on_the_fly=True)
         test_function(dfa)
