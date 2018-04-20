@@ -10,7 +10,7 @@ from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualUnaryOperato
 from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth
 from flloat.flloat import DFAOTF, to_automaton
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
-from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation, PLFalseInterpretation
+from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.ldlf import Delta
 from flloat.syntax.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic
 
@@ -35,7 +35,7 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
 
     @abstractmethod
     def _delta(self, i: PLInterpretation, epsilon=False):
-        """apply delta function, assuming that 'self' is a LDLf formula in Negative Normal Form"""
+        """apply delta function, assuming that 'self' is a LTLf formula in Negative Normal Form"""
         raise NotImplementedError
 
     def __repr__(self):

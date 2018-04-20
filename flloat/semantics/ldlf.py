@@ -21,12 +21,12 @@ class FiniteTrace(Interpretation):
             self.trace[-1] = new_last
 
     @staticmethod
-    def fromSymbolSets(l:List[Set[Symbol]]):
-        return FiniteTrace([PLInterpretation(s) for s in l])
+    def fromSymbolSets(l:List[Set[Symbol]], **kwargs):
+        return FiniteTrace([PLInterpretation(s) for s in l], **kwargs)
 
     @staticmethod
-    def fromStringSets(l:List[Set[str]]):
-        return FiniteTrace([PLInterpretation({Symbol(string) for string in s}) for s in l])
+    def fromStringSets(l:List[Set[str]], **kwargs):
+        return FiniteTrace([PLInterpretation({Symbol(string) for string in s}) for s in l], **kwargs)
 
     def length(self):
         return len(self.trace)
