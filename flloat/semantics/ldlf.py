@@ -1,12 +1,30 @@
+from abc import abstractmethod
 from typing import List, Set
 
 from flloat.base.Interpretation import Interpretation
+from flloat.base.Symbol import Symbol
+from flloat.base.Symbols import Symbols
+from flloat.base.truths import Truth
 from flloat.semantics.pl import PLInterpretation
 
 
-class FiniteTraceInterpretation(Interpretation):
+
+class FiniteTrace(Interpretation):
     def __init__(self, trace: List[PLInterpretation]):
         self.trace = trace
+
+        # Add '_Last' proposition at the last step
+        last = self.trace[-1]
+        new_last = PLInterpretation(last.true_propositions.union({Symbol(Symbols.LTLf_LAST.value)}))
+        self.trace[-1] = new_last
+
+    @staticmethod
+    def fromSymbolSets(l:List[Set[Symbol]]):
+        return FiniteTrace([PLInterpretation(s) for s in l])
+
+    @staticmethod
+    def fromStringSets(l:List[Set[str]]):
+        return FiniteTrace([PLInterpretation({Symbol(string) for string in s}) for s in l])
 
     def length(self):
         return len(self.trace)
@@ -24,8 +42,14 @@ class FiniteTraceInterpretation(Interpretation):
     def segment(self, start:int, end:int) :
         if not self._position_is_legal(start) or not self._position_is_legal(end):
             raise ValueError("Start or end position are not valid")
-        return FiniteTraceInterpretation(self.trace[start: end])
+        return FiniteTrace(self.trace[start: end])
 
     def __str__(self):
         return "Trace (length=%s)" %self.length() + "\n\t" + \
-            "\n\t".join("%d: {"%i + ", ".join(map(str,sorted(e))) + "}"  for i, e in enumerate(self.trace))
+               "\n\t".join("%d: {"%i + ", ".join(map(str,sorted(e))) + "}" for i, e in enumerate(self.trace))
+
+
+class FiniteTraceTruth(Truth):
+    @abstractmethod
+    def truth(self, i: FiniteTrace, pos: int):
+        raise NotImplementedError

@@ -20,6 +20,8 @@ class Formula(ABC):
     def __hash__(self):
         return hash(self._members())
 
+    def simplify(self):
+        return self
 
 class AtomicFormula(Formula):
     def __init__(self, s:Symbol):
@@ -89,21 +91,28 @@ class BinaryOperator(Operator):
 class CommutativeBinaryOperator(BinaryOperator):
     """A generic commutative binary formula"""
 
-    def __init__(self, formulas:CommOperatorChilds, idempotence=True):
+
+    def __init__(self, formulas:OperatorChilds, idempotence=True):
         # Assuming idempotence: e.g. A & A === A
-        assert len(formulas)>0
-        if len(formulas)<2:
-            f = formulas.pop()
-            fs = [f, f]
-        else:
-            fs = formulas
-        super().__init__(tuple(fs))
+        super().__init__(tuple(formulas))
+        self.idempotence = idempotence
         if idempotence:
-            self.formulas = frozenset(self.formulas)
-            if len(self.formulas)==1:
-                return
+            self.formulas_set = frozenset(self.formulas)
+
+    def simplify(self):
+        if self.idempotence:
+            if len(self.formulas_set) == 1:
+                return next(iter(self.formulas_set)).simplify()
+            else:
+                return type(self)(list(self.formulas_set))
+        else:
+            return self
+
 
     def _members(self):
-        return (self.operator_symbol, self.formulas)
+        if self.idempotence:
+            return (self.operator_symbol, self.formulas_set)
+        else:
+            return (self.operator_symbol, self.formulas)
 
 
