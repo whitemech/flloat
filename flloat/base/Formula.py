@@ -20,6 +20,10 @@ class Formula(ABC):
     def __hash__(self):
         return hash(self._members())
 
+    @abstractmethod
+    def find_labels(self) -> Set[Symbol]:
+        return set()
+
     def simplify(self):
         return self
 
@@ -32,6 +36,9 @@ class AtomicFormula(Formula):
 
     def __str__(self):
         return str(self.s)
+
+    def find_labels(self):
+        return {self.s}
 
 class Operator(Formula):
     base_expression = Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
@@ -53,6 +60,9 @@ class UnaryOperator(Operator):
 
     def __lt__(self, other):
         return self.f.__lt__(other.f)
+
+    def find_labels(self):
+        return self.f.find_labels()
 
 
 OperatorChilds = Sequence[Formula]
@@ -86,7 +96,8 @@ class BinaryOperator(Operator):
                 res += (child, )
         return tuple(res)
 
-
+    def find_labels(self):
+        return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
 class CommutativeBinaryOperator(BinaryOperator):
     """A generic commutative binary formula"""
@@ -114,3 +125,6 @@ class CommutativeBinaryOperator(BinaryOperator):
             return (self.operator_symbol, self.formulas_set)
         else:
             return (self.operator_symbol, self.formulas)
+
+    def find_labels(self):
+        return set.union(*map(lambda f: f.find_labels(), self.formulas))

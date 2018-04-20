@@ -92,7 +92,11 @@ def test_nnf():
     nnf_m = material_implication.to_nnf()
     assert nnf_m == nnf_material_implication.to_nnf()
 
-<<<<<<< HEAD
+    assert nnf_m.truth(i_) == material_implication.truth(i_) == nnf_material_implication.truth(i_) == True
+    assert nnf_m.truth(i_a) == material_implication.truth(i_a) == nnf_material_implication.truth(i_a) == True
+    assert nnf_m.truth(i_b) == material_implication.truth(i_b) == nnf_material_implication.truth(i_b) == True
+    assert nnf_m.truth(i_ab) == material_implication.truth(i_ab) == nnf_material_implication.truth(i_ab) == True
+
 def test_find_labels():
     parser = PLParser()
 
@@ -105,10 +109,3 @@ def test_find_labels():
     f = "!A & (!AB & !A0)"
     formula = parser(f)
     assert formula.find_labels() == {Symbol(c) for c in {"A", "AB", "A0"}}
-
-=======
-    assert nnf_m.truth(i_) == material_implication.truth(i_) == nnf_material_implication.truth(i_) == True
-    assert nnf_m.truth(i_a) == material_implication.truth(i_a) == nnf_material_implication.truth(i_a) == True
-    assert nnf_m.truth(i_b) == material_implication.truth(i_b) == nnf_material_implication.truth(i_b) == True
-    assert nnf_m.truth(i_ab) == material_implication.truth(i_ab) == nnf_material_implication.truth(i_ab) == True
->>>>>>> release-0.1.3

@@ -42,6 +42,8 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         return self.__str__()
 
     def to_automaton(self, labels:Set[Symbol]=None, on_the_fly=False, determinize=False, minimize=True):
+        if labels is None:
+            labels = self.find_labels()
         if on_the_fly:
             return DFAOTF(self)
         else:
