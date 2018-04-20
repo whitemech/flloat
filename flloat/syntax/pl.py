@@ -80,6 +80,9 @@ class PLTrue(PLAtomic):
     def negate(self):
         return PLFalse()
 
+    def find_labels(self):
+        return set()
+
 class PLFalse(PLAtomic):
     def __init__(self):
         super().__init__(Symbol(Symbols.FALSE.value))
@@ -89,6 +92,9 @@ class PLFalse(PLAtomic):
 
     def negate(self):
         return PLTrue()
+
+    def find_labels(self):
+        return set()
 
 
 class PLNot(PLFormula, NotTruth, NotNNF):

@@ -10,13 +10,15 @@ from flloat.semantics.pl import PLInterpretation
 
 
 class FiniteTrace(Interpretation):
-    def __init__(self, trace: List[PLInterpretation]):
+    def __init__(self, trace: List[PLInterpretation], with_last=False):
         self.trace = trace
 
-        # Add '_Last' proposition at the last step
-        last = self.trace[-1]
-        new_last = PLInterpretation(last.true_propositions.union({Symbol(Symbols.LTLf_LAST.value)}))
-        self.trace[-1] = new_last
+        if with_last:
+            # Add '_Last' proposition at the last step
+            # must be used for LTLf Formula
+            last = self.trace[-1]
+            new_last = PLInterpretation(last.true_propositions.union({Symbol(Symbols.LTLf_LAST.value)}))
+            self.trace[-1] = new_last
 
     @staticmethod
     def fromSymbolSets(l:List[Set[Symbol]]):
