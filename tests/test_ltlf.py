@@ -54,9 +54,9 @@ def test_truth():
     assert not parser("WX A").truth(t, 1)
     assert parser("X B").truth(t, 1)
     assert parser("X C").truth(t, 4)
+    # at the last step, Next != WeakNext
     assert not parser("X C").truth(t, 5)
     assert parser("WX C").truth(t, 5)
-
 
     # Until
     f = "A U B U C"
@@ -323,3 +323,4 @@ def test_to_automaton():
 
     _dfa_test(parser, f, alphabet_abc, test_f)
     ##################################################################################
+

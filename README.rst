@@ -95,14 +95,40 @@ How to use
 Notice: ``to_dot`` requires `Graphviz <https://graphviz.gitlab.io/download/>`_.
 For info about how to use a ``pythomata.DFA`` please look at the `docs <https://github.com/MarcoFavorito/pythomata>`_.
 
+* The same for a LTLf formula:
+
+.. code-block:: python
+
+    from flloat.parser.ltlf import LTLfParser
+    from flloat.base.Symbol import Symbol
+    from flloat.semantics.ldlf import FiniteTrace
+
+    # parse the formula
+    parser = LTLfParser()
+    formula = "F (A & !B)"
+    parsed_formula = parser(formula)
+
+    # evaluate over finite traces
+    t1 = FiniteTrace.fromStringSets([
+        {},
+        {"A"},
+        {"A"},
+        {"A", "B"}
+    ], with_last=True)
+    assert parsed_formula.truth(t1, 0)
+
+    # from LTLf formula to DFA
+    dfa = parsed_formula.to_automaton(determinize=True)
+    assert dfa.word_acceptance(t1.trace)
+
 Features
 --------
 
 * Syntax, semantics and parsing support for the following formal languages:
-
     * Propositional Logic;
     * Linear Temporal Logic on Finite Traces
     * Linear Dynamic Logic on Finite Traces;
+
 * Conversion from LTLf/LDLf formula to NFA, DFA and DFA on-the-fly
 
 Credits
