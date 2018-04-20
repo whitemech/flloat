@@ -96,3 +96,16 @@ def test_nnf():
     assert nnf_m.truth(i_a) == material_implication.truth(i_a) == nnf_material_implication.truth(i_a) == True
     assert nnf_m.truth(i_b) == material_implication.truth(i_b) == nnf_material_implication.truth(i_b) == True
     assert nnf_m.truth(i_ab) == material_implication.truth(i_ab) == nnf_material_implication.truth(i_ab) == True
+
+def test_find_labels():
+    parser = PLParser()
+
+    # complete formula
+    f = "!A | B <-> !(A & !B) <-> A->B"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol("A"), Symbol("B")}
+
+    # more than one character
+    f = "!A & (!AB & !A0)"
+    formula = parser(f)
+    assert formula.find_labels() == {Symbol(c) for c in {"A", "AB", "A0"}}

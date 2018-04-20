@@ -42,7 +42,9 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
     def __repr__(self):
         return self.__str__()
 
-    def to_automaton(self, labels:Set[Symbol], on_the_fly=False, determinize=False, minimize=True):
+    def to_automaton(self, labels:Set[Symbol]=None, on_the_fly=False, determinize=False, minimize=True):
+        if labels is None:
+            labels = self.find_labels()
         if on_the_fly:
             return DFAOTF(self)
         else:
@@ -84,6 +86,9 @@ class LDLfTemporalFormula(LDLfFormula):
     def __str__(self):
         return self.temporal_brackets[0] + str(self.r) + self.temporal_brackets[1] + "(" + str(self.f) + ")"
 
+    def find_labels(self):
+        return self.f.find_labels().union(self.r.find_labels())
+
 
 class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF):
     def to_nnf(self):
@@ -96,6 +101,9 @@ class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF):
 class LDLfAtomic(LDLfFormula, AtomicFormula):
     def __str__(self):
         return AtomicFormula.__str__(self)
+
+    def find_labels(self):
+        return set()
 
 
 class LDLfLogicalTrue(LDLfAtomic):
@@ -228,6 +236,9 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         else:
             return PLTrue()
 
+    def find_labels(self):
+        return self.pl_formula.find_labels()
+
 
 class RegExpTest(RegExpFormula, UnaryOperator):
     operator_symbol = Symbols.PATH_TEST.value
@@ -251,6 +262,9 @@ class RegExpTest(RegExpFormula, UnaryOperator):
 
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
         return PLOr([LDLfNot(self.f).to_nnf()._delta(i, epsilon), f._delta(i, epsilon)])
+
+    def find_labels(self):
+        return self.f.find_labels()
 
 class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
     operator_symbol = Symbols.PATH_UNION.value
@@ -331,6 +345,8 @@ class LDLfPropositional(DeltaConvertibleFormula, LDLfFormula):
     def _members(self):
         return (LDLfPropositional, self.pl_formula)
 
+    def find_labels(self):
+        return self.pl_formula.find_labels()
 
 
 class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
@@ -365,6 +381,9 @@ class F(Formula, Delta):
     def to_nnf(self):
         return self
 
+    def find_labels(self):
+        return super().find_labels()
+
 
 class T(Formula, Delta):
     def __init__(self, f: Formula):
@@ -381,6 +400,9 @@ class T(Formula, Delta):
 
     def to_nnf(self):
         return self
+
+    def find_labels(self):
+        return super().find_labels()
 
 def _expand(f:Formula):
     if isinstance(f, F) or isinstance(f, T):
