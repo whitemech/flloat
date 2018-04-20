@@ -14,3 +14,8 @@ History
     * Propositional Logic;
     * Linear Dynamic Logic on Finite Traces;
 * Conversion from LDLf formula to NFA, DFA and DFA on-the-fly
+
+0.1.3 (2018-04-20)
+------------------
+
+* Support for LTLf formulas and conversion into NFA, DFA and DFA on-the-fly

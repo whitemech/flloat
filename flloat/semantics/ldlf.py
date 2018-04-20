@@ -1,13 +1,22 @@
+from abc import abstractmethod
 from typing import List, Set
 
 from flloat.base.Interpretation import Interpretation
 from flloat.base.Symbol import Symbol
+from flloat.base.Symbols import Symbols
+from flloat.base.truths import Truth
 from flloat.semantics.pl import PLInterpretation
+
 
 
 class FiniteTrace(Interpretation):
     def __init__(self, trace: List[PLInterpretation]):
         self.trace = trace
+
+        # Add '_Last' proposition at the last step
+        last = self.trace[-1]
+        new_last = PLInterpretation(last.true_propositions.union({Symbol(Symbols.LTLf_LAST.value)}))
+        self.trace[-1] = new_last
 
     @staticmethod
     def fromSymbolSets(l:List[Set[Symbol]]):
@@ -37,4 +46,10 @@ class FiniteTrace(Interpretation):
 
     def __str__(self):
         return "Trace (length=%s)" %self.length() + "\n\t" + \
-            "\n\t".join("%d: {"%i + ", ".join(map(str,sorted(e))) + "}"  for i, e in enumerate(self.trace))
+               "\n\t".join("%d: {"%i + ", ".join(map(str,sorted(e))) + "}" for i, e in enumerate(self.trace))
+
+
+class FiniteTraceTruth(Truth):
+    @abstractmethod
+    def truth(self, i: FiniteTrace, pos: int):
+        raise NotImplementedError

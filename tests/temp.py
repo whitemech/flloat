@@ -1,4 +1,6 @@
 """a temporary python script for small tests"""
+from flloat.parser.ltlf import LTLfParser
+
 
 def k(n):
     from flloat.base.Symbol import Symbol
@@ -21,4 +23,5 @@ def k(n):
     print("dfatrim")
 
 if __name__ == '__main__':
-    k(4)
+    # k(4)
+    p = LTLfParser()

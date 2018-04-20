@@ -11,6 +11,7 @@ class Symbols(Enum):
     IMPLIES = "->"
     EQUIVALENCE = "<->"
     NEXT = "X"
+    WEAK_NEXT = "WX"
     UNTIL = "U"
     RELEASE = "R"
     EVENTUALLY = "F"
@@ -36,6 +37,7 @@ class Symbols(Enum):
     CARET = "^"
     TRUE="true"
     FALSE = "false"
+    LTLf_LAST = "last"
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}

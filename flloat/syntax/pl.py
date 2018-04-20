@@ -1,12 +1,12 @@
 from abc import abstractmethod
-from typing import Iterable, Set
+from typing import Set
 
-from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
-    CommOperatorChilds, AtomicFormula
-from flloat.base.nnf import NNF, NotNNF
+from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
-from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
+from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
+from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF
+from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
 from flloat.utils import powerset
 
@@ -67,11 +67,14 @@ class PLAtomic(PLFormula, AtomicFormula):
     def negate(self):
         return PLNot(self)
 
+    def find_labels(self):
+        return {self.s}
+
 class PLTrue(PLAtomic):
     def __init__(self):
         super().__init__(Symbol(Symbols.TRUE.value))
 
-    def truth(self, i: PLInterpretation, *args):
+    def truth(self, *args):
         return True
 
     def negate(self):
@@ -84,7 +87,7 @@ class PLFalse(PLAtomic):
     def __init__(self):
         super().__init__(Symbol(Symbols.FALSE.value))
 
-    def truth(self, i: PLInterpretation, *args):
+    def truth(self, *args):
         return False
 
     def negate(self):
@@ -97,62 +100,24 @@ class PLFalse(PLAtomic):
 class PLNot(PLFormula, NotTruth, NotNNF):
     pass
 
-class PLAnd(PLCommBinaryOperator, AndTruth):
-    def to_nnf(self):
-        childs = set([child.to_nnf() for child in self.formulas])
-        return PLAnd(childs)
 
-    def negate(self):
-        childs = set([child.negate() for child in self.formulas])
-        return PLOr(childs)
+class PLOr(PLCommBinaryOperator, OrTruth, DualBinaryOperatorNNF):
+    pass
 
-class PLOr(PLCommBinaryOperator, OrTruth):
-
-    def to_nnf(self):
-        childs = set([child.to_nnf() for child in self.formulas])
-        return PLOr(childs)
-
-    def negate(self):
-        childs = set([child.negate() for child in self.formulas])
-        return PLAnd(childs)
+class PLAnd(PLCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
+    pass
 
 
-class PLImplies(PLBinaryOperator, ImpliesTruth):
-    def _convert(self):
-        fs = self.formulas
-        a, b = PLAnd(set(fs[:-1])), fs[-1]
-        res = PLOr({PLNot(a), b})
-        return res
+class PLImplies(PLBinaryOperator, ImpliesConvertible):
+    And = PLAnd
+    Or = PLOr
+    Not = PLNot
 
-    def to_nnf(self):
-        return self._convert().to_nnf()
-
-    def negate(self):
-        return self._convert().negate()
-
-    def truth(self, *args):
-        return self._convert().truth(*args)
+class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
+    And = PLAnd
+    Or = PLOr
+    Not = PLNot
 
 
-class PLEquivalence(PLCommBinaryOperator, EquivalenceTruth):
-
-    def _convert(self):
-        fs = self.formulas
-        pos = PLAnd(set(fs))
-        neg = PLAnd(set(PLNot(f) for f in fs))
-
-        res = PLOr({pos, neg})
-        return res
-
-    def to_nnf(self):
-        return self._convert().to_nnf()
-
-    def negate(self):
-        return self._convert().negate()
-
-    def truth(self, *args):
-        return self._convert().truth(*args)
-
-
-
-
+PLOr.Dual = PLAnd
+PLAnd.Dual = PLOr

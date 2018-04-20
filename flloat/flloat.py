@@ -6,7 +6,7 @@ from pythomata.base.Simulator import Simulator
 
 from flloat.base.Formula import Formula
 from flloat.base.Symbol import Symbol
-from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation
+from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation, PLFalseInterpretation
 from flloat.syntax.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLBinaryOperator, PLAnd, PLOr
 from flloat.utils import powerset
 
@@ -61,8 +61,8 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     final_states = {frozenset()}
     delta = set()
 
-    d = f.delta(None, epsilon=True)
-    if d.truth(d, None):
+    d = f.delta(PLFalseInterpretation(), epsilon=True)
+    if d.truth(d):
         final_states.add(frozenset([nnf]))
 
     states = {frozenset(), frozenset([nnf])}
@@ -97,8 +97,10 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
                 # the empy conjunction stands for true
                 if len(transformed_delta_formulas) == 0:
                     conjunctions = PLTrue()
+                elif len(transformed_delta_formulas) == 1:
+                    conjunctions = transformed_delta_formulas[0]
                 else:
-                    conjunctions = PLAnd(set(transformed_delta_formulas))
+                    conjunctions = PLAnd(transformed_delta_formulas)
 
                 # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
                 # is true.
@@ -124,10 +126,13 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
                     if len(q_prime) == 0:
                         final_states.add(q_prime)
                     else:
-                        q_prime_delta_conjunction = PLAnd({
-                            subf.delta(None, epsilon=True) for subf in q_prime
-                        })
-                        if q_prime_delta_conjunction.truth(None):
+                        subf_deltas = [subf.delta(PLFalseInterpretation(), epsilon=True) for subf in q_prime]
+                        if len(subf_deltas)==1:
+                            q_prime_delta_conjunction = subf_deltas[0]
+                        else:
+                            q_prime_delta_conjunction = PLAnd(subf_deltas)
+
+                        if q_prime_delta_conjunction.truth(PLFalseInterpretation()):
                             final_states.add(q_prime)
 
 
@@ -175,11 +180,13 @@ class DFAOTF(Simulator):
 
         if frozenset() in self.cur_state:
             return True
-        conj = set(PLAnd({subf.delta(None, epsilon=True) for subf in q}) if len(q)>0 else PLFalse() for q in self.cur_state)
+        conj = [PLAnd([subf.delta(PLFalseInterpretation(), epsilon=True) for subf in q]) if len(q)>=2 else
+                next(iter(q)).delta(PLFalseInterpretation(), epsilon=True) if len(q)==1 else
+                PLFalse() for q in self.cur_state]
         if len(conj) == 0:
             return False
         else:
-            conj = PLOr(conj)
+            conj = PLOr(conj) if len(conj) >= 2 else conj[0]
         return conj.truth(None)
 
 
@@ -209,8 +216,10 @@ class DFAOTF(Simulator):
             # the empy conjunction stands for true
             if len(transformed_delta_formulas) == 0:
                 conjunctions = PLTrue()
+            elif len(transformed_delta_formulas) == 1:
+                conjunctions = transformed_delta_formulas[0]
             else:
-                conjunctions = PLAnd(set(transformed_delta_formulas))
+                conjunctions = PLAnd(transformed_delta_formulas)
 
             # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
             # is true.

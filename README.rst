@@ -101,9 +101,9 @@ Features
 * Syntax, semantics and parsing support for the following formal languages:
 
     * Propositional Logic;
+    * Linear Temporal Logic on Finite Traces
     * Linear Dynamic Logic on Finite Traces;
-
-* Conversion from LDLf formula to NFA, DFA and DFA on-the-fly
+* Conversion from LTLf/LDLf formula to NFA, DFA and DFA on-the-fly
 
 Credits
 -------

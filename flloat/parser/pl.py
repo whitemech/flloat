@@ -75,11 +75,11 @@ class PLParser(Parser):
 
     def p_formula_or(self, p):
         'formula : formula OR formula'
-        p[0] = PLOr({p[1], p[3]})
+        p[0] = PLOr([p[1], p[3]])
 
     def p_formula_and(self, p):
         'formula : formula AND formula'
-        p[0] = PLAnd({p[1], p[3]})
+        p[0] = PLAnd([p[1], p[3]])
 
     def p_formula_implies(self, p):
         'formula : formula IMPLIES formula'
@@ -87,7 +87,7 @@ class PLParser(Parser):
 
     def p_formula_equivalence(self, p):
         'formula : formula EQUIVALENCE formula'
-        p[0] = PLEquivalence({p[1], p[3]})
+        p[0] = PLEquivalence([p[1], p[3]])
 
     def p_formula_expression(self, p):
         'formula : LPAREN formula RPAREN'

@@ -9,7 +9,6 @@ class Truth(ABC):
     def truth(self, *args) -> bool:
         raise NotImplementedError
 
-
 class NotTruth(UnaryOperator, Truth):
     operator_symbol = Symbols.NOT.value
     def truth(self, *args):
