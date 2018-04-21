@@ -80,7 +80,7 @@ How to use
         {"A"},
         {"A", "B"}
     ])
-    parsed_formula.truth(trace, 0)  # True
+    parsed_formula.truth(t1, 0)  # True
 
 
 * Transform it into an automaton (``pythomata.DFA`` object):
