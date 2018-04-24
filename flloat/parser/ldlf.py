@@ -15,12 +15,12 @@ class LDLfLexer(Lexer):
         super().__init__()
 
     reserved = {
-        'true': 'TRUE',
+        'true':  'TRUE',
         'false': 'FALSE',
-        'tt': 'TT',
-        'ff': 'FF',
-        'end': 'END',
-        'last': 'LAST',
+        'tt':    'TT',
+        'ff':    'FF',
+        'end':   'END',
+        'last':  'LAST',
     }
 
     # List of token names.   This is always required
@@ -72,14 +72,14 @@ class LDLfParser(Parser):
     def __init__(self):
         lexer = LDLfLexer()
         precedence = (
-            ('left', 'EQUIVALENCE'),
-            ('left', 'IMPLIES'),
-            ('left', 'UNION'),
-            ('left', 'SEQ'),
-            ('left', 'STAR'),
-            ('left', 'TEST'),
-            ('left', 'OR'),
-            ('left', 'AND'),
+            ('left',  'EQUIVALENCE'),
+            ('left',  'IMPLIES'),
+            ('left',  'UNION'),
+            ('left',  'SEQ'),
+            ('left',  'STAR'),
+            ('left',  'TEST'),
+            ('left',  'OR'),
+            ('left',  'AND'),
             ('right', 'DIAMONDLSEPARATOR', 'BOXLSEPARATOR'),
             ('left',  'DIAMONDRSEPARATOR', 'BOXRSEPARATOR'),
             ('right', 'NOT'),
@@ -117,13 +117,13 @@ class LDLfParser(Parser):
         elif len(p) == 4:
             l, o, r = p[1:]
             if o == Symbols.EQUIVALENCE.value:
-                p[0] = LDLfEquivalence({l, r})
+                p[0] = LDLfEquivalence([l, r])
             elif o == Symbols.IMPLIES.value:
                 p[0] = LDLfImplies([l, r])
             elif o == Symbols.OR.value:
-                p[0] = LDLfOr({l, r})
+                p[0] = LDLfOr([l, r])
             elif o == Symbols.AND.value:
-                p[0] = LDLfAnd({l, r})
+                p[0] = LDLfAnd([l, r])
             else:
                 raise ValueError
         elif len(p) == 5:
@@ -158,7 +158,7 @@ class LDLfParser(Parser):
                 raise ValueError
         elif len(p)==4:
             if p[2]==Symbols.PATH_UNION.value:
-                p[0] = RegExpUnion({p[1], p[3]})
+                p[0] = RegExpUnion([p[1], p[3]])
             elif p[2] == Symbols.PATH_SEQUENCE.value:
                 p[0] = RegExpSequence([p[1], p[3]])
             else:
@@ -178,13 +178,13 @@ class LDLfParser(Parser):
                          | ATOM"""
         if len(p)==4:
             if p[2] == Symbols.EQUIVALENCE.value:
-                p[0] = PLEquivalence({p[1], p[3]})
+                p[0] = PLEquivalence([p[1], p[3]])
             elif p[2] == Symbols.IMPLIES.value:
                 p[0] = PLImplies([p[1], p[3]])
             elif p[2] == Symbols.OR.value:
-                p[0] = PLOr({p[1], p[3]})
+                p[0] = PLOr([p[1], p[3]])
             elif p[2] == Symbols.AND.value:
-                p[0] = PLAnd({p[1], p[3]})
+                p[0] = PLAnd([p[1], p[3]])
             else:
                 raise ValueError
             # else:
@@ -207,25 +207,6 @@ class LDLfParser(Parser):
         propositional   : LPAREN propositional RPAREN
         """
         p[0] = p[2]
-
-
-    # def p_formula_atom(self, p):
-    #     """formula : ATOM
-    #                | TRUE
-    #                | FALSE
-    #                | TT
-    #                | FF
-    #                """
-    #     if p[1]==Symbols.TRUE.value:
-    #         p[0] = PLTrue()
-    #     elif p[1]==Symbols.FALSE.value:
-    #         p[0] = PLFalse()
-    #     elif p[1] == Symbols.LOGICAL_TRUE.value:
-    #         p[0] = LDLfLogicalTrue()
-    #     elif p[1] == Symbols.LOGICAL_FALSE.value:
-    #         p[0] = LDLfLogicalFalse()
-    #     else:
-    #         p[0] = PLAtomic(Symbol(p[1]))
 
 
 

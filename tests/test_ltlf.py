@@ -141,7 +141,6 @@ def test_delta():
     i_a = PLInterpretation({sa})
     i_b = PLInterpretation({sb})
     i_ab = PLInterpretation({sa, sb})
-    i_last = PLInterpretation({Symbol(Symbols.LTLf_LAST.value)})
 
     true = PLTrue()
     false = PLFalse()
@@ -177,8 +176,8 @@ def test_delta():
     assert parser("F A").delta(i_, epsilon=True) == false
 
     assert parser("G A").delta(i_a) ==    PLAnd([true, LTLfAlways(LTLfAtomic(a))])
-    assert parser("G A").delta(i_a, epsilon=True) == false
-    assert parser("G A").delta(i_,  epsilon=True) == false
+    assert parser("G A").delta(i_a, epsilon=True) == true
+    assert parser("G A").delta(i_,  epsilon=True) == true
 
     assert parser("A U B").delta(i_a) == PLOr([
         false,
@@ -208,9 +207,6 @@ def test_to_automaton():
     i_a = PLInterpretation({a})
     i_b = PLInterpretation({b})
     i_ab = PLInterpretation({a, b})
-    i_last = PLInterpretation({last})
-    i_b_last = PLInterpretation({b, last})
-    i_a_last = PLInterpretation({a, last})
 
 
     def _dfa_test(parser, string_formula, alphabet, test_function):
@@ -252,8 +248,6 @@ def test_to_automaton():
 
     def test_f(dfa):
         assert     dfa.word_acceptance([])
-        assert     dfa.word_acceptance([i_last])
-        assert     dfa.word_acceptance([i_b_last])
         assert not dfa.word_acceptance([i_b])
         assert not dfa.word_acceptance([i_b, i_b, i_b])
         assert     dfa.word_acceptance([i_b, i_a, i_ab])
@@ -296,8 +290,6 @@ def test_to_automaton():
 
     def test_f(dfa):
         assert not dfa.word_acceptance([])
-        assert not dfa.word_acceptance([i_last])
-        assert not dfa.word_acceptance([i_b_last])
         assert not dfa.word_acceptance([i_b])
         assert not dfa.word_acceptance([i_b, i_b, i_b])
         assert     dfa.word_acceptance([i_b, i_a, i_ab])
@@ -310,16 +302,14 @@ def test_to_automaton():
     f = "G A"
 
     def test_f(dfa):
-        assert not dfa.word_acceptance([])
+        assert     dfa.word_acceptance([])
         assert not dfa.word_acceptance([i_])
-        assert not dfa.word_acceptance([i_last])
-        assert not dfa.word_acceptance([i_b_last])
         assert not dfa.word_acceptance([i_b])
         assert not dfa.word_acceptance([i_b, i_b, i_b])
         assert not dfa.word_acceptance([i_b, i_a, i_ab])
-        assert     dfa.word_acceptance([i_a, i_a, i_ab, i_a_last])
-        assert not dfa.word_acceptance([i_a, i_a, i_ab, i_a, i_last])
-        assert     dfa.word_acceptance([i_a, i_a, i_ab, i_a, i_a_last])
+        assert     dfa.word_acceptance([i_a, i_a, i_ab])
+        assert not dfa.word_acceptance([i_a, i_a, i_ab, i_b])
+        assert     dfa.word_acceptance([i_a, i_a, i_ab, i_a])
 
     _dfa_test(parser, f, alphabet_abc, test_f)
     ##################################################################################
