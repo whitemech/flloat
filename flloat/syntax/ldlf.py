@@ -289,12 +289,13 @@ class RegExpSequence(RegExpFormula, BinaryOperator):
         BinaryOperator.__init__(self, formulas)
 
     def truth(self, tr: FiniteTrace, start: int, end: int):
-        if len(self.formulas)==2:
-            return any(self.formulas[0].truth(tr, start, k) and self.formulas[1].truth(tr, k, end) for k in range(start, end + 1))
+        f1 = self.formulas[0]
+        if len(self.formulas) == 2:
+            f2 = self.formulas[1]
         else:
-            next_sequences = RegExpSequence.__init__(self, self.formulas[1:])
-            return any(self.formulas[0].truth(tr, start, k) and next_sequences.truth(tr, k, end)
-                       for k in range(start, end + 1))
+            f2 = RegExpSequence(self.formulas[1:])
+        return any(f1.truth(tr, start, k) and f2.truth(tr, k, end) for k in range(start, end + 1))
+
 
     def to_nnf(self):
         return RegExpSequence([r.to_nnf() for r in self.formulas])

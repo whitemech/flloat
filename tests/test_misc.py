@@ -47,14 +47,14 @@ def test_ltlf_example_readme():
         {"A"},
         {"A"},
         {"A", "B"}
-    ], with_last=True)
+    ])
     assert parsed_formula.truth(t1, 0)
 
     t2 = FiniteTrace.fromStringSets([
         {},
         {"A", "B"},
         {"B"}
-    ], with_last=True)
+    ])
     assert not parsed_formula.truth(t2, 0)
 
     dfa = parsed_formula.to_automaton(determinize=True)

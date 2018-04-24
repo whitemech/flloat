@@ -114,7 +114,7 @@ For info about how to use a ``pythomata.DFA`` please look at the `docs <https://
         {"A"},
         {"A"},
         {"A", "B"}
-    ], with_last=True)
+    ])
     assert parsed_formula.truth(t1, 0)
 
     # from LTLf formula to DFA

@@ -47,8 +47,7 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         if on_the_fly:
             return DFAOTF(self)
         else:
-            new_labels = labels.union({Symbol(Symbols.LTLf_LAST.value)})
-            return to_automaton(self, new_labels, determinize, minimize)
+            return to_automaton(self, labels, determinize, minimize)
 
 
 class LTLfCommBinaryOperator(LTLfFormula, CommutativeBinaryOperator):
@@ -142,7 +141,7 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
         if epsilon:
             return PLFalse()
         else:
-            return self.f if not Symbol(Symbols.LTLf_LAST.value) in i else PLFalse()
+            return self.f
 
 
 class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula):
@@ -159,7 +158,7 @@ class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula
         if epsilon:
             return PLTrue()
         else:
-            return self.f if not Symbol(Symbols.LTLf_LAST.value) in i else PLTrue()
+            return self.f
 
 
 class LTLfUntil(LTLfTemporalFormula, BinaryOperator):
@@ -177,6 +176,8 @@ class LTLfUntil(LTLfTemporalFormula, BinaryOperator):
         return any(f2.truth(i, j) and all(f1.truth(i, k) for k in range(pos, j)) for j in range(pos, i.last()+1))
 
     def _delta(self, i:PLInterpretation, epsilon=False):
+        if epsilon:
+            return PLFalse()
         f1 = self.formulas[0]
         f2 = LTLfUntil(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
         return PLOr([
@@ -196,7 +197,10 @@ class LTLfEventually(DualUnaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalF
         return LTLfUntil([LTLfTrue(), self.f])
 
     def _delta(self, i:PLInterpretation, epsilon=False):
-        return PLOr([self.f._delta(i, epsilon), LTLfNext(self)._delta(i, epsilon)])
+        if epsilon:
+            return PLFalse()
+        else:
+            return PLOr([self.f._delta(i, epsilon), LTLfNext(self)._delta(i, epsilon)])
 
 
 class LTLfAlways(DualUnaryOperatorNNF,  BaseConvertibleFormula, LTLfTemporalFormula):
@@ -207,7 +211,10 @@ class LTLfAlways(DualUnaryOperatorNNF,  BaseConvertibleFormula, LTLfTemporalForm
         return LTLfNot(LTLfEventually(LTLfNot(self.f)))
 
     def _delta(self, i:PLInterpretation, epsilon=False):
-        return PLAnd([self.f._delta(i, epsilon), LTLfWeakNext(self)._delta(i, epsilon)])
+        if epsilon:
+            return PLTrue()
+        else:
+            return PLAnd([self.f._delta(i, epsilon), LTLfWeakNext(self)._delta(i, epsilon)])
 
 class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFormula):
     operator_symbol = "R"
@@ -217,6 +224,8 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
         return LTLfNot(LTLfUntil([LTLfNot(f) for f in self.formulas]))
 
     def _delta(self, i:PLInterpretation, epsilon=False):
+        if epsilon:
+            return PLTrue()
         f1 = self.formulas[0]
         f2 = LTLfRelease(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
         return PLAnd([

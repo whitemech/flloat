@@ -8,32 +8,6 @@ from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfA
 from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
 
 
-def test_truth():
-    sa, sb = Symbol("a"), Symbol("b")
-    a, b =   PLAtomic(sa), PLAtomic(sb)
-
-    i_ = PLFalseInterpretation()
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
-
-    tr_false_a_b_ab = FiniteTrace([
-        i_,
-        i_a,
-        i_b,
-        i_ab
-    ])
-
-    tt = LDLfLogicalTrue()
-    ff = LDLfLogicalFalse()
-
-    assert      tt.truth(tr_false_a_b_ab, 0)
-    assert not  ff.truth(tr_false_a_b_ab, 0)
-    assert not  LDLfNot(tt).truth(tr_false_a_b_ab, 0)
-    assert      LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    assert      LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(tr_false_a_b_ab, 3)
-    assert not  LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
-
 def test_parser():
     parser = LDLfParser()
     sa, sb = Symbol("A"), Symbol("B")
@@ -115,8 +89,8 @@ def test_truth():
     assert not  ff.truth(tr_false_a_b_ab, 0)
     assert not  LDLfNot(tt).truth(tr_false_a_b_ab, 0)
     assert      LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    assert      LDLfAnd({LDLfPropositional(a), LDLfPropositional(b)}).truth(tr_false_a_b_ab, 3)
-    assert not  LDLfDiamond(RegExpPropositional(PLAnd({a, b})), tt).truth(tr_false_a_b_ab, 0)
+    assert      LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(tr_false_a_b_ab, 3)
+    assert not  LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
 
     parser = LDLfParser()
     trace = FiniteTrace.fromStringSets([
@@ -125,13 +99,30 @@ def test_truth():
         {"A"},
         {"A", "B"}
     ])
+
     formula = "<true*;A&B>tt"
     parsed_formula = parser(formula)
     assert parsed_formula.truth(trace, 0)
 
+    formula = "[(A+!B)*]<C>tt"
+    parsed_formula = parser(formula)
+    assert not parsed_formula.truth(trace, 1)
+
+    formula = "<(<!C>tt)?><A>tt"
+    parsed_formula = parser(formula)
+    assert parsed_formula.truth(trace, 1)
+
+    formula = "<!C+A>tt"
+    parsed_formula = parser(formula)
+    assert parsed_formula.truth(trace, 1)
+
 
 def test_nnf():
     parser = LDLfParser()
+
+    assert parser("!tt").to_nnf() == LDLfLogicalFalse()
+    assert parser("!!tt").to_nnf() == LDLfLogicalTrue()
+
     assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
 
     f = parser("!(<!(A<->D)+(B;C)*+(!last)?>[(true)*]end)")
@@ -203,13 +194,14 @@ def test_to_automaton():
         test_function(dfa)
 
     ##################################################################################
-    f = "<A>tt"
+    f = "<A+!B>tt"
     def test_f(dfa):
         assert not dfa.word_acceptance([])
-        assert not dfa.word_acceptance([i_, i_b])
-        assert dfa.word_acceptance([i_a])
-        assert dfa.word_acceptance([i_a, i_, i_ab, i_b])
-        assert not dfa.word_acceptance([i_, i_ab])
+        assert     dfa.word_acceptance([i_, i_b])
+        assert     dfa.word_acceptance([i_a])
+        assert not dfa.word_acceptance([i_b])
+        assert     dfa.word_acceptance([i_a, i_, i_ab, i_b])
+        assert not dfa.word_acceptance([i_b, i_ab])
     _dfa_test(parser, f, alphabet_abc, test_f)
     ##################################################################################
 
