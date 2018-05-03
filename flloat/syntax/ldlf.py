@@ -377,6 +377,9 @@ class F(Formula, Delta):
         return "_".join(map(str, self._members()))
 
     def delta(self, i:PLInterpretation, epsilon=False):
+        return self._delta(i, epsilon)
+
+    def _delta(self,i:PLInterpretation, epsilon=False):
         return PLFalse()
 
     def to_nnf(self):
@@ -396,7 +399,10 @@ class T(Formula, Delta):
     def __str__(self):
         return "_".join(map(str, self._members()))
 
-    def delta(self, i:PLInterpretation, epsilon=False):
+    def delta(self, i: PLInterpretation, epsilon=False):
+        return self._delta(i, epsilon)
+
+    def _delta(self, i:PLInterpretation, epsilon=False):
         return PLTrue()
 
     def to_nnf(self):
