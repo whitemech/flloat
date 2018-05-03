@@ -20,6 +20,9 @@ FLLOAT
         :alt: Codecov coverage
         :target: https://codecov.io/gh/MarcoFavorito/flloat/branch/master/graph/badge.svg
 
+.. image:: https://badges.gitter.im/rltg_flloat/Lobby.svg
+     :alt: Join the chat at https://gitter.im/rltg_flloat/Lobby
+     :target: https://gitter.im/rltg_flloat/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 
 A Python implementation of the `FLLOAT`_ library.
