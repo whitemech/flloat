@@ -189,6 +189,8 @@ class DFAOTF(Simulator):
             conj = PLOr(conj) if len(conj) >= 2 else conj[0]
         return conj.truth(None)
 
+    def get_current_state(self):
+        return self.cur_state
 
     def make_transition(self, i:PLInterpretation):
         actions_set = i.true_propositions
