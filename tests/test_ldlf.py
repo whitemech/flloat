@@ -79,7 +79,8 @@ def test_truth():
         i_,
         i_a,
         i_b,
-        i_ab
+        i_ab,
+        i_
     ])
 
     tt = LDLfLogicalTrue()
@@ -97,7 +98,8 @@ def test_truth():
         {},
         {"A"},
         {"A"},
-        {"A", "B"}
+        {"A", "B"},
+        {}
     ])
 
     formula = "<true*;A&B>tt"
@@ -164,6 +166,7 @@ def test_delta():
     assert f.delta(i_ab, epsilon=True) == f.to_nnf().delta(i_ab, epsilon=True)
     # with epsilon=True, the result is either PLTrue or PLFalse
     assert f.delta(i_, epsilon=True) in [PLTrue(), PLFalse()]
+
 
 def test_find_labels():
     parser = LDLfParser()

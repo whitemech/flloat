@@ -3,22 +3,12 @@ from typing import Sequence, Set
 
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
+from flloat.base.hashable import Hashable
 
 
-class Formula(ABC):
-
-    @abstractmethod
-    def _members(self):
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        if type(other) is type(self):
-            return self._members() == other._members()
-        else:
-            return False
-
-    def __hash__(self):
-        return hash(self._members())
+class Formula(Hashable):
+    def __init__(self):
+        super().__init__()
 
     @abstractmethod
     def find_labels(self) -> Set[Symbol]:
@@ -29,6 +19,7 @@ class Formula(ABC):
 
 class AtomicFormula(Formula):
     def __init__(self, s:Symbol):
+        super().__init__()
         self.s = s
 
     def _members(self):
@@ -50,6 +41,7 @@ class Operator(Formula):
 
 class UnaryOperator(Operator):
     def __init__(self, f: Formula):
+        super().__init__()
         self.f = f
 
     def __str__(self):
@@ -74,6 +66,7 @@ class BinaryOperator(Operator):
 
 
     def __init__(self, formulas:OperatorChilds):
+        super().__init__()
         assert len(formulas) >= 2
         self.formulas = tuple(formulas)
         self.formulas = self._popup()

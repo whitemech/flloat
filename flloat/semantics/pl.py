@@ -6,19 +6,11 @@ from flloat.base.Symbol import Symbol
 class PLInterpretation(Interpretation):
 
     def __init__(self, true_propositions:Set[Symbol]):
+        super().__init__()
         self.true_propositions = frozenset(true_propositions)
 
-    def __eq__(self, other):
-        if type(self) == type(other):
-            return self.true_propositions == other.true_propositions
-        else:
-            return False
-
     def _members(self):
-        return self.true_propositions
-
-    def __hash__(self):
-        return hash(self._members())
+        return (self.true_propositions, )
 
     def __contains__(self, item:Symbol):
         return item in self.true_propositions

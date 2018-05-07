@@ -1,6 +1,7 @@
 """Base class for implement semantics."""
-from abc import ABC
+
+from flloat.base.hashable import Hashable
 
 
-class Interpretation(ABC):
+class Interpretation(Hashable):
     pass

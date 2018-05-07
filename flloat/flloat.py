@@ -1,6 +1,7 @@
 from typing import Set, List
 
 from pythomata.base.Alphabet import Alphabet
+from pythomata.base.DFA import DFA
 from pythomata.base.NFA import NFA
 from pythomata.base.Simulator import Simulator
 
@@ -14,13 +15,14 @@ def find_atomics(formula: Formula) -> Set[PLAtomic]:
     """Finds all the atomic formulas"""
     f = formula
     res = set()
-    if isinstance(f, PLAtomic):
-        res.add(f)
-    elif isinstance(f, PLNot):
-        res = res.union(find_atomics(f.f))
-    elif isinstance(f, PLBinaryOperator):
-        for subf in f.formulas:
-            res = res.union(find_atomics(subf))
+    find_atoms = getattr(formula, "find_atomics", None)
+    if find_atoms:
+        res = find_atoms()
+    # elif isinstance(f, PLNot):
+    #     res = res.union(find_atomics(f.f))
+    # elif isinstance(f, PLBinaryOperator):
+    #     for subf in f.formulas:
+    #         res = res.union(find_atomics(subf))
     else:
         res.add(f)
     return res
@@ -38,8 +40,9 @@ def _tranform_delta(f:Formula, formula2AtomicFormula):
         return formula2AtomicFormula[f]
 
 
-def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
+def to_automaton_(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     """
+    DEPRECATED
     From a LDLfFormula, build the automaton.
     :param f:               a LDLfFormula;
     :param labels:          a set of Symbol, the fluents of our domain. If None, retrieve them from the formula;
@@ -68,6 +71,7 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     states = {frozenset(), frozenset([nnf])}
 
     states_changed, delta_changed = True, True
+    global ha
     while states_changed or delta_changed:
 
         states_changed, delta_changed = False, False
@@ -94,7 +98,7 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
                 # the final list of Propositional Atomic Formulas, one for each formula in the original macro state Q
                 transformed_delta_formulas = [_tranform_delta(f, formula2atomic_formulas) for f in delta_formulas]
 
-                # the empy conjunction stands for true
+                # the empty conjunction stands for true
                 if len(transformed_delta_formulas) == 0:
                     conjunctions = PLTrue()
                 elif len(transformed_delta_formulas) == 1:
@@ -105,6 +109,7 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
                 # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
                 # is true.
                 models = frozenset(conjunctions.minimal_models(set(symbol2formula)))
+
                 if len(models) == 0:
                     continue
                 for min_model in models:
@@ -139,8 +144,6 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     alphabet = Alphabet({PLInterpretation(set(sym)) for sym in alphabet})
     delta = frozenset((i, PLInterpretation(set(a)), o) for i, a, o in delta)
 
-    # alphabet = Alphabet({frozenset(sym) for sym in alphabet})
-    # delta = frozenset(delta)
 
     nfa = NFA.fromTransitions(
         alphabet=alphabet,
@@ -153,7 +156,8 @@ def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     if determinize:
         dfa = nfa.determinize()
         if minimize:
-            dfa = dfa.minimize().trim()
+            dfa = dfa.minimize()
+            dfa = dfa.trim()
         return dfa
     else:
         return nfa
@@ -163,7 +167,7 @@ class DFAOTF(Simulator):
     """DFA on the fly"""
 
     def __init__(self, f):
-        self.f = f
+        self.f = f.to_nnf()
         self.reset()
 
     def reset(self):
@@ -176,36 +180,48 @@ class DFAOTF(Simulator):
         return self.is_true()
 
     def is_true(self):
-        # TODO: check if it is right
+        return self._is_true(self.cur_state)
 
-        if frozenset() in self.cur_state:
+    def _is_true(self, Q):
+        # TODO: check if it is right
+        if frozenset() in Q:
             return True
-        conj = [PLAnd([subf.delta(PLFalseInterpretation(), epsilon=True) for subf in q]) if len(q)>=2 else
-                next(iter(q)).delta(PLFalseInterpretation(), epsilon=True) if len(q)==1 else
-                PLFalse() for q in self.cur_state]
+        conj = [PLAnd([subf.delta(PLFalseInterpretation(), epsilon=True) for subf in q]) if len(q) >= 2 else
+                next(iter(q)).delta(PLFalseInterpretation(), epsilon=True) if len(q) == 1 else
+                PLFalse() for q in Q]
         if len(conj) == 0:
             return False
         else:
             conj = PLOr(conj) if len(conj) >= 2 else conj[0]
         return conj.truth(None)
 
+    def get_current_state(self):
+        return self.cur_state
 
     def make_transition(self, i:PLInterpretation):
+        self.cur_state = self._make_transition(self.cur_state, i)
+
+
+    def _make_transition(self, Q, i: PLInterpretation):
         actions_set = i.true_propositions
         new_macrostate = set()
-        for q in self.cur_state:
+
+        for q in Q:
             # delta function applied to every formula in the macro state Q
             delta_formulas = [f.delta(actions_set) for f in q]
 
             # find the list of atoms, which are "true" atoms (i.e. propositional atoms) or LDLf formulas
             atomics = [s for subf in delta_formulas for s in find_atomics(subf)]
 
+            atom2id = {v: k for k, v in enumerate(atomics)}
+            id2atom = {v: k for k, v in atom2id.items()}
+
             # "freeze" the found atoms as symbols and build a mapping from symbols to formulas
-            symbol2formula = {Symbol(str(f)): f for f in atomics if f != PLTrue() and f != PLFalse()}
+            symbol2formula = {atom2id[f] for f in atomics if f != PLTrue() and f != PLFalse()}
 
             # build a map from formula to a "freezed" propositional Atomic Formula
             formula2atomic_formulas = {
-                f: PLAtomic(Symbol(str(f)))
+                f: PLAtomic(atom2id[f])
                 if f != PLTrue() and f != PLFalse()  # and not isinstance(f, PLAtomic)
                 else f for f in atomics
             }
@@ -225,11 +241,51 @@ class DFAOTF(Simulator):
             # is true.
             models = frozenset(conjunctions.minimal_models(set(symbol2formula)))
 
-            if len(models) == 0:
-                continue
             for min_model in models:
-                q_prime = frozenset({symbol2formula[s] for s in min_model.true_propositions})
+                q_prime = frozenset({id2atom[s] for s in min_model.true_propositions})
 
                 new_macrostate.add(q_prime)
 
-        self.cur_state = frozenset(new_macrostate)
+        return frozenset(new_macrostate)
+
+
+def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
+    dfaotf = DFAOTF(f)
+
+
+    initial_state = frozenset({frozenset({dfaotf.f})})
+    states = {initial_state}
+    final_states = set()
+    transition_function = {}
+
+    # the alphabet is the powerset of the set of fluents
+    alphabet = powerset(labels)
+
+    if dfaotf.is_true():
+        final_states.add(initial_state)
+
+    to_be_visited = {initial_state}
+
+    while len(to_be_visited)!=0:
+
+        for q in list(to_be_visited):
+            to_be_visited.remove(q)
+            for actions_set in alphabet:
+                new_state = dfaotf._make_transition(q, PLInterpretation(actions_set))
+                if not new_state in states:
+                    states.add(new_state)
+                    to_be_visited.add(new_state)
+
+                transition_function.setdefault(q, {})[PLInterpretation(actions_set)] = new_state
+
+                if new_state not in final_states and dfaotf._is_true(new_state):
+                    final_states.add(new_state)
+
+    new_alphabet = Alphabet({PLInterpretation(set(sym)) for sym in alphabet})
+    dfa = DFA(new_alphabet, frozenset(states), initial_state, frozenset(final_states), transition_function)
+
+    if minimize:
+        dfa = dfa.minimize().trim()
+
+    return dfa
+

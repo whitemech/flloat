@@ -11,7 +11,11 @@ from flloat.semantics.pl import PLInterpretation
 
 class FiniteTrace(Interpretation):
     def __init__(self, trace: List[PLInterpretation]):
+        super().__init__()
         self.trace = trace
+
+    def _members(self):
+        return tuple(self.trace)
 
     @staticmethod
     def fromSymbolSets(l:List[Set[Symbol]]):
