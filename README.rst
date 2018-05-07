@@ -81,7 +81,8 @@ How to use
         {},
         {"A"},
         {"A"},
-        {"A", "B"}
+        {"A", "B"},
+        {}
     ])
     parsed_formula.truth(t1, 0)  # True
 

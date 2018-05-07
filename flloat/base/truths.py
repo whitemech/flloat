@@ -10,6 +10,9 @@ class Truth(ABC):
         raise NotImplementedError
 
 class NotTruth(UnaryOperator, Truth):
+    def __init__(self, f):
+        UnaryOperator.__init__(self, f)
+
     operator_symbol = Symbols.NOT.value
     def truth(self, *args):
         return not self.f.truth(*args)
@@ -18,11 +21,19 @@ class NotTruth(UnaryOperator, Truth):
 class AndTruth(BinaryOperator, Truth):
     operator_symbol = Symbols.AND.value
     def truth(self, *args):
+        # for f in self.formulas:
+        #     if not f.truth(*args):
+        #         return False
+        # return True
         return all(f.truth(*args) for f in self.formulas)
 
 class OrTruth(BinaryOperator, Truth):
     operator_symbol = Symbols.OR.value
     def truth(self, *args):
+        # for f in self.formulas:
+        #     if f.truth(*args):
+        #         return True
+        # return False
         return any(f.truth(*args) for f in self.formulas)
 
 
@@ -38,7 +49,7 @@ class ImpliesTruth(BinaryOperator, Truth):
         evaluation = lambda x, y: not x or y
         truth = evaluation(fs[0].truth(*args), fs[1].truth(*args))
         for idx in range(2, N):
-            # if at some point the premise is False, then treturn True
+            # if at some point the premise is False, then return True
             if not truth:
                 return True
             else:
@@ -55,32 +66,3 @@ class EquivalenceTruth(BinaryOperator, Truth):
         t = [f.truth(*args) for f in fs]
         # either all true or all false
         return all(t) or not any(t)
-
-
-# def __init__(self, formulas:OperatorChilds):
-#     PLFormula.__init__(self)
-#     BinaryOperator.__init__(self, formulas)
-#
-# # def _convert(self):
-# #     fs = self.formulas
-# #     N = len(fs)
-# #     res = PLOr({PLNot(fs[0]), fs[1]})
-# #     for i in range(2, N):
-# #         res = PLOr({PLNot(res), fs[i]})
-# #
-# #     return res
-#
-# def truth(self, i:Interpretation):
-#     # eq_formula = self._convert()
-#     # return eq_formula.truth(i)
-#     fs = self.formulas
-#     N = len(fs)
-#     evaluation = lambda x, y: not x or y
-#     truth = evaluation(fs[0].truth(i), fs[1].truth(i))
-#     for idx in range(2, N):
-#         if not truth:
-#             return True
-#         else:
-#             truth = evaluation(truth, fs[idx].truth(i))
-#
-#     return truth

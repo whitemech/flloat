@@ -5,8 +5,18 @@ from flloat.base.truths import NotTruth
 
 
 class NNF(ABC):
-    @abstractmethod
+
+    def __init__(self):
+        self.precomputed_nnf = None
+
     def to_nnf(self):
+        # get the result already computed, if any
+        if self.precomputed_nnf is None:
+            self.precomputed_nnf = self._to_nnf()
+        return self.precomputed_nnf
+
+    @abstractmethod
+    def _to_nnf(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -15,7 +25,7 @@ class NNF(ABC):
 
 
 class NotNNF(UnaryOperator, NNF):
-    def to_nnf(self):
+    def _to_nnf(self):
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
         else:
@@ -43,7 +53,7 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
     def Not(self, x):
         self.Not= x
 
-    def to_nnf(self):
+    def _to_nnf(self):
         return type(self)(self.f.to_nnf())
 
     def negate(self):
@@ -51,7 +61,7 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
 
 class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
 
-    def to_nnf(self):
+    def _to_nnf(self):
         childs = [child.to_nnf() for child in self.formulas]
         return type(self)(childs).simplify()
 
@@ -60,5 +70,6 @@ class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
         return self.Dual(childs)
 
 
-
+class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF, DualNNF):
+    pass
 

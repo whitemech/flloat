@@ -1,7 +1,6 @@
 """Misc tests"""
 
 def test_ldlf_example_readme():
-
     from flloat.parser.ldlf import LDLfParser
     from flloat.base.Symbol import Symbol
     from flloat.semantics.ldlf import FiniteTrace
@@ -13,11 +12,14 @@ def test_ldlf_example_readme():
     assert str(parsed_formula) == "<((true)* ; (B & A))>(tt)" or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
     assert parsed_formula.find_labels() == {Symbol(c) for c in "AB"}
 
+    from flloat.semantics.ldlf import FiniteTrace
+
     t1 = FiniteTrace.fromStringSets([
         {},
         {"A"},
         {"A"},
-        {"A", "B"}
+        {"A", "B"},
+        {}
     ])
     assert parsed_formula.truth(t1, 0)
 

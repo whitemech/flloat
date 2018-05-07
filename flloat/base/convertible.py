@@ -17,7 +17,7 @@ class BaseConvertibleFormula(ConvertibleFormula, Truth, NNF):
     def truth(self, *args):
         return self._convert().truth(*args)
 
-    def to_nnf(self):
+    def _to_nnf(self):
         return self._convert().to_nnf()
 
     def negate(self):
