@@ -55,7 +55,7 @@ You might need to complete some extra step. Please check the following installat
 * `Graphviz <https://graphviz.gitlab.io/download/>`_
 
 How to use
---------
+-----------
 
 * Parse a LDLf formula:
 
