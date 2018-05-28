@@ -65,12 +65,11 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
             return to_automaton(self, labels, determinize, minimize)
 
 
-
-
 class LDLfCommBinaryOperator(LDLfFormula, CommutativeBinaryOperator):
     def __init__(self, formulas):
         LDLfFormula.__init__(self)
         CommutativeBinaryOperator.__init__(self, formulas)
+
 
 class DeltaRegExp(ABC):
     @abstractmethod
