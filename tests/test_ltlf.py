@@ -202,7 +202,7 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     ldlf = ltlf.to_LDLf()
 
     dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=True)
-    dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)
+    # dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)
     test_function(dfa)
     dfa = ltlf.to_automaton(alphabet, on_the_fly=True)
     test_function(dfa)
@@ -210,7 +210,7 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     # LDLf equivalent
     # print(str(ltlf), str(ldlf.to_nnf()))
     dfa = ldlf.to_automaton(alphabet, determinize=True, minimize=True)
-    dfa.to_dot("tests/automata/" + name + "_ldlf", title=name+"\n"+str(ldlf.to_nnf()))
+    # dfa.to_dot("tests/automata/" + name + "_ldlf", title=name+"\n"+str(ldlf.to_nnf()))
     test_function(dfa)
     dfa = ldlf.to_automaton(alphabet, on_the_fly=True)
     test_function(dfa)
