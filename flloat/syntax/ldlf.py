@@ -30,13 +30,6 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
         NNF.__init__(self)
 
     def delta(self, i: PLInterpretation, epsilon=False):
-
-        # get the result already computed, if any
-        attr_name = "delta_" + ("eps" if epsilon else "noeps_" + str(i))
-        if hasattr(self, attr_name):
-            return getattr(self, attr_name)
-
-        # else, compute it
         f = self.to_nnf()
         d = f._delta(i, epsilon)
         if epsilon:
@@ -45,7 +38,6 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
             # Hence, we just evaluate the formula with a dummy PLInterpretation
             d = PLTrue() if d.truth(PLFalseInterpretation()) else PLFalse()
 
-        setattr(self, attr_name, d)
         return d
 
     @abstractmethod
@@ -310,16 +302,16 @@ class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
         CommutativeBinaryOperator.__init__(self, formulas)
 
     def truth(self, tr: FiniteTrace, start: int, end: int):
-        return any(f.truth(tr, start, end) for f in self.formulas)
+        return any(f.truth(tr, start, end) for f in self.formulas_set)
 
     def _to_nnf(self):
-        return RegExpUnion([r.to_nnf() for r in self.formulas])
+        return RegExpUnion([r.to_nnf() for r in self.formulas_set])
 
     def deltaDiamond(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
-        return PLOr([LDLfDiamond(r, f)._delta(i, epsilon) for r in self.formulas])
+        return PLOr([LDLfDiamond(r, f)._delta(i, epsilon) for r in self.formulas_set])
 
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
-        return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas])
+        return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas_set])
 
 class RegExpSequence(RegExpFormula, BinaryOperator):
     operator_symbol = Symbols.PATH_SEQUENCE.value

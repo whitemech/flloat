@@ -98,26 +98,34 @@ class CommutativeBinaryOperator(BinaryOperator):
 
     def __init__(self, formulas:OperatorChilds, idempotence=True):
         # Assuming idempotence: e.g. A & A === A
-        super().__init__(tuple(formulas))
+        super().__init__(formulas)
         self.idempotence = idempotence
         if idempotence:
             self.formulas_set = frozenset(self.formulas)
+            self.members = tuple(sorted(self.formulas_set, key=lambda x: str(x)))
 
     def simplify(self):
         if self.idempotence:
             if len(self.formulas_set) == 1:
                 return next(iter(self.formulas_set)).simplify()
             else:
-                return type(self)(list(self.formulas_set))
+                return type(self)(self.members)
         else:
             return self
 
 
     def _members(self):
         if self.idempotence:
-            return (self.operator_symbol, self.formulas_set)
+            return (self.operator_symbol, self.members)
+            # return (self.operator_symbol, self.formulas_set)
         else:
             return (self.operator_symbol, self.formulas)
 
     def find_labels(self):
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
+
+    def __str__(self):
+        if self.idempotence:
+            return "(" + (" "+self.operator_symbol+" ").join(map(str,self.members)) + ")"
+        else:
+            return super().__str__()
