@@ -7,13 +7,15 @@ from flloat.base.truths import NotTruth
 class NNF(ABC):
 
     def __init__(self):
-        self.precomputed_nnf = None
+        pass
+        # self.precomputed_nnf = None
 
     def to_nnf(self):
         # get the result already computed, if any
-        if self.precomputed_nnf is None:
-            self.precomputed_nnf = self._to_nnf()
-        return self.precomputed_nnf
+        # if self.precomputed_nnf is None:
+        #     self.precomputed_nnf = self._to_nnf()
+        # return self.precomputed_nnf
+        return self._to_nnf()
 
     @abstractmethod
     def _to_nnf(self):
