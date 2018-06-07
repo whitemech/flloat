@@ -1,14 +1,15 @@
 from abc import abstractmethod
+from functools import lru_cache
 from typing import Set
 
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
-from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF
+from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualCommutativeOperatorNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
-from flloat.utils import powerset
+from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE
 
 
 class PLTruth(Truth):
@@ -17,51 +18,83 @@ class PLTruth(Truth):
         raise NotImplementedError
 
 class PLFormula(Formula, Truth, NNF):
+    def __init__(self):
+        Formula.__init__(self)
+        NNF.__init__(self)
+
     def all_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
         """Find all the models of a given formula.
         Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
         """
-        all_possible_interpretations = sorted(powerset(alphabet), key=len)
-        models = set()
+        all_possible_interpretations = _powerset(alphabet)
         for i in all_possible_interpretations:
             # compute current Interpretation, considering False
             # all propositional symbols not present in current interpretation
-            current_interpretation = PLInterpretation(set(i))
+            current_interpretation = PLInterpretation(i)
             if self.truth(current_interpretation):
-                models.add(current_interpretation)
+                yield current_interpretation
 
-        return models
-
+    @lru_cache(maxsize=MAX_CACHE_SIZE)
     def minimal_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
         """Find models of min size (i.e. the less number of proposition to True)."""
-        models = self.all_models(alphabet)
-        size2models = {}
 
+        models = list(self.all_models(alphabet))
+
+        minimal_models = set()
         for m in models:
-            size = len(m.true_propositions)
-            if size not in size2models:
-                size2models[size] = set()
-            size2models[size].add(m)
+            min_m = m
+            for m1 in models:
+                if min_m.true_propositions.issuperset(m1.true_propositions):
+                    min_m = m1
+            minimal_models.add(min_m)
 
-        if not size2models:
-            return set()
-        else:
-            return size2models[min(size2models.keys())]
+
+        return minimal_models
 
     def __repr__(self):
         return self.__str__()
 
-class PLBinaryOperator(PLFormula, BinaryOperator):
-    pass
+    def find_atomics(self):
+        if hasattr(self, "atoms"):
+            return getattr(self, "atoms")
+        res = self._find_atomics()
+        setattr(self, "atoms", res)
+        return res
 
-class PLCommBinaryOperator(PLBinaryOperator, CommutativeBinaryOperator):
-    pass
+    @abstractmethod
+    def _find_atomics(self):
+        raise NotImplementedError
+
+class PLBinaryOperator(PLFormula, BinaryOperator):
+    def __init__(self, formulas):
+        PLFormula.__init__(self)
+        BinaryOperator.__init__(self, formulas)
+
+    def _find_atomics(self):
+        res = set()
+        for subf in self.formulas:
+            try:
+                res = res.union(subf.find_atomics())
+            except:
+                res.add(subf)
+        return res
+
+
+class PLCommBinaryOperator(PLBinaryOperator, DualCommutativeOperatorNNF):
+    def __init__(self, formulas):
+        PLBinaryOperator.__init__(self, formulas)
+        DualCommutativeOperatorNNF.__init__(self, formulas)
+
 
 class PLAtomic(PLFormula, AtomicFormula):
+    def __init__(self, s):
+        PLFormula.__init__(self)
+        AtomicFormula.__init__(self, s)
+
     def truth(self, i:PLInterpretation, *args):
         return self.s in i
 
-    def to_nnf(self):
+    def _to_nnf(self):
         return self
 
     def negate(self):
@@ -70,9 +103,12 @@ class PLAtomic(PLFormula, AtomicFormula):
     def find_labels(self):
         return {self.s}
 
+    def _find_atomics(self):
+        return {self}
+
 class PLTrue(PLAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.TRUE.value))
+        PLAtomic.__init__(self, Symbol(Symbols.TRUE.value))
 
     def truth(self, *args):
         return True
@@ -98,13 +134,22 @@ class PLFalse(PLAtomic):
 
 
 class PLNot(PLFormula, NotTruth, NotNNF):
+    def __init__(self, f):
+        PLFormula.__init__(self)
+        NotTruth.__init__(self, f)
+
+    def _find_atomics(self):
+        try:
+            return self.f.find_atomics()
+        except:
+            return self.f
+
+
+
+class PLOr(PLCommBinaryOperator, OrTruth):
     pass
 
-
-class PLOr(PLCommBinaryOperator, OrTruth, DualBinaryOperatorNNF):
-    pass
-
-class PLAnd(PLCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
+class PLAnd(PLCommBinaryOperator, AndTruth):
     pass
 
 

@@ -106,3 +106,4 @@ ENV/
 *.bak
 flloat/parser/parser.out
 flloat/parser/parsetab.py
+tests/automata/*

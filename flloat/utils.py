@@ -13,11 +13,16 @@ from flloat.base.Symbols import Symbols
 
 def powerset(iterable) -> FrozenSet:
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
-    s = list(set(iterable))
-    combs = chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+    combs = _powerset(iterable)
     res = frozenset(frozenset(x) for x in combs)
     # res = map(frozenset, combs)
     return res
+
+def _powerset(iterable):
+    s = list(set(iterable))
+    combs = chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+    for c in combs:
+        yield c
 
 def sym2regexp(sym:Symbols):
     s = sym.value
@@ -84,3 +89,4 @@ def sym2regexp(sym:Symbols):
 #
 #
 #
+MAX_CACHE_SIZE = 1000

@@ -1,12 +1,38 @@
 from abc import ABC, abstractmethod
+from functools import lru_cache
 
 from flloat.base.Formula import UnaryOperator, CommutativeBinaryOperator, AtomicFormula, BinaryOperator
-from flloat.base.truths import NotTruth
+from flloat.utils import MAX_CACHE_SIZE
 
 
 class NNF(ABC):
-    @abstractmethod
+
+    def __init__(self):
+        self._cache_id = None
+
+    @lru_cache(maxsize=MAX_CACHE_SIZE)
     def to_nnf(self):
+        # get the result already computed, if any
+        # if self._cache_id is None or NNF_CACHE.get(self._cache_id, None) is None:
+        #     nnf = self._to_nnf()
+        #     self._cache_id = hash(self)
+        #     # self._cache_id = len(NNF_CACHE)
+        #     NNF_CACHE[self._cache_id] = nnf
+        # else:
+        #     nnf = NNF_CACHE[self._cache_id]
+        # return nnf
+
+        # if NNF_CACHE.get(self, None) is None:
+        #     nnf = self._to_nnf()
+        #     NNF_CACHE[self] = nnf
+        # else:
+        #     nnf = NNF_CACHE[self]
+        # return nnf
+
+        return self._to_nnf()
+
+    @abstractmethod
+    def _to_nnf(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -15,11 +41,11 @@ class NNF(ABC):
 
 
 class NotNNF(UnaryOperator, NNF):
-    def to_nnf(self):
+    def _to_nnf(self):
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
         else:
-            return self
+            return self.f.negate()
 
     def negate(self):
         return self.f
@@ -43,7 +69,7 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
     def Not(self, x):
         self.Not= x
 
-    def to_nnf(self):
+    def _to_nnf(self):
         return type(self)(self.f.to_nnf())
 
     def negate(self):
@@ -51,14 +77,23 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
 
 class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
 
-    def to_nnf(self):
+    def _to_nnf(self):
         childs = [child.to_nnf() for child in self.formulas]
         return type(self)(childs).simplify()
 
     def negate(self):
         childs = [child.negate().to_nnf() for child in self.formulas]
-        return self.Dual(childs)
+        return self.Dual(childs).simplify()
 
 
+class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF, DualNNF):
+    pass
+    # def _to_nnf(self):
+    #     childs = [child.to_nnf() for child in self.members]
+    #     return type(self)(childs).simplify()
+    #
+    # def negate(self):
+    #     childs = [child.negate().to_nnf() for child in self.members]
+    #     return self.Dual(childs)
 
 

@@ -20,6 +20,9 @@ FLLOAT
         :alt: Codecov coverage
         :target: https://codecov.io/gh/MarcoFavorito/flloat/branch/master/graph/badge.svg
 
+.. image:: https://badges.gitter.im/rltg_flloat/Lobby.svg
+     :alt: Join the chat at https://gitter.im/rltg_flloat/Lobby
+     :target: https://gitter.im/rltg_flloat/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 
 A Python implementation of the `FLLOAT`_ library.
@@ -52,7 +55,7 @@ You might need to complete some extra step. Please check the following installat
 * `Graphviz <https://graphviz.gitlab.io/download/>`_
 
 How to use
---------
+-----------
 
 * Parse a LDLf formula:
 
@@ -78,7 +81,8 @@ How to use
         {},
         {"A"},
         {"A"},
-        {"A", "B"}
+        {"A", "B"},
+        {}
     ])
     parsed_formula.truth(t1, 0)  # True
 

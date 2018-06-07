@@ -79,7 +79,8 @@ def test_truth():
         i_,
         i_a,
         i_b,
-        i_ab
+        i_ab,
+        i_
     ])
 
     tt = LDLfLogicalTrue()
@@ -97,7 +98,8 @@ def test_truth():
         {},
         {"A"},
         {"A"},
-        {"A", "B"}
+        {"A", "B"},
+        {}
     ])
 
     formula = "<true*;A&B>tt"
@@ -131,8 +133,8 @@ def test_nnf():
 
 def test_delta():
     parser = LDLfParser()
-    sa, sb = Symbol("A"), Symbol("B")
-    a, b = PLAtomic(sa), PLAtomic(sb)
+    sa, sb, sc = Symbol("A"), Symbol("B"), Symbol("C")
+    a, b, c = PLAtomic(sa), PLAtomic(sb), PLAtomic(sc)
 
     i_ = PLFalseInterpretation()
     i_a = PLInterpretation({sa})
@@ -164,6 +166,7 @@ def test_delta():
     assert f.delta(i_ab, epsilon=True) == f.to_nnf().delta(i_ab, epsilon=True)
     # with epsilon=True, the result is either PLTrue or PLFalse
     assert f.delta(i_, epsilon=True) in [PLTrue(), PLFalse()]
+
 
 def test_find_labels():
     parser = LDLfParser()
@@ -202,6 +205,20 @@ def test_to_automaton():
         assert not dfa.word_acceptance([i_b])
         assert     dfa.word_acceptance([i_a, i_, i_ab, i_b])
         assert not dfa.word_acceptance([i_b, i_ab])
+    _dfa_test(parser, f, alphabet_abc, test_f)
+    ##################################################################################
+
+    ##################################################################################
+    f = "<true*;B>tt"
+
+    def test_f(dfa):
+        assert not dfa.word_acceptance([])
+        assert     dfa.word_acceptance([i_, i_b])
+        assert not dfa.word_acceptance([i_a])
+        assert     dfa.word_acceptance([i_b])
+        assert     dfa.word_acceptance([i_a, i_, i_ab, i_b])
+        assert     dfa.word_acceptance([i_b, i_ab])
+
     _dfa_test(parser, f, alphabet_abc, test_f)
     ##################################################################################
 
@@ -250,5 +267,22 @@ def test_to_automaton():
         assert dfa.word_acceptance([i_a, i_b])
         assert not dfa.word_acceptance([i_a, i_a])
     _dfa_test(parser, f, alphabet_abc, test_f)
+    #################################################################################
+
+    #################################################################################
+    # f = "<true*;A & B;true*;C & B>tt & [((<true>tt)?;true)*](<B -> (A | C)>tt  | [true]ff)"
+    #
+    # def test_f(dfa):
+    #     assert not dfa.word_acceptance([i_])
+    #     assert not dfa.word_acceptance([i_b])
+    #     assert     dfa.word_acceptance([i_ab])
+    #     assert     dfa.word_acceptance([i_])
+    #     assert not dfa.word_acceptance([i_a])
+    #     assert     dfa.word_acceptance([i_ab])
+    #     assert     dfa.word_acceptance([i_ab, i_ab])
+    #     assert     dfa.word_acceptance([i_a, i_b])
+    #     assert not dfa.word_acceptance([i_a, i_a])
+    #
+    # _dfa_test(parser, f, alphabet_abc, test_f)
     #################################################################################
 

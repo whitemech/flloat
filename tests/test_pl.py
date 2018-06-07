@@ -75,7 +75,7 @@ def test_parser():
 
 def test_nnf():
     parser = PLParser()
-    sa, sb = Symbol("a"), Symbol("b")
+    sa, sb = Symbol("A"), Symbol("B")
     a, b = PLAtomic(sa), PLAtomic(sb)
     i_ = PLInterpretation(set())
     i_a = PLInterpretation({sa})
@@ -86,6 +86,10 @@ def test_nnf():
     nnf_not_a_and_b = parser("!A | !B")
     assert not_a_and_b.to_nnf() == nnf_not_a_and_b
     assert nnf_not_a_and_b == nnf_not_a_and_b.to_nnf()
+
+    dup = parser("!(A | A)")
+    nnf_dup = dup.to_nnf()
+    assert nnf_dup == PLNot(a)
 
     material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
     nnf_material_implication = parser("((!A | B) & (!A | B) & (!A | B)) | ((A & !B) & (A & !B) & (A & !B))")
