@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from functools import lru_cache
 from typing import Set
 
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
@@ -9,12 +10,12 @@ from flloat.base.convertible import DeltaConvertibleFormula, ImpliesDeltaConvert
     ConvertibleFormula
 from flloat.base.misc import Delta
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF
-from flloat.base.truths import NotTruth, AndTruth, OrTruth, ImpliesTruth, EquivalenceTruth, Truth
+from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
+from flloat.utils import MAX_CACHE_SIZE
 from flloat.flloat import to_automaton, DFAOTF
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
-from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation, PLFalseInterpretation
+from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
-
 
 
 class RegExpTruth(Truth):
@@ -29,7 +30,28 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
         Delta.__init__(self)
         NNF.__init__(self)
 
+    @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False):
+
+        # attr_name = "delta_" + ("eps" if epsilon else "noeps_" + str(i))
+        #
+        # # get the result already computed, if any
+        # # if DELTA_CACHE.get(self, None) is None and:
+        # try:
+        #     d = DELTA_CACHE[self][attr_name]
+        # except:
+        #     f = self.to_nnf()
+        #     d = f._delta(i, epsilon)
+        #     if epsilon:
+        #         # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
+        #         # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
+        #         # Hence, we just evaluate the formula with a dummy PLInterpretation
+        #         d = PLTrue() if d.truth(PLFalseInterpretation()) else PLFalse()
+        #
+        #     DELTA_CACHE.setdefault(self, {})[attr_name] = d
+        # # else:
+        #     # d = DELTA_CACHE[self][attr_name]
+
         f = self.to_nnf()
         d = f._delta(i, epsilon)
         if epsilon:
@@ -37,7 +59,6 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
             # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
             # Hence, we just evaluate the formula with a dummy PLInterpretation
             d = PLTrue() if d.truth(PLFalseInterpretation()) else PLFalse()
-
         return d
 
     @abstractmethod
@@ -246,6 +267,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         if epsilon:
             return PLFalse()
         if self.pl_formula.truth(i):
+            # return PLAtomic(Symbol(str(_expand(f))))
             return _expand(f)
         else:
             return PLFalse()
@@ -254,6 +276,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         if epsilon:
             return PLTrue()
         if self.pl_formula.truth(i):
+            # return PLAtomic(Symbol(str(_expand(f))))
             return _expand(f)
         else:
             return PLTrue()
@@ -287,9 +310,9 @@ class RegExpTest(RegExpFormula, UnaryOperator):
         return PLAnd([self.f._delta(i, epsilon), f._delta(i, epsilon)])
 
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
-        ff = LDLfNot(self.f).to_nnf()
-        dff = ff._delta(i, epsilon)
-        fun = f._delta(i, epsilon)
+        # ff = LDLfNot(self.f).to_nnf()
+        # dff = ff._delta(i, epsilon)
+        # fun = f._delta(i, epsilon)
         return PLOr([LDLfNot(self.f).to_nnf()._delta(i, epsilon), f._delta(i, epsilon)])
 
     def find_labels(self):
@@ -370,10 +393,10 @@ class RegExpStar(RegExpFormula, UnaryOperator):
         return PLOr([f._delta(i, epsilon), LDLfDiamond(self.f, F(LDLfDiamond(self, f)))._delta(i, epsilon)])
 
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
-        subf = LDLfBox(self.f, T(LDLfBox(self, f)))
-        k = subf._delta(i, epsilon)
-        l = [f._delta(i, epsilon), subf]
-        ff = PLAnd(l)
+        # subf = LDLfBox(self.f, T(LDLfBox(self, f)))
+        # k = subf._delta(i, epsilon)
+        # l = [f._delta(i, epsilon), subf]
+        # ff = PLAnd(l)
         return PLAnd([f._delta(i, epsilon), LDLfBox(self.f, T(LDLfBox(self, f)))._delta(i, epsilon)])
 
 

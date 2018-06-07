@@ -201,6 +201,8 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     ltlf = parser(string_formula)
     ldlf = ltlf.to_LDLf()
 
+    # dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=False)
+    # dfa.to_dot("tests/automata/" + name + "_ltlf_no_min", title=name + "\n" + string_formula)
     dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=True)
     # dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)
     test_function(dfa)
@@ -209,6 +211,8 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
 
     # LDLf equivalent
     # print(str(ltlf), str(ldlf.to_nnf()))
+    # dfa = ldlf.to_automaton(alphabet, determinize=True, minimize=False)
+    # dfa.to_dot("tests/automata/" + name + "_ldlf_no_min", title=name + "\n" + string_formula)
     dfa = ldlf.to_automaton(alphabet, determinize=True, minimize=True)
     # dfa.to_dot("tests/automata/" + name + "_ldlf", title=name+"\n"+str(ldlf.to_nnf()))
     test_function(dfa)
@@ -288,7 +292,7 @@ def test_to_automaton():
         assert not dfa.word_acceptance([i_a, i_b, i_])
         assert not dfa.word_acceptance([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
+    # _dfa_test(name, parser, f, alphabet_abc, test_f)
     ##################################################################################
 
     ##################################################################################
@@ -323,7 +327,7 @@ def test_to_automaton():
         assert not dfa.word_acceptance([i_b, i_b, i_b])
         assert     dfa.word_acceptance([i_b, i_a, i_ab])
 
-    # _dfa_test(name, parser, f, alphabet_abc, test_f)
+    _dfa_test(name, parser, f, alphabet_abc, test_f)
     ##################################################################################
 
     ##################################################################################

@@ -23,7 +23,7 @@ class FiniteTrace(Interpretation):
 
     @staticmethod
     def fromStringSets(l:List[Set[str]]):
-        return FiniteTrace([PLInterpretation({Symbol(string) for string in s}) for s in l])
+        return FiniteTrace([PLInterpretation(frozenset({Symbol(string) for string in s})) for s in l])
 
     def length(self):
         return len(self.trace)

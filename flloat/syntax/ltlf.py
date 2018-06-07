@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from functools import lru_cache
 from typing import Set
 
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, AtomicFormula, BinaryOperator
@@ -8,6 +9,7 @@ from flloat.base.convertible import ImpliesDeltaConvertible, EquivalenceDeltaCon
     BaseConvertibleFormula
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualUnaryOperatorNNF
 from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth
+from flloat.utils import MAX_CACHE_SIZE
 from flloat.flloat import DFAOTF, to_automaton
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
@@ -28,9 +30,10 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         Delta.__init__(self)
         NNF.__init__(self)
 
+    @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False):
-        # f = self.to_nnf()
-        f = self.to_LDLf().to_nnf()
+        f = self.to_nnf()
+        # f = self.to_LDLf().to_nnf()
         d = f._delta(i, epsilon)
         if epsilon:
             # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
@@ -109,10 +112,15 @@ class LTLfTrue(LTLfAtomic):
     def __init__(self):
         super().__init__(PLTrue())
 
+    def negate(self):
+        return LTLfFalse()
 
 class LTLfFalse(LTLfAtomic):
     def __init__(self):
         super().__init__(PLFalse())
+
+    def negate(self):
+        return LTLfTrue()
 
 
 class LTLfNot(LTLfFormula, NotTruth, NotNNF):
@@ -122,7 +130,7 @@ class LTLfNot(LTLfFormula, NotTruth, NotNNF):
 
 
     def _delta(self, i: PLInterpretation, epsilon=False):
-        if isinstance(self.f, LTLfAtomic):
+        if isinstance(self.f, LTLfAtomic) or isinstance(self.f, L):
             return PLTrue() if self.f._delta(i, epsilon)==PLFalse() else PLFalse()
         else:
             # the formula must be in NNF form!!!
@@ -177,7 +185,13 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
         if epsilon:
             return PLFalse()
         else:
-            return self.f
+            return PLAnd([self.f, LTLfNot(L())])
+            # return LTLfAnd([self.f, LTLfNot(LTLfWeakNext(LTLfFalse())).to_nnf()])
+
+            # if self.f == LTLfTrue():
+            #     return LTLfTrue()
+            # return PLAnd([self.f, LTLfNext(LTLfTrue())])
+
 
     def to_LDLf(self):
         return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]))
@@ -197,7 +211,12 @@ class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula
         if epsilon:
             return PLTrue()
         else:
-            return self.f
+            return PLOr([self.f, L()])
+            # return LTLfOr([self.f, LTLfWeakNext(LTLfFalse())])
+
+            # if self.f == LTLfFalse():
+            #     return LTLfFalse()
+            # return PLOr([self.f, LTLfWeakNext(LTLfFalse())])
 
     def to_LDLf(self):
         return self._convert().to_LDLf()
@@ -290,12 +309,42 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
             f2._delta(i, epsilon),
             PLOr([
                 f1._delta(i, epsilon),
-                LTLfNext(self)._delta(i, epsilon)
+                LTLfWeakNext(self)._delta(i, epsilon)
             ])
         ])
 
     def to_LDLf(self):
         return self._convert().to_LDLf()
+
+
+class L(AtomicFormula, Delta, NNF):
+    def __init__(self):
+        super().__init__(Symbol("_L"))
+
+    def _members(self):
+        return L,
+
+    def __str__(self):
+        return "_".join(map(str, self._members()))
+
+    def delta(self, i:PLInterpretation, epsilon=False):
+        return self._delta(i, epsilon)
+
+    def _delta(self,i:PLInterpretation, epsilon=False):
+        if epsilon:
+            return PLTrue()
+        else:
+            return PLFalse()
+
+    def _to_nnf(self):
+        return self
+
+    def negate(self):
+        return LTLfNot(self)
+
+    def find_labels(self):
+        return set()
+
 
 LTLfAnd.Dual = LTLfOr
 LTLfOr.Dual = LTLfAnd

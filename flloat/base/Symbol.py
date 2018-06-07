@@ -10,7 +10,7 @@ class Symbol(Hashable):
         self.name = name
 
     def _members(self):
-        return (self.name)
+        return self.name
 
     def __str__(self):
         return self.name
@@ -21,6 +21,16 @@ class Symbol(Hashable):
 
     def __lt__(self, other):
         return self.name.__lt__(other.name)
+
+    # def __hash__(self):
+    #     return hash(self._members())
+    #
+    # def __eq__(self, other):
+    #     if type(other) is type(self):
+    #         return self._members() == other._members()
+    #     else:
+    #         return False
+
 
 
 

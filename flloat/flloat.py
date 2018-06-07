@@ -186,8 +186,8 @@ class DFAOTF(Simulator):
         # TODO: check if it is right
         if frozenset() in Q:
             return True
-        conj = [PLAnd([subf.delta(PLFalseInterpretation(), epsilon=True) for subf in q]) if len(q) >= 2 else
-                next(iter(q)).delta(PLFalseInterpretation(), epsilon=True) if len(q) == 1 else
+        conj = [PLAnd([subf.delta(None, epsilon=True) for subf in q]) if len(q) >= 2 else
+                next(iter(q)).delta(None, epsilon=True) if len(q) == 1 else
                 PLFalse() for q in Q]
         if len(conj) == 0:
             return False
@@ -239,7 +239,7 @@ class DFAOTF(Simulator):
 
             # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
             # is true.
-            models = frozenset(conjunctions.minimal_models(set(symbol2formula)))
+            models = frozenset(conjunctions.minimal_models(frozenset(symbol2formula)))
 
             for min_model in models:
                 q_prime = frozenset({id2atom[s] for s in min_model.true_propositions})
