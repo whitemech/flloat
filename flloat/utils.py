@@ -89,3 +89,4 @@ def sym2regexp(sym:Symbols):
 #
 #
 #
+MAX_CACHE_SIZE = 1000

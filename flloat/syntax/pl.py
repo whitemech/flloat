@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from functools import lru_cache
 from typing import Set
 
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
@@ -8,7 +9,7 @@ from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualCommutativeOperatorNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
-from flloat.utils import powerset, _powerset
+from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE
 
 
 class PLTruth(Truth):
@@ -33,7 +34,7 @@ class PLFormula(Formula, Truth, NNF):
             if self.truth(current_interpretation):
                 yield current_interpretation
 
-
+    @lru_cache(maxsize=MAX_CACHE_SIZE)
     def minimal_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
         """Find models of min size (i.e. the less number of proposition to True)."""
 

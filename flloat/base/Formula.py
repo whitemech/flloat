@@ -42,13 +42,13 @@ class Operator(Formula):
 class UnaryOperator(Operator):
     def __init__(self, f: Formula):
         super().__init__()
-        self.f = f
+        self.f = f.simplify()
 
     def __str__(self):
         return self.operator_symbol + Symbols.ROUND_BRACKET_LEFT.value + str(self.f) + Symbols.ROUND_BRACKET_RIGHT.value
 
     def _members(self):
-        return self.operator_symbol, self.f
+        return (self.operator_symbol, self.f)
 
     def __lt__(self, other):
         return self.f.__lt__(other.f)
@@ -75,7 +75,7 @@ class BinaryOperator(Operator):
         return "(" + (" "+self.operator_symbol+" ").join(map(str,self.formulas)) + ")"
 
     def _members(self):
-        return (self.operator_symbol, ) + tuple(self.formulas)
+        return (self.operator_symbol, self.formulas)
 
     def _popup(self):
         """recursively find commutative binary operator
@@ -101,7 +101,10 @@ class CommutativeBinaryOperator(BinaryOperator):
         super().__init__(formulas)
         self.idempotence = idempotence
         if idempotence:
+            # order does not matter -> set operation
+            # remove duplicates -> set operation
             self.formulas_set = frozenset(self.formulas)
+            # unique representation -> sorting
             self.members = tuple(sorted(self.formulas_set, key=lambda x: str(x)))
 
     def simplify(self):
@@ -119,7 +122,7 @@ class CommutativeBinaryOperator(BinaryOperator):
             return (self.operator_symbol, self.members)
             # return (self.operator_symbol, self.formulas_set)
         else:
-            return (self.operator_symbol, self.formulas)
+            return super()._members()
 
     def find_labels(self):
         return set.union(*map(lambda f: f.find_labels(), self.formulas))

@@ -10,7 +10,8 @@ class PLInterpretation(Interpretation):
         self.true_propositions = frozenset(true_propositions)
 
     def _members(self):
-        return (self.true_propositions, )
+        # return tuple(sorted(self.true_propositions, key=lambda x: x.name))
+        return self.true_propositions
 
     def __contains__(self, item:Symbol):
         return item in self.true_propositions
@@ -19,7 +20,7 @@ class PLInterpretation(Interpretation):
         return self.true_propositions.__iter__()
 
     def __str__(self):
-        return "{" + ", ".join(map(str,self.true_propositions)) + "}"
+        return "{" + ", ".join(map(str,self._members())) + "}"
 
     def __repr__(self):
         return self.__str__()

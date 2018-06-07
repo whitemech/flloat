@@ -1,4 +1,6 @@
 """Misc tests"""
+import os
+
 
 def test_ldlf_example_readme():
     from flloat.parser.ldlf import LDLfParser
@@ -64,4 +66,19 @@ def test_ltlf_example_readme():
     assert not dfa.word_acceptance(t2.trace)
 
 
+def test_hash_consistency_after_pickling():
+    from flloat.parser.ltlf import LTLfParser
+    import pickle
 
+    parser = LTLfParser()
+    formula = "F (A & !B)"
+    old_obj = parser(formula)
+
+    h = hash(old_obj)
+    pickle.dump(old_obj, open("temp", "wb"))
+    new_obj = pickle.load(open("temp", "rb"))
+
+    assert new_obj._hash is None
+    assert h==hash(new_obj)
+
+    os.remove("temp")
