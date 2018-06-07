@@ -41,6 +41,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/MarcoFavorito/flloat',
-    version='0.1.3post6',
+    version='0.1.3post7',
     zip_safe=False,
 )
