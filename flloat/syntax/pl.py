@@ -2,6 +2,9 @@ from abc import abstractmethod
 from functools import lru_cache
 from typing import Set
 
+from pythomata.base.Alphabet import Alphabet
+
+from flloat.base.Alphabet import _Alphabet
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
@@ -9,7 +12,7 @@ from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualCommutativeOperatorNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
-from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE
+from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE, ObjFactory, ObjConstructor
 
 
 class PLTruth(Truth):
@@ -22,23 +25,30 @@ class PLFormula(Formula, Truth, NNF):
         Formula.__init__(self)
         NNF.__init__(self)
 
-    def all_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
-        """Find all the models of a given formula.
-        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
-        """
-        all_possible_interpretations = _powerset(alphabet)
+        self._all_models = None
+        self._minimal_models = None
+        self._atoms = None
+
+    def all_models(self, alphabet: _Alphabet) -> Set[PLInterpretation]:
+        """Find all the possible interpretations given a set of symbols"""
+
+        all_possible_interpretations = alphabet.powerset()
+        all_models = set()
         for i in all_possible_interpretations:
             # compute current Interpretation, considering False
             # all propositional symbols not present in current interpretation
             current_interpretation = PLInterpretation(i)
             if self.truth(current_interpretation):
-                yield current_interpretation
+                all_models.add(current_interpretation)
+
+        self._all_models = all_models
+        return all_models
 
     @lru_cache(maxsize=MAX_CACHE_SIZE)
-    def minimal_models(self, alphabet: Set[Symbol]) -> Set[PLInterpretation]:
-        """Find models of min size (i.e. the less number of proposition to True)."""
-
-        models = list(self.all_models(alphabet))
+    def minimal_models(self, alphabet: _Alphabet) -> Set[PLInterpretation]:
+        """Find models of min size (i.e. the less number of proposition to True).
+        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations."""
+        models = self.all_models(alphabet)
 
         minimal_models = set()
         for m in models:
@@ -48,18 +58,15 @@ class PLFormula(Formula, Truth, NNF):
                     min_m = m1
             minimal_models.add(min_m)
 
-
         return minimal_models
 
     def __repr__(self):
         return self.__str__()
 
     def find_atomics(self):
-        if hasattr(self, "atoms"):
-            return getattr(self, "atoms")
-        res = self._find_atomics()
-        setattr(self, "atoms", res)
-        return res
+        if self._atoms is None:
+            self._atoms = self._find_atomics()
+        return self._atoms
 
     @abstractmethod
     def _find_atomics(self):
@@ -162,7 +169,6 @@ class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
     And = PLAnd
     Or = PLOr
     Not = PLNot
-
 
 PLOr.Dual = PLAnd
 PLAnd.Dual = PLOr
