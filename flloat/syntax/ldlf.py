@@ -33,25 +33,6 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False):
 
-        # attr_name = "delta_" + ("eps" if epsilon else "noeps_" + str(i))
-        #
-        # # get the result already computed, if any
-        # # if DELTA_CACHE.get(self, None) is None and:
-        # try:
-        #     d = DELTA_CACHE[self][attr_name]
-        # except:
-        #     f = self.to_nnf()
-        #     d = f._delta(i, epsilon)
-        #     if epsilon:
-        #         # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
-        #         # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
-        #         # Hence, we just evaluate the formula with a dummy PLInterpretation
-        #         d = PLTrue() if d.truth(PLFalseInterpretation()) else PLFalse()
-        #
-        #     DELTA_CACHE.setdefault(self, {})[attr_name] = d
-        # # else:
-        #     # d = DELTA_CACHE[self][attr_name]
-
         f = self.to_nnf()
         d = f._delta(i, epsilon)
         if epsilon:
