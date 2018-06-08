@@ -2,10 +2,12 @@ from typing import FrozenSet, Set
 
 from flloat.base.Interpretation import Interpretation
 from flloat.base.Symbol import Symbol
+from flloat.utils import ObjFactory, ObjConstructor
 
-class PLInterpretation(Interpretation):
 
-    def __init__(self, true_propositions:Set[Symbol]):
+class _PLInterpretation(Interpretation):
+
+    def __init__(self, true_propositions:FrozenSet[Symbol]):
         super().__init__()
         self.true_propositions = frozenset(true_propositions)
 
@@ -25,9 +27,9 @@ class PLInterpretation(Interpretation):
     def __repr__(self):
         return self.__str__()
 
-class PLTrueInterpretation(PLInterpretation):
+class PLTrueInterpretation(_PLInterpretation):
     def __init__(self):
-        super().__init__(set())
+        super().__init__(frozenset())
 
     def _members(self):
         return PLTrueInterpretation
@@ -35,10 +37,19 @@ class PLTrueInterpretation(PLInterpretation):
     def __contains__(self, item):
         return True
 
-class PLFalseInterpretation(PLInterpretation):
+class PLFalseInterpretation(_PLInterpretation):
     def __init__(self):
-        super().__init__(set())
+        super().__init__(frozenset())
 
     def __contains__(self, item):
         return False
 
+class _PLInterpretationConstructor(ObjConstructor):
+    def __call__(self, true_propositions:Set[Symbol]):
+        f_sym = frozenset(true_propositions)
+        return super().__call__(f_sym)
+
+
+
+plinterpretation_factory = ObjFactory(_PLInterpretation)
+PLInterpretation = _PLInterpretationConstructor(plinterpretation_factory)

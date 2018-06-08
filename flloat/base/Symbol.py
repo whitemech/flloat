@@ -3,24 +3,15 @@ from flloat.base.Symbols import Symbols, ALL_SYMBOLS
 from flloat.base.hashable import Hashable
 
 
-class Symbol(Hashable):
+class Symbol(str, Hashable):
     """A class to represent a symbol (actually, a wrap for a string)"""
-    def __init__(self, name):
-        super().__init__()
+    def __init__(self, name:str):
+        str.__init__(self)
+        Hashable.__init__(self)
         self.name = name
 
     def _members(self):
         return self.name
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        # return ", ".join(map(str,self._members()))
-        return str(self.name)
-
-    def __lt__(self, other):
-        return self.name.__lt__(other.name)
 
     # def __hash__(self):
     #     return hash(self._members())

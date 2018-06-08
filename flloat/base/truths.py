@@ -21,20 +21,20 @@ class NotTruth(UnaryOperator, Truth):
 class AndTruth(BinaryOperator, Truth):
     operator_symbol = Symbols.AND.value
     def truth(self, *args):
-        # for f in self.formulas:
-        #     if not f.truth(*args):
-        #         return False
-        # return True
-        return all(f.truth(*args) for f in self.formulas)
+        for f in self.formulas:
+            if not f.truth(*args):
+                return False
+        return True
+        # return all(f.truth(*args) for f in self.formulas)
 
 class OrTruth(BinaryOperator, Truth):
     operator_symbol = Symbols.OR.value
     def truth(self, *args):
-        # for f in self.formulas:
-        #     if f.truth(*args):
-        #         return True
-        # return False
-        return any(f.truth(*args) for f in self.formulas)
+        for f in self.formulas:
+            if f.truth(*args):
+                return True
+        return False
+        # return any(f.truth(*args) for f in self.formulas)
 
 
 class ImpliesTruth(BinaryOperator, Truth):
