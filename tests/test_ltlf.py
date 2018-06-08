@@ -292,7 +292,7 @@ def test_to_automaton():
         assert not dfa.word_acceptance([i_a, i_b, i_])
         assert not dfa.word_acceptance([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
 
-    # _dfa_test(name, parser, f, alphabet_abc, test_f)
+    _dfa_test(name, parser, f, alphabet_abc, test_f)
     ##################################################################################
 
     ##################################################################################
