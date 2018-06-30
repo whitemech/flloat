@@ -2,7 +2,6 @@ from abc import abstractmethod
 from functools import lru_cache
 from typing import Set
 
-from pythomata.base.Alphabet import Alphabet
 
 from flloat.base.Alphabet import _Alphabet
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
@@ -12,7 +11,7 @@ from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualCommutativeOperatorNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
-from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE, ObjFactory, ObjConstructor
+from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE
 
 
 class PLTruth(Truth):
@@ -23,7 +22,6 @@ class PLTruth(Truth):
 class PLFormula(Formula, Truth, NNF):
     def __init__(self):
         Formula.__init__(self)
-        NNF.__init__(self)
 
         self._all_models = None
         self._minimal_models = None
@@ -72,10 +70,10 @@ class PLFormula(Formula, Truth, NNF):
     def _find_atomics(self):
         raise NotImplementedError
 
-class PLBinaryOperator(PLFormula, BinaryOperator):
-    def __init__(self, formulas):
-        PLFormula.__init__(self)
-        BinaryOperator.__init__(self, formulas)
+class PLBinaryOperator(BinaryOperator, PLFormula):
+    # def __init__(self, formulas):
+    #     PLFormula.__init__(self)
+    #     BinaryOperator.__init__(self, formulas)
 
     def _find_atomics(self):
         res = set()
@@ -87,16 +85,25 @@ class PLBinaryOperator(PLFormula, BinaryOperator):
         return res
 
 
-class PLCommBinaryOperator(PLBinaryOperator, DualCommutativeOperatorNNF):
-    def __init__(self, formulas):
-        PLBinaryOperator.__init__(self, formulas)
-        DualCommutativeOperatorNNF.__init__(self, formulas)
+class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
+    # def __init__(self, formulas):
+    #     PLFormula.__init__(self)
+    #     DualCommutativeOperatorNNF.__init__(self, formulas)
+
+    def _find_atomics(self):
+        res = set()
+        for subf in self.formulas:
+            try:
+                res = res.union(subf.find_atomics())
+            except:
+                res.add(subf)
+        return res
 
 
-class PLAtomic(PLFormula, AtomicFormula):
-    def __init__(self, s):
-        PLFormula.__init__(self)
-        AtomicFormula.__init__(self, s)
+class PLAtomic(AtomicFormula, PLFormula):
+    # def __init__(self, s):
+    #     PLFormula.__init__(self)
+    #     AtomicFormula.__init__(self, s)
 
     def truth(self, i:PLInterpretation, *args):
         return self.s in i
@@ -128,7 +135,7 @@ class PLTrue(PLAtomic):
 
 class PLFalse(PLAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.FALSE.value))
+        PLAtomic.__init__(self, Symbol(Symbols.FALSE.value))
 
     def truth(self, *args):
         return False
@@ -140,16 +147,14 @@ class PLFalse(PLAtomic):
         return set()
 
 
-class PLNot(PLFormula, NotTruth, NotNNF):
-    def __init__(self, f):
-        PLFormula.__init__(self)
-        NotTruth.__init__(self, f)
+class PLNot(NotTruth, PLFormula, NotNNF):
 
     def _find_atomics(self):
-        try:
-            return self.f.find_atomics()
-        except:
-            return self.f
+        # try:
+        #     return self.f.find_atomics()
+        # except:
+        #     return self.f
+        return self.f.find_atomics()
 
 
 

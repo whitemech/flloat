@@ -12,7 +12,7 @@ from flloat.base.misc import Delta
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.utils import MAX_CACHE_SIZE
-from flloat.flloat import to_automaton, DFAOTF
+from flloat.flloat import to_automaton, DFAOTF, to_automaton_
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
@@ -24,11 +24,6 @@ class RegExpTruth(Truth):
         raise NotImplementedError
 
 class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
-
-    def __init__(self):
-        Formula.__init__(self)
-        Delta.__init__(self)
-        NNF.__init__(self)
 
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False):
@@ -55,14 +50,14 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
             labels = self.find_labels()
         if on_the_fly:
             return DFAOTF(self)
+        elif determinize:
+            return to_automaton(self, labels, minimize)
         else:
-            return to_automaton(self, labels, determinize, minimize)
+            return to_automaton_(self, labels)
 
 
-class LDLfCommBinaryOperator(LDLfFormula, CommutativeBinaryOperator):
-    def __init__(self, formulas):
-        LDLfFormula.__init__(self)
-        CommutativeBinaryOperator.__init__(self, formulas)
+class LDLfCommBinaryOperator(CommutativeBinaryOperator, LDLfFormula):
+    pass
 
 
 class DeltaRegExp(ABC):
@@ -75,9 +70,6 @@ class DeltaRegExp(ABC):
         raise NotImplementedError
 
 class RegExpFormula(Formula, RegExpTruth, NNF, DeltaRegExp):
-    def __init__(self):
-        Formula.__init__(self)
-        NNF.__init__(self)
 
     # this should be never called. Just for override the inherited abstract method.
     def negate(self):
@@ -112,10 +104,7 @@ class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF):
         return self.Dual(self.r, LDLfNot(self.f))
 
 
-class LDLfAtomic(LDLfFormula, AtomicFormula):
-    def __init__(self, s):
-        LDLfFormula.__init__(self)
-        AtomicFormula.__init__(self, s)
+class LDLfAtomic(AtomicFormula, LDLfFormula):
 
     def __str__(self):
         return AtomicFormula.__str__(self)
@@ -158,10 +147,11 @@ class LDLfLogicalFalse(LDLfAtomic):
         return PLFalse()
 
 
-class LDLfNot(LDLfFormula, NotTruth, NotNNF):
-    def __init__(self, f):
-        LDLfFormula.__init__(self)
-        NotTruth.__init__(self, f)
+class LDLfNot(NotTruth, LDLfFormula, NotNNF):
+
+    # def __init__(self, f:LDLfFormula):
+    #     LDLfFormula.__init__(self)
+    #     NotTruth.__init__(self, f)
 
     def _to_nnf(self):
         neg = self.f.negate()
@@ -268,13 +258,12 @@ class RegExpPropositional(RegExpFormula, PLFormula):
     def _find_atomics(self):
         return self.pl_formula.find_atomics()
 
-class RegExpTest(RegExpFormula, UnaryOperator):
+class RegExpTest(UnaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_TEST.value
 
-
-    def __init__(self, f:LDLfFormula):
-        RegExpFormula.__init__(self)
-        UnaryOperator.__init__(self, f)
+    # def __init__(self, f:LDLfFormula):
+    #     RegExpFormula.__init__(self)
+    #     UnaryOperator.__init__(self, f)
 
     def truth(self, tr: FiniteTrace, start: int, end: int):
         return start == end and self.f.truth(tr, start)
@@ -299,7 +288,7 @@ class RegExpTest(RegExpFormula, UnaryOperator):
     def find_labels(self):
         return self.f.find_labels()
 
-class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
+class RegExpUnion(CommutativeBinaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_UNION.value
     def __init__(self, formulas):
         RegExpFormula.__init__(self)
@@ -317,7 +306,7 @@ class RegExpUnion(RegExpFormula, CommutativeBinaryOperator):
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
         return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas_set])
 
-class RegExpSequence(RegExpFormula, BinaryOperator):
+class RegExpSequence(BinaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_SEQUENCE.value
 
     def __init__(self, formulas: OperatorChilds):
@@ -350,12 +339,12 @@ class RegExpSequence(RegExpFormula, BinaryOperator):
         return res._delta(i, epsilon)
 
 
-class RegExpStar(RegExpFormula, UnaryOperator):
+class RegExpStar(UnaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_STAR.value
 
-    def __init__(self, f):
-        UnaryOperator.__init__(self, f)
-        RegExpFormula.__init__(self)
+    # def __init__(self, f):
+    #     UnaryOperator.__init__(self, f)
+    #     RegExpFormula.__init__(self)
 
     def truth(self, tr: FiniteTrace, start: int, end: int):
         return start == end \

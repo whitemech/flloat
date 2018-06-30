@@ -1,4 +1,3 @@
-import re
 from itertools import chain, combinations
 # import pythomata.base.DFA
 # import pythomata.base.NFA
@@ -31,7 +30,7 @@ def sym2regexp(sym:Symbols):
     else:
         return s
 
-MAX_CACHE_SIZE = 1000
+MAX_CACHE_SIZE = 1024
 
 
 class ObjFactory(object):
@@ -45,6 +44,7 @@ class ObjFactory(object):
             return old
         else:
             new = self.cls(*args, **kwargs)
+            # notice: we do not save kwargs, so it works only with positional arguments.
             self.objects[args] = new
             return new
 
