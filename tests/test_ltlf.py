@@ -11,7 +11,7 @@ from flloat.syntax.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 def test_parser():
     parser = LTLfParser()
 
-    a, b, c = [LTLfAtomic(PLAtomic(Symbol(c))) for c in "ABC"]
+    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
 
     assert parser("!A | B <-> !(A & !B) <-> A->B") == LTLfEquivalence([
         LTLfOr([LTLfNot(a), b]),
@@ -95,7 +95,7 @@ def test_truth():
 
 def test_nnf():
     parser = LTLfParser()
-    a, b, c = [LTLfAtomic(PLAtomic(Symbol(c))) for c in "ABC"]
+    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
 
     f = parser("!(A & !B)")
     assert f.to_nnf() == LTLfOr([LTLfNot(a), b])
@@ -165,14 +165,14 @@ def _test_delta():
     assert parser("A | B").delta(i_b) ==  PLOr([false, true])
     assert parser("A | B").delta(i_ab) == PLOr([true, true])
 
-    assert parser("X A").delta(i_)   ==   LTLfAtomic(a)
-    assert parser("X A").delta(i_a)  ==   LTLfAtomic(a)
-    assert parser("X A").delta(i_b)  ==   LTLfAtomic(a)
-    assert parser("X A").delta(i_ab) ==   LTLfAtomic(a)
+    assert parser("X A").delta(i_)   ==   LTLfAtomic(sa)
+    assert parser("X A").delta(i_a)  ==   LTLfAtomic(sa)
+    assert parser("X A").delta(i_b)  ==   LTLfAtomic(sa)
+    assert parser("X A").delta(i_ab) ==   LTLfAtomic(sa)
     assert parser("X A").delta(i_, epsilon=True) == false
 
-    assert parser("F A").delta(i_a) ==    PLOr([true, LTLfEventually(LTLfAtomic(a))])
-    assert parser("F A").delta(i_) ==     PLOr([false, LTLfEventually(LTLfAtomic(a))])
+    assert parser("F A").delta(i_a) ==    PLOr([true, LTLfEventually(LTLfAtomic(sa))])
+    assert parser("F A").delta(i_) ==     PLOr([false, LTLfEventually(LTLfAtomic(sa))])
     assert parser("F A").delta(i_, epsilon=True) == false
 
     assert parser("G A").delta(i_a) ==    PLAnd([true, LTLfAlways(LTLfAtomic(a))])
@@ -183,7 +183,7 @@ def _test_delta():
         false,
         PLAnd([
             true,
-            LTLfUntil([LTLfAtomic(a), LTLfAtomic(b)])
+            LTLfUntil([LTLfAtomic(sa), LTLfAtomic(sb)])
         ])
     ])
 
@@ -191,7 +191,7 @@ def _test_delta():
         false,
         PLOr([
             true,
-            LTLfRelease([LTLfAtomic(a), LTLfAtomic(b)])
+            LTLfRelease([LTLfAtomic(sa), LTLfAtomic(sa)])
         ])
     ])
 
@@ -201,7 +201,7 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     ltlf = parser(string_formula)
     ldlf = ltlf.to_LDLf()
 
-    # dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=False)
+    dfa = ltlf.to_automaton(alphabet, determinize=False, minimize=False)
     # dfa.to_dot("tests/automata/" + name + "_ltlf_no_min", title=name + "\n" + string_formula)
     dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=True)
     # dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)

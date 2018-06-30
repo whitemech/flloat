@@ -5,6 +5,7 @@ from pythomata.base.Alphabet import Alphabet as PythomataAlphabet
 from pythomata.base.DFA import DFA
 from pythomata.base.NFA import NFA
 from pythomata.base.Simulator import Simulator
+from pythomata.base.utils import MacroState
 
 from flloat.base.Alphabet import Alphabet
 from flloat.base.Formula import Formula
@@ -18,9 +19,8 @@ def find_atomics(formula: Formula) -> Set[PLAtomic]:
     """Finds all the atomic formulas"""
     f = formula
     res = set()
-    find_atoms = getattr(formula, "find_atomics", None)
-    if find_atoms:
-        res = find_atoms()
+    if isinstance(formula, PLFormula):
+        res = formula.find_atomics()
     # elif isinstance(f, PLNot):
     #     res = res.union(find_atomics(f.f))
     # elif isinstance(f, PLBinaryOperator):
@@ -45,7 +45,7 @@ def _transform_delta(f:Formula, formula2AtomicFormula):
         return formula2AtomicFormula[f]
 
 
-def to_automaton_(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
+def to_automaton_(f, labels:Set[Symbol]=None):
     """
     DEPRECATED
     From a LDLfFormula, build the automaton.
@@ -65,18 +65,18 @@ def to_automaton_(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
 
     # the alphabet is the powerset of the set of fluents
     alphabet = powerset(labels)
-    initial_states = {frozenset([nnf])}
-    final_states = {frozenset()}
+    initial_state = MacroState({nnf})
+    final_states = {MacroState()}
     delta = set()
 
     d = f.delta(PLFalseInterpretation(), epsilon=True)
     if d.truth(d):
-        final_states.add(frozenset([nnf]))
+        final_states.add(initial_state)
 
-    states = {frozenset(), frozenset([nnf])}
+    states = {MacroState(), initial_state}
 
     states_changed, delta_changed = True, True
-    global ha
+
     while states_changed or delta_changed:
 
         states_changed, delta_changed = False, False
@@ -113,12 +113,12 @@ def to_automaton_(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
 
                 # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
                 # is true.
-                models = frozenset(conjunctions.minimal_models(set(symbol2formula)))
+                models = frozenset(conjunctions.minimal_models(Alphabet(symbol2formula)))
 
                 if len(models) == 0:
                     continue
                 for min_model in models:
-                    q_prime = frozenset(
+                    q_prime = MacroState(
                         {symbol2formula[s] for s in min_model.true_propositions})
 
                     len_before = len(states)
@@ -153,19 +153,12 @@ def to_automaton_(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
     nfa = NFA.fromTransitions(
         alphabet=alphabet,
         states=frozenset(states),
-        initial_states=frozenset(initial_states),
+        initial_state=initial_state,
         accepting_states=frozenset(final_states),
         transitions=delta
     )
 
-    if determinize:
-        dfa = nfa.determinize()
-        if minimize:
-            dfa = dfa.minimize()
-            dfa = dfa.trim()
-        return dfa
-    else:
-        return nfa
+    return nfa
 
 
 class DFAOTF(Simulator):
@@ -253,7 +246,7 @@ class DFAOTF(Simulator):
         return frozenset(new_macrostate)
 
 
-def to_automaton(f, labels:Set[Symbol]=None, determinize=False, minimize=True):
+def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
     dfaotf = DFAOTF(f)
 
 

@@ -12,23 +12,6 @@ class NNF(ABC):
 
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def to_nnf(self):
-        # get the result already computed, if any
-        # if self._cache_id is None or NNF_CACHE.get(self._cache_id, None) is None:
-        #     nnf = self._to_nnf()
-        #     self._cache_id = hash(self)
-        #     # self._cache_id = len(NNF_CACHE)
-        #     NNF_CACHE[self._cache_id] = nnf
-        # else:
-        #     nnf = NNF_CACHE[self._cache_id]
-        # return nnf
-
-        # if NNF_CACHE.get(self, None) is None:
-        #     nnf = self._to_nnf()
-        #     NNF_CACHE[self] = nnf
-        # else:
-        #     nnf = NNF_CACHE[self]
-        # return nnf
-
         return self._to_nnf()
 
     @abstractmethod
@@ -40,6 +23,15 @@ class NNF(ABC):
         raise NotImplementedError
 
 
+class DualNNF(NNF):
+    @property
+    def Dual(self):
+        raise NotImplementedError
+
+    @Dual.setter
+    def Dual(self, x):
+        self.Dual = x
+
 class NotNNF(UnaryOperator, NNF):
     def _to_nnf(self):
         if not isinstance(self.f, AtomicFormula):
@@ -49,15 +41,6 @@ class NotNNF(UnaryOperator, NNF):
 
     def negate(self):
         return self.f
-
-class DualNNF(NNF):
-    @property
-    def Dual(self):
-        raise NotImplementedError
-
-    @Dual.setter
-    def Dual(self, x):
-        self.Dual = x
 
 
 class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
@@ -86,7 +69,7 @@ class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
         return self.Dual(childs).simplify()
 
 
-class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF, DualNNF):
+class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF):
     pass
     # def _to_nnf(self):
     #     childs = [child.to_nnf() for child in self.members]

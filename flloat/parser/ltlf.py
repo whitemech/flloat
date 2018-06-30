@@ -95,7 +95,7 @@ class LTLfParser(Parser):
             elif p[1] == Symbols.FALSE.value:
                 p[0] = LTLfFalse()
             else:
-                p[0] = LTLfAtomic(PLAtomic(Symbol(p[1])))
+                p[0] = LTLfAtomic(Symbol(p[1]))
         elif len(p) == 3:
             if p[1] == Symbols.NEXT.value:
                 p[0] = LTLfNext(p[2])
