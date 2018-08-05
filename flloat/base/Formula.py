@@ -83,7 +83,7 @@ class BinaryOperator(Operator):
         res = ()
         for child in self.formulas:
             if type(child) == type(self):
-                superchilds = child._popup()
+                superchilds = child.formulas
                 res += superchilds
             else:
                 res += (child, )
@@ -105,7 +105,7 @@ class CommutativeBinaryOperator(BinaryOperator):
             # remove duplicates -> set operation
             self.formulas_set = frozenset(self.formulas)
             # unique representation -> sorting
-            self.members = tuple(sorted(self.formulas_set, key=lambda x: str(x)))
+            self.members = tuple(sorted(self.formulas_set, key=lambda x: hash(x)))
 
     def simplify(self):
         if self.idempotence:

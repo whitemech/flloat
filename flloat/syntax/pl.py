@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Set
 
 
-from flloat.base.Alphabet import _Alphabet
+from flloat.base.Alphabet import _Alphabet, Alphabet
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
@@ -19,7 +19,7 @@ class PLTruth(Truth):
     def truth(self, i: PLInterpretation, *args):
         raise NotImplementedError
 
-class PLFormula(Formula, Truth, NNF):
+class PLFormula(Formula, PLTruth, NNF):
     def __init__(self):
         Formula.__init__(self)
 
@@ -30,7 +30,7 @@ class PLFormula(Formula, Truth, NNF):
     def all_models(self, alphabet: _Alphabet) -> Set[PLInterpretation]:
         """Find all the possible interpretations given a set of symbols"""
 
-        all_possible_interpretations = alphabet.powerset()
+        all_possible_interpretations = alphabet.powerset().symbols
         all_models = set()
         for i in all_possible_interpretations:
             # compute current Interpretation, considering False
@@ -83,7 +83,6 @@ class PLBinaryOperator(BinaryOperator, PLFormula):
             except:
                 res.add(subf)
         return res
-
 
 class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
     # def __init__(self, formulas):
@@ -157,9 +156,9 @@ class PLNot(NotTruth, PLFormula, NotNNF):
         return self.f.find_atomics()
 
 
-
 class PLOr(PLCommBinaryOperator, OrTruth):
     pass
+
 
 class PLAnd(PLCommBinaryOperator, AndTruth):
     pass
@@ -169,6 +168,7 @@ class PLImplies(PLBinaryOperator, ImpliesConvertible):
     And = PLAnd
     Or = PLOr
     Not = PLNot
+
 
 class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
     And = PLAnd

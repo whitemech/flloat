@@ -180,7 +180,8 @@ class DFAOTF(Simulator):
     def is_true(self):
         return self._is_true(self.cur_state)
 
-    def _is_true(self, Q):
+    @staticmethod
+    def _is_true(Q):
         if frozenset() in Q:
             return True
         conj = [PLAnd([subf.delta(None, epsilon=True) for subf in q]) if len(q) >= 2 else
@@ -198,8 +199,8 @@ class DFAOTF(Simulator):
     def make_transition(self, i:PLInterpretation):
         self.cur_state = self._make_transition(self.cur_state, i)
 
-
-    def _make_transition(self, Q, i: PLInterpretation):
+    @staticmethod
+    def _make_transition(Q, i: PLInterpretation):
         actions_set = i.true_propositions
         new_macrostate = set()
 
@@ -247,10 +248,8 @@ class DFAOTF(Simulator):
 
 
 def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
-    dfaotf = DFAOTF(f)
 
-
-    initial_state = frozenset({frozenset({dfaotf.f})})
+    initial_state = frozenset({frozenset({f.to_nnf()})})
     states = {initial_state}
     final_states = set()
     transition_function = {}
@@ -258,7 +257,7 @@ def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
     # the alphabet is the powerset of the set of fluents
     alphabet = powerset(labels)
 
-    if dfaotf.is_true():
+    if DFAOTF._is_true(initial_state):
         final_states.add(initial_state)
 
     visited = set()
@@ -269,7 +268,7 @@ def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
         for q in list(to_be_visited):
             to_be_visited.remove(q)
             for actions_set in alphabet:
-                new_state = dfaotf._make_transition(q, PLInterpretation(actions_set))
+                new_state = DFAOTF._make_transition(q, PLInterpretation(actions_set))
                 if not new_state in states:
                     states.add(new_state)
                     to_be_visited.add(new_state)
@@ -278,7 +277,7 @@ def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
 
                 if new_state not in visited:
                     visited.add(new_state)
-                    if dfaotf._is_true(new_state): final_states.add(new_state)
+                    if DFAOTF._is_true(new_state): final_states.add(new_state)
 
 
     new_alphabet = PythomataAlphabet({PLInterpretation(set(sym)) for sym in alphabet})

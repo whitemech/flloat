@@ -15,7 +15,7 @@ class _Alphabet(Hashable):
 
     def powerset(self):
         if self._powerset is None:
-            self._powerset = powerset(self.symbols)
+            self._powerset = _Alphabet(powerset(self.symbols))
         return self._powerset
 
 
@@ -25,7 +25,7 @@ class AlphabetConstructor(ObjConstructor):
         return super().__call__(f_symbols)
 
     @classmethod
-    def fromStrings(symbol_strings: Set[str]):
+    def fromStrings(cls, symbol_strings: Set[str]):
         f_symbols = frozenset(Symbol(s) for s in symbol_strings)
         return alphabet_factory.new(f_symbols)
 
