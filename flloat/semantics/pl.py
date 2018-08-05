@@ -1,4 +1,4 @@
-from typing import FrozenSet, Set
+from typing import FrozenSet, Set, List
 
 from flloat.base.Interpretation import Interpretation
 from flloat.base.Symbol import Symbol
@@ -48,6 +48,9 @@ class _PLInterpretationConstructor(ObjConstructor):
     def __call__(self, true_propositions:Set[Symbol]):
         f_sym = frozenset(true_propositions)
         return super().__call__(f_sym)
+
+    def fromStrings(self, strings:List[str]):
+        return self(set(Symbol(s) for s in strings))
 
 
 

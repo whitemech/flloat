@@ -4,7 +4,7 @@ from flloat.parser.ltlf import LTLfParser
 from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
 from flloat.syntax.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
-    LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext
+    LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfFalse
 from flloat.syntax.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 
 
@@ -118,12 +118,12 @@ def test_nnf():
 
     # Eventually and Always
     f = parser("!(F (A | B))")
-    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)]))
+    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
 
     f = parser("!(F (A | B))")
-    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)]))
+    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
     f = parser("!(G (A | B))")
-    assert f.to_nnf() == LTLfEventually(LTLfAnd([LTLfNot(a), LTLfNot(b)]))
+    assert f.to_nnf() == LTLfEventually(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
 
     # Until and Release
     f = parser("!(A U B)")
@@ -132,7 +132,7 @@ def test_nnf():
     assert f.to_nnf() == LTLfUntil([LTLfNot(a), LTLfNot(b)])
 
 
-def _test_delta():
+def test_delta():
     parser = LTLfParser()
     sa, sb = Symbol("A"), Symbol("B")
     a, b = PLAtomic(sa), PLAtomic(sb)
@@ -165,17 +165,19 @@ def _test_delta():
     assert parser("A | B").delta(i_b) ==  PLOr([false, true])
     assert parser("A | B").delta(i_ab) == PLOr([true, true])
 
-    assert parser("X A").delta(i_)   ==   LTLfAtomic(sa)
-    assert parser("X A").delta(i_a)  ==   LTLfAtomic(sa)
-    assert parser("X A").delta(i_b)  ==   LTLfAtomic(sa)
-    assert parser("X A").delta(i_ab) ==   LTLfAtomic(sa)
+    assert parser("X A").delta(i_)   ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
+    assert parser("X A").delta(i_a)  ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
+    assert parser("X A").delta(i_b)  ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
+    assert parser("X A").delta(i_ab) ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
     assert parser("X A").delta(i_, epsilon=True) == false
 
-    assert parser("F A").delta(i_a) ==    PLOr([true, LTLfEventually(LTLfAtomic(sa))])
-    assert parser("F A").delta(i_) ==     PLOr([false, LTLfEventually(LTLfAtomic(sa))])
+    assert parser("F A").delta(i_a) ==    PLOr([true,  PLAnd([LTLfEventually(LTLfTrue()).to_nnf(), true, LTLfUntil([LTLfTrue(), LTLfAtomic(sa)])])])
+    assert parser("F A").delta(i_) ==     PLOr([false, PLAnd([LTLfEventually(LTLfTrue()).to_nnf(), true, LTLfUntil([LTLfTrue(), LTLfAtomic(sa)])])])
+    assert parser("F A").delta(i_a, epsilon=True) == false
     assert parser("F A").delta(i_, epsilon=True) == false
 
-    assert parser("G A").delta(i_a) ==    PLAnd([true, LTLfAlways(LTLfAtomic(a))])
+    assert parser("G A").delta(i_a) ==  PLAnd([true, PLOr([false, LTLfAlways(LTLfFalse()).to_nnf(), LTLfRelease([LTLfFalse(), LTLfAtomic(sa)])])])
+    assert parser("G A").delta(i_a) ==  PLAnd([true, PLOr([false, LTLfAlways(LTLfFalse()).to_nnf(), LTLfRelease([LTLfFalse(), LTLfAtomic(sa)])])])
     assert parser("G A").delta(i_a, epsilon=True) == true
     assert parser("G A").delta(i_,  epsilon=True) == true
 
@@ -183,7 +185,8 @@ def _test_delta():
         false,
         PLAnd([
             true,
-            LTLfUntil([LTLfAtomic(sa), LTLfAtomic(sb)])
+            LTLfUntil([LTLfAtomic(sa), LTLfAtomic(sb)]),
+            LTLfEventually(LTLfTrue()).to_nnf()
         ])
     ])
 
@@ -191,7 +194,8 @@ def _test_delta():
         false,
         PLOr([
             true,
-            LTLfRelease([LTLfAtomic(sa), LTLfAtomic(sa)])
+            LTLfRelease([LTLfAtomic(sa), LTLfAtomic(sb)]),
+            LTLfAlways(LTLfFalse()).to_nnf()
         ])
     ])
 
@@ -201,7 +205,7 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     ltlf = parser(string_formula)
     ldlf = ltlf.to_LDLf()
 
-    dfa = ltlf.to_automaton(alphabet, determinize=False, minimize=False)
+    # dfa = ltlf.to_automaton(alphabet, determinize=False, minimize=False)
     # dfa.to_dot("tests/automata/" + name + "_ltlf_no_min", title=name + "\n" + string_formula)
     dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=True)
     # dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)

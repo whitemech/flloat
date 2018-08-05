@@ -44,7 +44,6 @@ class PLLexer(Lexer):
         return t
 
 
-# Yacc example
 class PLParser(Parser):
 
     def __init__(self):

@@ -7,9 +7,6 @@ from flloat.utils import MAX_CACHE_SIZE
 
 class NNF(ABC):
 
-    def __init__(self):
-        self._cache_id = None
-
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def to_nnf(self):
         return self._to_nnf()
@@ -50,7 +47,7 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
 
     @Not.setter
     def Not(self, x):
-        self.Not= x
+        self.Not = x
 
     def _to_nnf(self):
         return type(self)(self.f.to_nnf())
