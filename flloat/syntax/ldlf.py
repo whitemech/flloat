@@ -20,7 +20,7 @@ from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
 
 class RegExpTruth(Truth):
     @abstractmethod
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         raise NotImplementedError
 
 class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
@@ -190,7 +190,7 @@ class LDLfEquivalence(EquivalenceDeltaConvertible, LDLfCommBinaryOperator):
 class LDLfDiamond(LDLfTemporalFormulaNNF, FiniteTraceTruth):
     temporal_brackets = "<>"
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int=0):
         return any(self.r.truth(i, pos, j) and self.f.truth(i, j) for j in range(pos, i.last()+1))
         # last + 1 in order to include the last step
 
@@ -204,7 +204,7 @@ class LDLfBox(ConvertibleFormula, LDLfTemporalFormulaNNF):
     def _convert(self):
         return LDLfNot(LDLfDiamond(self.r, LDLfNot(self.f)))
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int=0):
         return self._convert().truth(i, pos)
 
     def _delta(self, i:PLInterpretation, epsilon=False):
@@ -217,7 +217,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         RegExpFormula.__init__(self)
         self.pl_formula = pl_formula
 
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         return end == start + 1 \
                 and end <= tr.last() \
                 and self.pl_formula.truth(tr.get(start))
@@ -265,7 +265,7 @@ class RegExpTest(UnaryOperator, RegExpFormula):
     #     RegExpFormula.__init__(self)
     #     UnaryOperator.__init__(self, f)
 
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         return start == end and self.f.truth(tr, start)
 
     def __str__(self):
@@ -294,7 +294,7 @@ class RegExpUnion(CommutativeBinaryOperator, RegExpFormula):
         RegExpFormula.__init__(self)
         CommutativeBinaryOperator.__init__(self, formulas)
 
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         return any(f.truth(tr, start, end) for f in self.formulas_set)
 
     def _to_nnf(self):
@@ -313,7 +313,7 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
         RegExpFormula.__init__(self)
         BinaryOperator.__init__(self, formulas)
 
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         f1 = self.formulas[0]
         if len(self.formulas) == 2:
             f2 = self.formulas[1]
@@ -346,7 +346,7 @@ class RegExpStar(UnaryOperator, RegExpFormula):
     #     UnaryOperator.__init__(self, f)
     #     RegExpFormula.__init__(self)
 
-    def truth(self, tr: FiniteTrace, start: int, end: int):
+    def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         return start == end \
             or any(self.f.truth(tr, start, k) and self.truth(tr, k, end)
                    for k in range(start, end + 1))
