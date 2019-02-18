@@ -1,0 +1,510 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>flloat.parser package &#8212; FLLOAT 0.1.4.post1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="flloat.semantics package" href="flloat.semantics.html" />
+    <link rel="prev" title="flloat.base package" href="flloat.base.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="flloat-parser-package">
+<h1>flloat.parser package<a class="headerlink" href="#flloat-parser-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-flloat.parser.ldlf">
+<span id="flloat-parser-ldlf-module"></span><h2>flloat.parser.ldlf module<a class="headerlink" href="#module-flloat.parser.ldlf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.parser.ldlf.LDLfLexer">
+<em class="property">class </em><code class="descclassname">flloat.parser.ldlf.</code><code class="descname">LDLfLexer</code><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfLexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Lexer" title="flloat.base.parsing.Lexer"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Lexer</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.reserved">
+<code class="descname">reserved</code><em class="property"> = {'end': 'END', 'false': 'FALSE', 'ff': 'FF', 'last': 'LAST', 'true': 'TRUE', 'tt': 'TT'}</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.reserved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_AND">
+<code class="descname">t_AND</code><em class="property"> = '&amp;'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_AND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_ATOM">
+<code class="descname">t_ATOM</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfLexer.t_ATOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_ATOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>[<a href="#id1"><span class="problematic" id="id2">a-zA-Z_</span></a>][a-zA-Z_0-9]*</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_BOXLSEPARATOR">
+<code class="descname">t_BOXLSEPARATOR</code><em class="property"> = '\\['</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_BOXLSEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_BOXRSEPARATOR">
+<code class="descname">t_BOXRSEPARATOR</code><em class="property"> = '\\]'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_BOXRSEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_DIAMONDLSEPARATOR">
+<code class="descname">t_DIAMONDLSEPARATOR</code><em class="property"> = '&lt;'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_DIAMONDLSEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_DIAMONDRSEPARATOR">
+<code class="descname">t_DIAMONDRSEPARATOR</code><em class="property"> = '&gt;'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_DIAMONDRSEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_EQUIVALENCE">
+<code class="descname">t_EQUIVALENCE</code><em class="property"> = '&lt;-&gt;'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_EQUIVALENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_IMPLIES">
+<code class="descname">t_IMPLIES</code><em class="property"> = '-&gt;'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_IMPLIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_LPAREN">
+<code class="descname">t_LPAREN</code><em class="property"> = '\\('</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_LPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_NOT">
+<code class="descname">t_NOT</code><em class="property"> = '!'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_NOT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_OR">
+<code class="descname">t_OR</code><em class="property"> = '\\|'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_OR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_RPAREN">
+<code class="descname">t_RPAREN</code><em class="property"> = '\\)'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_RPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_SEQ">
+<code class="descname">t_SEQ</code><em class="property"> = ';'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_SEQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_STAR">
+<code class="descname">t_STAR</code><em class="property"> = '\\*'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_STAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_TEST">
+<code class="descname">t_TEST</code><em class="property"> = '\\?'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_TEST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.t_UNION">
+<code class="descname">t_UNION</code><em class="property"> = '\\+'</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.t_UNION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ldlf.LDLfLexer.tokens">
+<code class="descname">tokens</code><em class="property"> = ('ATOM', 'NOT', 'AND', 'OR', 'IMPLIES', 'EQUIVALENCE', 'TEST', 'SEQ', 'UNION', 'STAR', 'LPAREN', 'RPAREN', 'BOXLSEPARATOR', 'BOXRSEPARATOR', 'DIAMONDLSEPARATOR', 'DIAMONDRSEPARATOR', 'TRUE', 'FALSE', 'TT', 'FF', 'END', 'LAST')</em><a class="headerlink" href="#flloat.parser.ldlf.LDLfLexer.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.parser.ldlf.LDLfParser">
+<em class="property">class </em><code class="descclassname">flloat.parser.ldlf.</code><code class="descname">LDLfParser</code><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Parser" title="flloat.base.parsing.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Parser</span></code></a></p>
+<dl class="method">
+<dt id="flloat.parser.ldlf.LDLfParser.p_expr_paren">
+<code class="descname">p_expr_paren</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfParser.p_expr_paren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfParser.p_expr_paren" title="Permalink to this definition">¶</a></dt>
+<dd><p>temp_formula : LPAREN temp_formula RPAREN
+path            : LPAREN path RPAREN
+propositional   : LPAREN propositional RPAREN</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ldlf.LDLfParser.p_path">
+<code class="descname">p_path</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfParser.p_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfParser.p_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>path : path UNION path
+| path SEQ path
+| path STAR
+| temp_formula TEST
+| propositional</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ldlf.LDLfParser.p_propositional">
+<code class="descname">p_propositional</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfParser.p_propositional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfParser.p_propositional" title="Permalink to this definition">¶</a></dt>
+<dd><p>propositional : propositional EQUIVALENCE propositional
+| propositional IMPLIES propositional
+| propositional OR propositional
+| propositional AND propositional
+| NOT propositional
+| FALSE
+| TRUE
+| ATOM</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ldlf.LDLfParser.p_temp_formula">
+<code class="descname">p_temp_formula</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ldlf.html#LDLfParser.p_temp_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ldlf.LDLfParser.p_temp_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>temp_formula : temp_formula EQUIVALENCE temp_formula
+| temp_formula IMPLIES temp_formula
+| temp_formula OR temp_formula
+| temp_formula AND temp_formula
+| BOXLSEPARATOR path BOXRSEPARATOR temp_formula
+| DIAMONDLSEPARATOR path DIAMONDRSEPARATOR temp_formula
+| NOT temp_formula
+| TT
+| FF
+| END
+| LAST</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.parser.ltlf">
+<span id="flloat-parser-ltlf-module"></span><h2>flloat.parser.ltlf module<a class="headerlink" href="#module-flloat.parser.ltlf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.parser.ltlf.LTLfLexer">
+<em class="property">class </em><code class="descclassname">flloat.parser.ltlf.</code><code class="descname">LTLfLexer</code><a class="reference internal" href="_modules/flloat/parser/ltlf.html#LTLfLexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Lexer" title="flloat.base.parsing.Lexer"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Lexer</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.reserved">
+<code class="descname">reserved</code><em class="property"> = {'F': 'EVENTUALLY', 'G': 'ALWAYS', 'R': 'RELEASE', 'U': 'UNTIL', 'WX': 'WEAK_NEXT', 'X': 'NEXT', 'false': 'FALSE', 'true': 'TRUE'}</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.reserved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_ALWAYS">
+<code class="descname">t_ALWAYS</code><em class="property"> = 'G'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_ALWAYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_AND">
+<code class="descname">t_AND</code><em class="property"> = '&amp;'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_AND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_ATOM">
+<code class="descname">t_ATOM</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ltlf.html#LTLfLexer.t_ATOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_ATOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>[<a href="#id3"><span class="problematic" id="id4">a-zA-Z_</span></a>][a-zA-Z_0-9]*</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_EQUIVALENCE">
+<code class="descname">t_EQUIVALENCE</code><em class="property"> = '&lt;-&gt;'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_EQUIVALENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_EVENTUALLY">
+<code class="descname">t_EVENTUALLY</code><em class="property"> = 'F'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_EVENTUALLY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_IMPLIES">
+<code class="descname">t_IMPLIES</code><em class="property"> = '-&gt;'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_IMPLIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_LPAREN">
+<code class="descname">t_LPAREN</code><em class="property"> = '\\('</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_LPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_NEXT">
+<code class="descname">t_NEXT</code><em class="property"> = 'X'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_NEXT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_NOT">
+<code class="descname">t_NOT</code><em class="property"> = '!'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_NOT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_OR">
+<code class="descname">t_OR</code><em class="property"> = '\\|'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_OR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_RELEASE">
+<code class="descname">t_RELEASE</code><em class="property"> = 'R'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_RELEASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_RPAREN">
+<code class="descname">t_RPAREN</code><em class="property"> = '\\)'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_RPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.t_UNTIL">
+<code class="descname">t_UNTIL</code><em class="property"> = 'U'</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.t_UNTIL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.ltlf.LTLfLexer.tokens">
+<code class="descname">tokens</code><em class="property"> = ('ATOM', 'NOT', 'AND', 'OR', 'IMPLIES', 'EQUIVALENCE', 'LPAREN', 'RPAREN', 'TRUE', 'FALSE', 'NEXT', 'WEAK_NEXT', 'UNTIL', 'EVENTUALLY', 'ALWAYS', 'RELEASE')</em><a class="headerlink" href="#flloat.parser.ltlf.LTLfLexer.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.parser.ltlf.LTLfParser">
+<em class="property">class </em><code class="descclassname">flloat.parser.ltlf.</code><code class="descname">LTLfParser</code><a class="reference internal" href="_modules/flloat/parser/ltlf.html#LTLfParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ltlf.LTLfParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Parser" title="flloat.base.parsing.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Parser</span></code></a></p>
+<dl class="method">
+<dt id="flloat.parser.ltlf.LTLfParser.p_expr_paren">
+<code class="descname">p_expr_paren</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ltlf.html#LTLfParser.p_expr_paren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ltlf.LTLfParser.p_expr_paren" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : LPAREN formula RPAREN</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.ltlf.LTLfParser.p_formula">
+<code class="descname">p_formula</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/ltlf.html#LTLfParser.p_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.ltlf.LTLfParser.p_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : formula EQUIVALENCE formula
+| formula IMPLIES formula
+| formula OR formula
+| formula AND formula
+| formula UNTIL formula
+| formula RELEASE formula
+| EVENTUALLY formula
+| ALWAYS formula
+| NEXT formula
+| WEAK_NEXT formula
+| NOT formula
+| TRUE
+| FALSE
+| ATOM</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.parser.pl">
+<span id="flloat-parser-pl-module"></span><h2>flloat.parser.pl module<a class="headerlink" href="#module-flloat.parser.pl" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.parser.pl.PLLexer">
+<em class="property">class </em><code class="descclassname">flloat.parser.pl.</code><code class="descname">PLLexer</code><a class="reference internal" href="_modules/flloat/parser/pl.html#PLLexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLLexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Lexer" title="flloat.base.parsing.Lexer"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Lexer</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.reserved">
+<code class="descname">reserved</code><em class="property"> = {'false': 'FALSE', 'true': 'TRUE'}</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.reserved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_AND">
+<code class="descname">t_AND</code><em class="property"> = '&amp;'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_AND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLLexer.t_ATOM">
+<code class="descname">t_ATOM</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLLexer.t_ATOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_ATOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>[<a href="#id5"><span class="problematic" id="id6">a-zA-Z_</span></a>][a-zA-Z_0-9]*</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_EQUIVALENCE">
+<code class="descname">t_EQUIVALENCE</code><em class="property"> = '&lt;-&gt;'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_EQUIVALENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_IMPLIES">
+<code class="descname">t_IMPLIES</code><em class="property"> = '-&gt;'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_IMPLIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_LPAREN">
+<code class="descname">t_LPAREN</code><em class="property"> = '\\('</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_LPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_NOT">
+<code class="descname">t_NOT</code><em class="property"> = '!'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_NOT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_OR">
+<code class="descname">t_OR</code><em class="property"> = '\\|'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_OR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.t_RPAREN">
+<code class="descname">t_RPAREN</code><em class="property"> = '\\)'</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.t_RPAREN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.parser.pl.PLLexer.tokens">
+<code class="descname">tokens</code><em class="property"> = ('ATOM', 'NOT', 'AND', 'OR', 'IMPLIES', 'EQUIVALENCE', 'LPAREN', 'RPAREN', 'TRUE', 'FALSE')</em><a class="headerlink" href="#flloat.parser.pl.PLLexer.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.parser.pl.PLParser">
+<em class="property">class </em><code class="descclassname">flloat.parser.pl.</code><code class="descname">PLParser</code><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.base.html#flloat.base.parsing.Parser" title="flloat.base.parsing.Parser"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.parsing.Parser</span></code></a></p>
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_and">
+<code class="descname">p_formula_and</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_and"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_and" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : formula AND formula</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_atom">
+<code class="descname">p_formula_atom</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : ATOM
+| TRUE
+| FALSE</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_equivalence">
+<code class="descname">p_formula_equivalence</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_equivalence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_equivalence" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : formula EQUIVALENCE formula</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_expression">
+<code class="descname">p_formula_expression</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : LPAREN formula RPAREN</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_implies">
+<code class="descname">p_formula_implies</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_implies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_implies" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : formula IMPLIES formula</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_not">
+<code class="descname">p_formula_not</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_not"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_not" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : NOT formula</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flloat.parser.pl.PLParser.p_formula_or">
+<code class="descname">p_formula_or</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/parser/pl.html#PLParser.p_formula_or"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.parser.pl.PLParser.p_formula_or" title="Permalink to this definition">¶</a></dt>
+<dd><p>formula : formula OR formula</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.parser">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-flloat.parser" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">FLLOAT</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">FLLOAT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">flloat</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="flloat.html">flloat package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">flloat</a><ul>
+  <li><a href="flloat.html">flloat package</a><ul>
+      <li>Previous: <a href="flloat.base.html" title="previous chapter">flloat.base package</a></li>
+      <li>Next: <a href="flloat.semantics.html" title="next chapter">flloat.semantics package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Marco Favorito.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/flloat.parser.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

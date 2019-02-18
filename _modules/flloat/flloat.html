@@ -1,0 +1,401 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>flloat.flloat &#8212; FLLOAT 0.1.4.post1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for flloat.flloat</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Set</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">pythomata.base.Alphabet</span> <span class="k">import</span> <span class="n">Alphabet</span> <span class="k">as</span> <span class="n">PythomataAlphabet</span>
+
+<span class="kn">from</span> <span class="nn">pythomata.base.DFA</span> <span class="k">import</span> <span class="n">DFA</span>
+<span class="kn">from</span> <span class="nn">pythomata.base.NFA</span> <span class="k">import</span> <span class="n">NFA</span>
+<span class="kn">from</span> <span class="nn">pythomata.base.Simulator</span> <span class="k">import</span> <span class="n">Simulator</span>
+<span class="kn">from</span> <span class="nn">pythomata.base.utils</span> <span class="k">import</span> <span class="n">MacroState</span>
+
+<span class="kn">from</span> <span class="nn">flloat.base.Alphabet</span> <span class="k">import</span> <span class="n">Alphabet</span>
+<span class="kn">from</span> <span class="nn">flloat.base.Formula</span> <span class="k">import</span> <span class="n">Formula</span>
+<span class="kn">from</span> <span class="nn">flloat.base.Symbol</span> <span class="k">import</span> <span class="n">Symbol</span>
+<span class="kn">from</span> <span class="nn">flloat.semantics.pl</span> <span class="k">import</span> <span class="n">PLInterpretation</span><span class="p">,</span> <span class="n">PLTrueInterpretation</span><span class="p">,</span> <span class="n">PLFalseInterpretation</span>
+<span class="kn">from</span> <span class="nn">flloat.syntax.pl</span> <span class="k">import</span> <span class="n">PLFormula</span><span class="p">,</span> <span class="n">PLAtomic</span><span class="p">,</span> <span class="n">PLTrue</span><span class="p">,</span> <span class="n">PLFalse</span><span class="p">,</span> <span class="n">PLNot</span><span class="p">,</span> <span class="n">PLBinaryOperator</span><span class="p">,</span> <span class="n">PLAnd</span><span class="p">,</span> <span class="n">PLOr</span><span class="p">,</span> <span class="n">PLImplies</span><span class="p">,</span> \
+    <span class="n">PLEquivalence</span>
+<span class="kn">from</span> <span class="nn">flloat.utils</span> <span class="k">import</span> <span class="n">powerset</span>
+
+<div class="viewcode-block" id="find_atomics"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.find_atomics">[docs]</a><span class="k">def</span> <span class="nf">find_atomics</span><span class="p">(</span><span class="n">formula</span><span class="p">:</span> <span class="n">Formula</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">PLAtomic</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Finds all the atomic formulas&quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">formula</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">PLFormula</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">formula</span><span class="o">.</span><span class="n">find_atomics</span><span class="p">()</span>
+    <span class="c1"># elif isinstance(f, PLNot):</span>
+    <span class="c1">#     res = res.union(find_atomics(f.f))</span>
+    <span class="c1"># elif isinstance(f, PLBinaryOperator):</span>
+    <span class="c1">#     for subf in f.formulas:</span>
+    <span class="c1">#         res = res.union(find_atomics(subf))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<span class="k">def</span> <span class="nf">_transform_delta</span><span class="p">(</span><span class="n">f</span><span class="p">:</span><span class="n">Formula</span><span class="p">,</span> <span class="n">formula2AtomicFormula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;From a Propositional Formula to a Propositional Formula</span>
+<span class="sd">    with non-propositional subformulas replaced with a &quot;freezed&quot; atomic formula.&quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLNot</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PLNot</span><span class="p">(</span><span class="n">_transform_delta</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">formula2AtomicFormula</span><span class="p">))</span>
+    <span class="c1"># elif isinstance(f, PLBinaryOperator): #PLAnd, PLOr, PLImplies, PLEquivalence</span>
+    <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLAnd</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLOr</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLImplies</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLEquivalence</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">([</span><span class="n">_transform_delta</span><span class="p">(</span><span class="n">subf</span><span class="p">,</span> <span class="n">formula2AtomicFormula</span><span class="p">)</span> <span class="k">for</span> <span class="n">subf</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">formulas</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLTrue</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">PLFalse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">formula2AtomicFormula</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="to_automaton_"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.to_automaton_">[docs]</a><span class="k">def</span> <span class="nf">to_automaton_</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span><span class="n">Set</span><span class="p">[</span><span class="n">Symbol</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DEPRECATED</span>
+<span class="sd">    From a LDLfFormula, build the automaton.</span>
+<span class="sd">    :param f:               a LDLfFormula;</span>
+<span class="sd">    :param labels:          a set of Symbol, the fluents of our domain. If None, retrieve them from the formula;</span>
+<span class="sd">    :param determinize:     True if you need to determinize the NFA, obtaining a DFA;</span>
+<span class="sd">    :param minimize:        True if you need to minimize the DFA (if determinize is False this flag has no effect.)</span>
+<span class="sd">    :return:                a NFA or a DFA which accepts the same traces that makes the formula True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nnf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">to_nnf</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># if the labels of the formula are not specified in input,</span>
+        <span class="c1"># retrieve them from the formula</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">nnf</span><span class="o">.</span><span class="n">find_labels</span><span class="p">()</span>
+
+    <span class="c1"># the alphabet is the powerset of the set of fluents</span>
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">powerset</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="n">MacroState</span><span class="p">({</span><span class="n">nnf</span><span class="p">})</span>
+    <span class="n">final_states</span> <span class="o">=</span> <span class="p">{</span><span class="n">MacroState</span><span class="p">()}</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">PLFalseInterpretation</span><span class="p">(),</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">truth</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">final_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)</span>
+
+    <span class="n">states</span> <span class="o">=</span> <span class="p">{</span><span class="n">MacroState</span><span class="p">(),</span> <span class="n">initial_state</span><span class="p">}</span>
+
+    <span class="n">states_changed</span><span class="p">,</span> <span class="n">delta_changed</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>
+
+    <span class="k">while</span> <span class="n">states_changed</span> <span class="ow">or</span> <span class="n">delta_changed</span><span class="p">:</span>
+
+        <span class="n">states_changed</span><span class="p">,</span> <span class="n">delta_changed</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">actions_set</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="p">:</span>
+            <span class="n">states_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">states_list</span><span class="p">:</span>
+
+                <span class="c1"># delta function applied to every formula in the macro state Q</span>
+                <span class="n">delta_formulas</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">actions_set</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">q</span><span class="p">]</span>
+
+                <span class="c1"># find the list of atoms, which are &quot;true&quot; atoms (i.e. propositional atoms) or LDLf formulas</span>
+                <span class="n">atomics</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">subf</span> <span class="ow">in</span> <span class="n">delta_formulas</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">find_atomics</span><span class="p">(</span><span class="n">subf</span><span class="p">)]</span>
+
+                <span class="c1"># &quot;freeze&quot; the found atoms as symbols and build a mapping from symbols to formulas</span>
+                <span class="n">symbol2formula</span> <span class="o">=</span> <span class="p">{</span><span class="n">Symbol</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)):</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">atomics</span> <span class="k">if</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLTrue</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLFalse</span><span class="p">()}</span>
+
+                <span class="c1"># build a map from formula to a &quot;freezed&quot; propositional Atomic Formula</span>
+                <span class="n">formula2atomic_formulas</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">f</span><span class="p">:</span> <span class="n">PLAtomic</span><span class="p">(</span><span class="n">Symbol</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)))</span>
+                    <span class="k">if</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLTrue</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLFalse</span><span class="p">()</span><span class="c1"># and not isinstance(f, PLAtomic)</span>
+                    <span class="k">else</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">atomics</span>
+                <span class="p">}</span>
+
+                <span class="c1"># the final list of Propositional Atomic Formulas, one for each formula in the original macro state Q</span>
+                <span class="n">transformed_delta_formulas</span> <span class="o">=</span> <span class="p">[</span><span class="n">_transform_delta</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">formula2atomic_formulas</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">delta_formulas</span><span class="p">]</span>
+
+                <span class="c1"># the empty conjunction stands for true</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">PLTrue</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">transformed_delta_formulas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">PLAnd</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span>
+
+                <span class="c1"># the model in this case is the smallest set of symbols s.t. the conjunction of &quot;freezed&quot; atomic formula</span>
+                <span class="c1"># is true.</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">conjunctions</span><span class="o">.</span><span class="n">minimal_models</span><span class="p">(</span><span class="n">Alphabet</span><span class="p">(</span><span class="n">symbol2formula</span><span class="p">)))</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">min_model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                    <span class="n">q_prime</span> <span class="o">=</span> <span class="n">MacroState</span><span class="p">(</span>
+                        <span class="p">{</span><span class="n">symbol2formula</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">min_model</span><span class="o">.</span><span class="n">true_propositions</span><span class="p">})</span>
+
+                    <span class="n">len_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+                    <span class="n">states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_before</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">states_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span>
+                        <span class="n">states_changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="n">len_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+                    <span class="n">delta</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">actions_set</span><span class="p">,</span> <span class="n">q_prime</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">==</span> <span class="n">len_before</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">delta_changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="c1"># check if q_prime should be added as final state</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">final_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">subf_deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">subf</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">PLFalseInterpretation</span><span class="p">(),</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">subf</span> <span class="ow">in</span> <span class="n">q_prime</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subf_deltas</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">q_prime_delta_conjunction</span> <span class="o">=</span> <span class="n">subf_deltas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">q_prime_delta_conjunction</span> <span class="o">=</span> <span class="n">PLAnd</span><span class="p">(</span><span class="n">subf_deltas</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">q_prime_delta_conjunction</span><span class="o">.</span><span class="n">truth</span><span class="p">(</span><span class="n">PLFalseInterpretation</span><span class="p">()):</span>
+                            <span class="n">final_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span>
+
+
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">PythomataAlphabet</span><span class="p">({</span><span class="n">PLInterpretation</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sym</span><span class="p">))</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="p">})</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">PLInterpretation</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)),</span> <span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">delta</span><span class="p">)</span>
+
+
+    <span class="n">nfa</span> <span class="o">=</span> <span class="n">NFA</span><span class="o">.</span><span class="n">fromTransitions</span><span class="p">(</span>
+        <span class="n">alphabet</span><span class="o">=</span><span class="n">alphabet</span><span class="p">,</span>
+        <span class="n">states</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">states</span><span class="p">),</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+        <span class="n">accepting_states</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">final_states</span><span class="p">),</span>
+        <span class="n">transitions</span><span class="o">=</span><span class="n">delta</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">nfa</span></div>
+
+
+<div class="viewcode-block" id="DFAOTF"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF">[docs]</a><span class="k">class</span> <span class="nc">DFAOTF</span><span class="p">(</span><span class="n">Simulator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;DFA on the fly&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">to_nnf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DFAOTF.reset"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="nb">frozenset</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">])])</span></div>
+
+<div class="viewcode-block" id="DFAOTF.word_acceptance"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF.word_acceptance">[docs]</a>    <span class="k">def</span> <span class="nf">word_acceptance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_set_list</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">PLInterpretation</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">action_set_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make_transition</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_true</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DFAOTF.is_true"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF.is_true">[docs]</a>    <span class="k">def</span> <span class="nf">is_true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_true</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_is_true</span><span class="p">(</span><span class="n">Q</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">frozenset</span><span class="p">()</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">conj</span> <span class="o">=</span> <span class="p">[</span><span class="n">PLAnd</span><span class="p">([</span><span class="n">subf</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">subf</span> <span class="ow">in</span> <span class="n">q</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span>
+                <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">q</span><span class="p">))</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>
+                <span class="n">PLFalse</span><span class="p">()</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conj</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conj</span> <span class="o">=</span> <span class="n">PLOr</span><span class="p">(</span><span class="n">conj</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conj</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">conj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">conj</span><span class="o">.</span><span class="n">truth</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DFAOTF.get_current_state"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF.get_current_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span></div>
+
+<div class="viewcode-block" id="DFAOTF.make_transition"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.DFAOTF.make_transition">[docs]</a>    <span class="k">def</span> <span class="nf">make_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">PLInterpretation</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_transition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_state</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_make_transition</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="n">PLInterpretation</span><span class="p">):</span>
+        <span class="n">actions_set</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">true_propositions</span>
+        <span class="n">new_macrostate</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">:</span>
+            <span class="c1"># delta function applied to every formula in the macro state Q</span>
+            <span class="n">delta_formulas</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">delta</span><span class="p">(</span><span class="n">actions_set</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">q</span><span class="p">]</span>
+
+            <span class="c1"># find the list of atoms, which are &quot;true&quot; atoms (i.e. propositional atoms) or LDLf formulas</span>
+            <span class="n">atomics</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">subf</span> <span class="ow">in</span> <span class="n">delta_formulas</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">find_atomics</span><span class="p">(</span><span class="n">subf</span><span class="p">)]</span>
+
+            <span class="n">atom2id</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atomics</span><span class="p">)}</span>
+            <span class="n">id2atom</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">atom2id</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="c1"># &quot;freeze&quot; the found atoms as symbols and build a mapping from symbols to formulas</span>
+            <span class="n">symbol2formula</span> <span class="o">=</span> <span class="p">{</span><span class="n">atom2id</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">atomics</span> <span class="k">if</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLTrue</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLFalse</span><span class="p">()}</span>
+
+            <span class="c1"># build a map from formula to a &quot;freezed&quot; propositional Atomic Formula</span>
+            <span class="n">formula2atomic_formulas</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">f</span><span class="p">:</span> <span class="n">PLAtomic</span><span class="p">(</span><span class="n">atom2id</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLTrue</span><span class="p">()</span> <span class="ow">and</span> <span class="n">f</span> <span class="o">!=</span> <span class="n">PLFalse</span><span class="p">()</span>  <span class="c1"># and not isinstance(f, PLAtomic)</span>
+                <span class="k">else</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">atomics</span>
+            <span class="p">}</span>
+
+            <span class="c1"># the final list of Propositional Atomic Formulas, one for each formula in the original macro state Q</span>
+            <span class="n">transformed_delta_formulas</span> <span class="o">=</span> <span class="p">[</span><span class="n">_transform_delta</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">formula2atomic_formulas</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">delta_formulas</span><span class="p">]</span>
+
+            <span class="c1"># the empy conjunction stands for true</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">PLTrue</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">transformed_delta_formulas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">PLAnd</span><span class="p">(</span><span class="n">transformed_delta_formulas</span><span class="p">)</span>
+
+            <span class="c1"># the model in this case is the smallest set of symbols s.t. the conjunction of &quot;freezed&quot; atomic formula</span>
+            <span class="c1"># is true.</span>
+            <span class="n">models</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">conjunctions</span><span class="o">.</span><span class="n">minimal_models</span><span class="p">(</span><span class="n">Alphabet</span><span class="p">(</span><span class="n">symbol2formula</span><span class="p">)))</span>
+
+            <span class="k">for</span> <span class="n">min_model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                <span class="n">q_prime</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">id2atom</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">min_model</span><span class="o">.</span><span class="n">true_propositions</span><span class="p">})</span>
+
+                <span class="n">new_macrostate</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q_prime</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">new_macrostate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_automaton"><a class="viewcode-back" href="../../flloat.html#flloat.flloat.to_automaton">[docs]</a><span class="k">def</span> <span class="nf">to_automaton</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span><span class="n">Set</span><span class="p">[</span><span class="n">Symbol</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minimize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="n">initial_state</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="nb">frozenset</span><span class="p">({</span><span class="n">f</span><span class="o">.</span><span class="n">to_nnf</span><span class="p">()})})</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="p">{</span><span class="n">initial_state</span><span class="p">}</span>
+    <span class="n">final_states</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">transition_function</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># the alphabet is the powerset of the set of fluents</span>
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">powerset</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">DFAOTF</span><span class="o">.</span><span class="n">_is_true</span><span class="p">(</span><span class="n">initial_state</span><span class="p">):</span>
+        <span class="n">final_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)</span>
+
+    <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">to_be_visited</span> <span class="o">=</span> <span class="p">{</span><span class="n">initial_state</span><span class="p">}</span>
+
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_be_visited</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">to_be_visited</span><span class="p">):</span>
+            <span class="n">to_be_visited</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">actions_set</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="p">:</span>
+                <span class="n">new_state</span> <span class="o">=</span> <span class="n">DFAOTF</span><span class="o">.</span><span class="n">_make_transition</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">PLInterpretation</span><span class="p">(</span><span class="n">actions_set</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">new_state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+                    <span class="n">states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+                    <span class="n">to_be_visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+
+                <span class="n">transition_function</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="p">{})[</span><span class="n">PLInterpretation</span><span class="p">(</span><span class="n">actions_set</span><span class="p">)]</span> <span class="o">=</span> <span class="n">new_state</span>
+
+                <span class="k">if</span> <span class="n">new_state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                    <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">DFAOTF</span><span class="o">.</span><span class="n">_is_true</span><span class="p">(</span><span class="n">new_state</span><span class="p">):</span> <span class="n">final_states</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_state</span><span class="p">)</span>
+
+
+    <span class="n">new_alphabet</span> <span class="o">=</span> <span class="n">PythomataAlphabet</span><span class="p">({</span><span class="n">PLInterpretation</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sym</span><span class="p">))</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="p">})</span>
+    <span class="n">dfa</span> <span class="o">=</span> <span class="n">DFA</span><span class="p">(</span><span class="n">new_alphabet</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">states</span><span class="p">),</span> <span class="n">initial_state</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">final_states</span><span class="p">),</span> <span class="n">transition_function</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">minimize</span><span class="p">:</span>
+        <span class="n">dfa</span> <span class="o">=</span> <span class="n">dfa</span><span class="o">.</span><span class="n">minimize</span><span class="p">()</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">dfa</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">FLLOAT</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">FLLOAT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">flloat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Marco Favorito.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

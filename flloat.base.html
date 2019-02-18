@@ -1,0 +1,770 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>flloat.base package &#8212; FLLOAT 0.1.4.post1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="flloat.parser package" href="flloat.parser.html" />
+    <link rel="prev" title="flloat package" href="flloat.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="flloat-base-package">
+<h1>flloat.base package<a class="headerlink" href="#flloat-base-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-flloat.base.Alphabet">
+<span id="flloat-base-alphabet-module"></span><h2>flloat.base.Alphabet module<a class="headerlink" href="#module-flloat.base.Alphabet" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.Alphabet.AlphabetConstructor">
+<em class="property">class </em><code class="descclassname">flloat.base.Alphabet.</code><code class="descname">AlphabetConstructor</code><span class="sig-paren">(</span><em>obj_factory: flloat.utils.ObjFactory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Alphabet.html#AlphabetConstructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Alphabet.AlphabetConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="flloat.html#flloat.utils.ObjConstructor" title="flloat.utils.ObjConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.utils.ObjConstructor</span></code></a></p>
+<dl class="classmethod">
+<dt id="flloat.base.Alphabet.AlphabetConstructor.fromStrings">
+<em class="property">classmethod </em><code class="descname">fromStrings</code><span class="sig-paren">(</span><em>symbol_strings: Set[str]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Alphabet.html#AlphabetConstructor.fromStrings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Alphabet.AlphabetConstructor.fromStrings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.Formula">
+<span id="flloat-base-formula-module"></span><h2>flloat.base.Formula module<a class="headerlink" href="#module-flloat.base.Formula" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.Formula.AtomicFormula">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">AtomicFormula</code><span class="sig-paren">(</span><em>s: flloat.base.Symbol.Symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#AtomicFormula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.AtomicFormula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.Formula" title="flloat.base.Formula.Formula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.Formula</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.Formula.AtomicFormula.find_labels">
+<code class="descname">find_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#AtomicFormula.find_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.AtomicFormula.find_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Formula.BinaryOperator">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">BinaryOperator</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#BinaryOperator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.BinaryOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.Operator" title="flloat.base.Formula.Operator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.Operator</span></code></a></p>
+<p>A generic binary formula</p>
+<dl class="method">
+<dt id="flloat.base.Formula.BinaryOperator.find_labels">
+<code class="descname">find_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#BinaryOperator.find_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.BinaryOperator.find_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Formula.CommutativeBinaryOperator">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">CommutativeBinaryOperator</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula], idempotence=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#CommutativeBinaryOperator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.CommutativeBinaryOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a></p>
+<p>A generic commutative binary formula</p>
+<dl class="method">
+<dt id="flloat.base.Formula.CommutativeBinaryOperator.find_labels">
+<code class="descname">find_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#CommutativeBinaryOperator.find_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.CommutativeBinaryOperator.find_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.Formula.CommutativeBinaryOperator.simplify">
+<code class="descname">simplify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#CommutativeBinaryOperator.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.CommutativeBinaryOperator.simplify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Formula.Formula">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">Formula</code><a class="reference internal" href="_modules/flloat/base/Formula.html#Formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.Formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.hashable.Hashable" title="flloat.base.hashable.Hashable"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.hashable.Hashable</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.Formula.Formula.find_labels">
+<code class="descname">find_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Set[flloat.base.Symbol.Symbol]<a class="reference internal" href="_modules/flloat/base/Formula.html#Formula.find_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.Formula.find_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.Formula.Formula.simplify">
+<code class="descname">simplify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#Formula.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.Formula.simplify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Formula.Operator">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">Operator</code><a class="reference internal" href="_modules/flloat/base/Formula.html#Operator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.Operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.Formula" title="flloat.base.Formula.Formula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.Formula</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.Formula.Operator.base_expression">
+<code class="descname">base_expression</code><em class="property"> = '(%s)'</em><a class="headerlink" href="#flloat.base.Formula.Operator.base_expression" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Formula.Operator.operator_symbol">
+<code class="descname">operator_symbol</code><a class="headerlink" href="#flloat.base.Formula.Operator.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Formula.UnaryOperator">
+<em class="property">class </em><code class="descclassname">flloat.base.Formula.</code><code class="descname">UnaryOperator</code><span class="sig-paren">(</span><em>f: flloat.base.Formula.Formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#UnaryOperator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.UnaryOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.Operator" title="flloat.base.Formula.Operator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.Operator</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.Formula.UnaryOperator.find_labels">
+<code class="descname">find_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Formula.html#UnaryOperator.find_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Formula.UnaryOperator.find_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.Interpretation">
+<span id="flloat-base-interpretation-module"></span><h2>flloat.base.Interpretation module<a class="headerlink" href="#module-flloat.base.Interpretation" title="Permalink to this headline">¶</a></h2>
+<p>Base class for implement semantics.</p>
+<dl class="class">
+<dt id="flloat.base.Interpretation.Interpretation">
+<em class="property">class </em><code class="descclassname">flloat.base.Interpretation.</code><code class="descname">Interpretation</code><a class="reference internal" href="_modules/flloat/base/Interpretation.html#Interpretation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Interpretation.Interpretation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.hashable.Hashable" title="flloat.base.hashable.Hashable"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.hashable.Hashable</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.Symbol">
+<span id="flloat-base-symbol-module"></span><h2>flloat.base.Symbol module<a class="headerlink" href="#module-flloat.base.Symbol" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.Symbol.ConstantSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">ConstantSymbol</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Symbol.html#ConstantSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.ConstantSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.FunctionSymbol" title="flloat.base.Symbol.FunctionSymbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.FunctionSymbol</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.FalseSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">FalseSymbol</code><a class="reference internal" href="_modules/flloat/base/Symbol.html#FalseSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.FalseSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.Symbol" title="flloat.base.Symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.Symbol</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.FunctionSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">FunctionSymbol</code><span class="sig-paren">(</span><em>name: str</em>, <em>arity: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Symbol.html#FunctionSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.FunctionSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.Symbol" title="flloat.base.Symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.Symbol</span></code></a></p>
+<p>A class to represent a function symbol (</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.LastSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">LastSymbol</code><a class="reference internal" href="_modules/flloat/base/Symbol.html#LastSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.LastSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.Symbol" title="flloat.base.Symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.Symbol</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.PredicateSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">PredicateSymbol</code><span class="sig-paren">(</span><em>name: str</em>, <em>arity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Symbol.html#PredicateSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.PredicateSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.Symbol" title="flloat.base.Symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.Symbol</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.Symbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">Symbol</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/Symbol.html#Symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.Symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#flloat.base.hashable.Hashable" title="flloat.base.hashable.Hashable"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.hashable.Hashable</span></code></a></p>
+<p>A class to represent a symbol (actually, a wrap for a string)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.Symbol.TrueSymbol">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbol.</code><code class="descname">TrueSymbol</code><a class="reference internal" href="_modules/flloat/base/Symbol.html#TrueSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbol.TrueSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Symbol.Symbol" title="flloat.base.Symbol.Symbol"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Symbol.Symbol</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.Symbols">
+<span id="flloat-base-symbols-module"></span><h2>flloat.base.Symbols module<a class="headerlink" href="#module-flloat.base.Symbols" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.Symbols.Symbols">
+<em class="property">class </em><code class="descclassname">flloat.base.Symbols.</code><code class="descname">Symbols</code><a class="reference internal" href="_modules/flloat/base/Symbols.html#Symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.Symbols.Symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.ALWAYS">
+<code class="descname">ALWAYS</code><em class="property"> = 'G'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.ALWAYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.ALWAYS_BRACKET_LEFT">
+<code class="descname">ALWAYS_BRACKET_LEFT</code><em class="property"> = '['</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.ALWAYS_BRACKET_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.ALWAYS_BRACKET_RIGHT">
+<code class="descname">ALWAYS_BRACKET_RIGHT</code><em class="property"> = ']'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.ALWAYS_BRACKET_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.AND">
+<code class="descname">AND</code><em class="property"> = '&amp;'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.AND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.CARET">
+<code class="descname">CARET</code><em class="property"> = '^'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.CARET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.END">
+<code class="descname">END</code><em class="property"> = 'end'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.END" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.EQUAL">
+<code class="descname">EQUAL</code><em class="property"> = '='</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.EQUAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.EQUIVALENCE">
+<code class="descname">EQUIVALENCE</code><em class="property"> = '&lt;-&gt;'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.EQUIVALENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.EVENTUALLY">
+<code class="descname">EVENTUALLY</code><em class="property"> = 'F'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.EVENTUALLY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.EVENTUALLY_BRACKET_LEFT">
+<code class="descname">EVENTUALLY_BRACKET_LEFT</code><em class="property"> = '&lt;'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.EVENTUALLY_BRACKET_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.EVENTUALLY_BRACKET_RIGHT">
+<code class="descname">EVENTUALLY_BRACKET_RIGHT</code><em class="property"> = '&gt;'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.EVENTUALLY_BRACKET_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.FALSE">
+<code class="descname">FALSE</code><em class="property"> = 'false'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.FALSE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.IMPLIES">
+<code class="descname">IMPLIES</code><em class="property"> = '-&gt;'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.IMPLIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.LAST">
+<code class="descname">LAST</code><em class="property"> = 'last'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.LAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.LOGICAL_FALSE">
+<code class="descname">LOGICAL_FALSE</code><em class="property"> = 'ff'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.LOGICAL_FALSE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.LOGICAL_TRUE">
+<code class="descname">LOGICAL_TRUE</code><em class="property"> = 'tt'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.LOGICAL_TRUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.LTLf_LAST">
+<code class="descname">LTLf_LAST</code><em class="property"> = 'last'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.LTLf_LAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.NEXT">
+<code class="descname">NEXT</code><em class="property"> = 'X'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.NEXT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.NOT">
+<code class="descname">NOT</code><em class="property"> = '!'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.NOT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.OR">
+<code class="descname">OR</code><em class="property"> = '|'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.OR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.PATH_SEQUENCE">
+<code class="descname">PATH_SEQUENCE</code><em class="property"> = ';'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.PATH_SEQUENCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.PATH_STAR">
+<code class="descname">PATH_STAR</code><em class="property"> = '*'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.PATH_STAR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.PATH_TEST">
+<code class="descname">PATH_TEST</code><em class="property"> = '?'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.PATH_TEST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.PATH_UNION">
+<code class="descname">PATH_UNION</code><em class="property"> = '+'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.PATH_UNION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.RELEASE">
+<code class="descname">RELEASE</code><em class="property"> = 'R'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.RELEASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.ROUND_BRACKET_LEFT">
+<code class="descname">ROUND_BRACKET_LEFT</code><em class="property"> = '('</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.ROUND_BRACKET_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.ROUND_BRACKET_RIGHT">
+<code class="descname">ROUND_BRACKET_RIGHT</code><em class="property"> = ')'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.ROUND_BRACKET_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.TRUE">
+<code class="descname">TRUE</code><em class="property"> = 'true'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.TRUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.UNTIL">
+<code class="descname">UNTIL</code><em class="property"> = 'U'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.UNTIL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.Symbols.Symbols.WEAK_NEXT">
+<code class="descname">WEAK_NEXT</code><em class="property"> = 'WX'</em><a class="headerlink" href="#flloat.base.Symbols.Symbols.WEAK_NEXT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.convertible">
+<span id="flloat-base-convertible-module"></span><h2>flloat.base.convertible module<a class="headerlink" href="#module-flloat.base.convertible" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.convertible.BaseConvertibleFormula">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">BaseConvertibleFormula</code><a class="reference internal" href="_modules/flloat/base/convertible.html#BaseConvertibleFormula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.BaseConvertibleFormula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.convertible.ConvertibleFormula" title="flloat.base.convertible.ConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.ConvertibleFormula</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a>, <a class="reference internal" href="#flloat.base.nnf.NNF" title="flloat.base.nnf.NNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.NNF</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.convertible.BaseConvertibleFormula.negate">
+<code class="descname">negate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#BaseConvertibleFormula.negate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.BaseConvertibleFormula.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.convertible.BaseConvertibleFormula.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#BaseConvertibleFormula.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.BaseConvertibleFormula.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.ConvertibleFormula">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">ConvertibleFormula</code><a class="reference internal" href="_modules/flloat/base/convertible.html#ConvertibleFormula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.ConvertibleFormula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.Formula" title="flloat.base.Formula.Formula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.Formula</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.DeltaConvertibleFormula">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">DeltaConvertibleFormula</code><a class="reference internal" href="_modules/flloat/base/convertible.html#DeltaConvertibleFormula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.DeltaConvertibleFormula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.convertible.BaseConvertibleFormula" title="flloat.base.convertible.BaseConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.BaseConvertibleFormula</span></code></a>, <a class="reference internal" href="#flloat.base.misc.Delta" title="flloat.base.misc.Delta"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.misc.Delta</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.EquivalenceConvertible">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">EquivalenceConvertible</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula], idempotence=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#EquivalenceConvertible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.EquivalenceConvertible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.truths.EquivalenceTruth" title="flloat.base.truths.EquivalenceTruth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.EquivalenceTruth</span></code></a>, <a class="reference internal" href="#flloat.base.convertible.BaseConvertibleFormula" title="flloat.base.convertible.BaseConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.BaseConvertibleFormula</span></code></a>, <a class="reference internal" href="#flloat.base.Formula.CommutativeBinaryOperator" title="flloat.base.Formula.CommutativeBinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.CommutativeBinaryOperator</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.convertible.EquivalenceConvertible.And">
+<code class="descname">And</code><a class="headerlink" href="#flloat.base.convertible.EquivalenceConvertible.And" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.convertible.EquivalenceConvertible.Not">
+<code class="descname">Not</code><a class="headerlink" href="#flloat.base.convertible.EquivalenceConvertible.Not" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.convertible.EquivalenceConvertible.Or">
+<code class="descname">Or</code><a class="headerlink" href="#flloat.base.convertible.EquivalenceConvertible.Or" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.EquivalenceDeltaConvertible">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">EquivalenceDeltaConvertible</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula], idempotence=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#EquivalenceDeltaConvertible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.EquivalenceDeltaConvertible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.convertible.EquivalenceConvertible" title="flloat.base.convertible.EquivalenceConvertible"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.EquivalenceConvertible</span></code></a>, <a class="reference internal" href="#flloat.base.convertible.DeltaConvertibleFormula" title="flloat.base.convertible.DeltaConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.DeltaConvertibleFormula</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.ImpliesConvertible">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">ImpliesConvertible</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#ImpliesConvertible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.ImpliesConvertible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.truths.ImpliesTruth" title="flloat.base.truths.ImpliesTruth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.ImpliesTruth</span></code></a>, <a class="reference internal" href="#flloat.base.convertible.BaseConvertibleFormula" title="flloat.base.convertible.BaseConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.BaseConvertibleFormula</span></code></a>, <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.convertible.ImpliesConvertible.And">
+<code class="descname">And</code><a class="headerlink" href="#flloat.base.convertible.ImpliesConvertible.And" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.convertible.ImpliesConvertible.Not">
+<code class="descname">Not</code><a class="headerlink" href="#flloat.base.convertible.ImpliesConvertible.Not" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.convertible.ImpliesConvertible.Or">
+<code class="descname">Or</code><a class="headerlink" href="#flloat.base.convertible.ImpliesConvertible.Or" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.convertible.ImpliesDeltaConvertible">
+<em class="property">class </em><code class="descclassname">flloat.base.convertible.</code><code class="descname">ImpliesDeltaConvertible</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/convertible.html#ImpliesDeltaConvertible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.convertible.ImpliesDeltaConvertible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.convertible.ImpliesConvertible" title="flloat.base.convertible.ImpliesConvertible"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.ImpliesConvertible</span></code></a>, <a class="reference internal" href="#flloat.base.convertible.DeltaConvertibleFormula" title="flloat.base.convertible.DeltaConvertibleFormula"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.convertible.DeltaConvertibleFormula</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.hashable">
+<span id="flloat-base-hashable-module"></span><h2>flloat.base.hashable module<a class="headerlink" href="#module-flloat.base.hashable" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.hashable.Hashable">
+<em class="property">class </em><code class="descclassname">flloat.base.hashable.</code><code class="descname">Hashable</code><a class="reference internal" href="_modules/flloat/base/hashable.html#Hashable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.hashable.Hashable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.misc">
+<span id="flloat-base-misc-module"></span><h2>flloat.base.misc module<a class="headerlink" href="#module-flloat.base.misc" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.misc.Delta">
+<em class="property">class </em><code class="descclassname">flloat.base.misc.</code><code class="descname">Delta</code><a class="reference internal" href="_modules/flloat/base/misc.html#Delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.misc.Delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="flloat.base.misc.Delta.delta">
+<code class="descname">delta</code><span class="sig-paren">(</span><em>i: &lt;flloat.semantics.pl._PLInterpretationConstructor object at 0x7f5f5ac024e0&gt;</em>, <em>epsilon=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/misc.html#Delta.delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.misc.Delta.delta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.nnf">
+<span id="flloat-base-nnf-module"></span><h2>flloat.base.nnf module<a class="headerlink" href="#module-flloat.base.nnf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.nnf.DualBinaryOperatorNNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">DualBinaryOperatorNNF</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#DualBinaryOperatorNNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualBinaryOperatorNNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.nnf.DualNNF" title="flloat.base.nnf.DualNNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.DualNNF</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.nnf.DualBinaryOperatorNNF.negate">
+<code class="descname">negate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#DualBinaryOperatorNNF.negate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualBinaryOperatorNNF.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.nnf.DualCommutativeOperatorNNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">DualCommutativeOperatorNNF</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula], idempotence=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#DualCommutativeOperatorNNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualCommutativeOperatorNNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.CommutativeBinaryOperator" title="flloat.base.Formula.CommutativeBinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.CommutativeBinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.nnf.DualBinaryOperatorNNF" title="flloat.base.nnf.DualBinaryOperatorNNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.DualBinaryOperatorNNF</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.nnf.DualNNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">DualNNF</code><a class="reference internal" href="_modules/flloat/base/nnf.html#DualNNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualNNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.nnf.NNF" title="flloat.base.nnf.NNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.NNF</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.nnf.DualNNF.Dual">
+<code class="descname">Dual</code><a class="headerlink" href="#flloat.base.nnf.DualNNF.Dual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.nnf.DualUnaryOperatorNNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">DualUnaryOperatorNNF</code><span class="sig-paren">(</span><em>f: flloat.base.Formula.Formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#DualUnaryOperatorNNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualUnaryOperatorNNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.UnaryOperator" title="flloat.base.Formula.UnaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.UnaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.nnf.DualNNF" title="flloat.base.nnf.DualNNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.DualNNF</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.nnf.DualUnaryOperatorNNF.Not">
+<code class="descname">Not</code><a class="headerlink" href="#flloat.base.nnf.DualUnaryOperatorNNF.Not" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.nnf.DualUnaryOperatorNNF.negate">
+<code class="descname">negate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#DualUnaryOperatorNNF.negate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.DualUnaryOperatorNNF.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.nnf.NNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">NNF</code><a class="reference internal" href="_modules/flloat/base/nnf.html#NNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.NNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="flloat.base.nnf.NNF.negate">
+<code class="descname">negate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#NNF.negate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.NNF.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.nnf.NNF.to_nnf">
+<code class="descname">to_nnf</code><a class="reference internal" href="_modules/flloat/base/nnf.html#NNF.to_nnf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.NNF.to_nnf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.nnf.NotNNF">
+<em class="property">class </em><code class="descclassname">flloat.base.nnf.</code><code class="descname">NotNNF</code><span class="sig-paren">(</span><em>f: flloat.base.Formula.Formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#NotNNF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.NotNNF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.UnaryOperator" title="flloat.base.Formula.UnaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.UnaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.nnf.NNF" title="flloat.base.nnf.NNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.nnf.NNF</span></code></a></p>
+<dl class="method">
+<dt id="flloat.base.nnf.NotNNF.negate">
+<code class="descname">negate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/nnf.html#NotNNF.negate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.nnf.NotNNF.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.parsing">
+<span id="flloat-base-parsing-module"></span><h2>flloat.base.parsing module<a class="headerlink" href="#module-flloat.base.parsing" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.parsing.Lexer">
+<em class="property">class </em><code class="descclassname">flloat.base.parsing.</code><code class="descname">Lexer</code><a class="reference internal" href="_modules/flloat/base/parsing.html#Lexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Lexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="flloat.base.parsing.Lexer.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/parsing.html#Lexer.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Lexer.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.parsing.Lexer.t_error">
+<code class="descname">t_error</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/parsing.html#Lexer.t_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Lexer.t_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.parsing.Lexer.t_ignore">
+<code class="descname">t_ignore</code><em class="property"> = ' \t'</em><a class="headerlink" href="#flloat.base.parsing.Lexer.t_ignore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.parsing.Lexer.t_newline">
+<code class="descname">t_newline</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/parsing.html#Lexer.t_newline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Lexer.t_newline" title="Permalink to this definition">¶</a></dt>
+<dd><p>n+</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="flloat.base.parsing.Lexer.tokens">
+<code class="descname">tokens</code><a class="headerlink" href="#flloat.base.parsing.Lexer.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.parsing.Parser">
+<em class="property">class </em><code class="descclassname">flloat.base.parsing.</code><code class="descname">Parser</code><span class="sig-paren">(</span><em>name</em>, <em>tokens</em>, <em>lexer</em>, <em>precedence=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/parsing.html#Parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="flloat.base.parsing.Parser.p_error">
+<code class="descname">p_error</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/parsing.html#Parser.p_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.parsing.Parser.p_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base.truths">
+<span id="flloat-base-truths-module"></span><h2>flloat.base.truths module<a class="headerlink" href="#module-flloat.base.truths" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flloat.base.truths.AndTruth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">AndTruth</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#AndTruth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.AndTruth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.truths.AndTruth.operator_symbol">
+<code class="descname">operator_symbol</code><em class="property"> = '&amp;'</em><a class="headerlink" href="#flloat.base.truths.AndTruth.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.truths.AndTruth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#AndTruth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.AndTruth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.truths.EquivalenceTruth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">EquivalenceTruth</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#EquivalenceTruth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.EquivalenceTruth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.truths.EquivalenceTruth.operator_symbol">
+<code class="descname">operator_symbol</code><em class="property"> = '&lt;-&gt;'</em><a class="headerlink" href="#flloat.base.truths.EquivalenceTruth.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.truths.EquivalenceTruth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#EquivalenceTruth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.EquivalenceTruth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.truths.ImpliesTruth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">ImpliesTruth</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#ImpliesTruth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.ImpliesTruth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.truths.ImpliesTruth.operator_symbol">
+<code class="descname">operator_symbol</code><em class="property"> = '-&gt;'</em><a class="headerlink" href="#flloat.base.truths.ImpliesTruth.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.truths.ImpliesTruth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#ImpliesTruth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.ImpliesTruth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.truths.NotTruth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">NotTruth</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#NotTruth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.NotTruth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.UnaryOperator" title="flloat.base.Formula.UnaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.UnaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.truths.NotTruth.operator_symbol">
+<code class="descname">operator_symbol</code><em class="property"> = '!'</em><a class="headerlink" href="#flloat.base.truths.NotTruth.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.truths.NotTruth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#NotTruth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.NotTruth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.truths.OrTruth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">OrTruth</code><span class="sig-paren">(</span><em>formulas: Sequence[flloat.base.Formula.Formula]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#OrTruth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.OrTruth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#flloat.base.Formula.BinaryOperator" title="flloat.base.Formula.BinaryOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.Formula.BinaryOperator</span></code></a>, <a class="reference internal" href="#flloat.base.truths.Truth" title="flloat.base.truths.Truth"><code class="xref py py-class docutils literal notranslate"><span class="pre">flloat.base.truths.Truth</span></code></a></p>
+<dl class="attribute">
+<dt id="flloat.base.truths.OrTruth.operator_symbol">
+<code class="descname">operator_symbol</code><em class="property"> = '|'</em><a class="headerlink" href="#flloat.base.truths.OrTruth.operator_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="flloat.base.truths.OrTruth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/flloat/base/truths.html#OrTruth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.OrTruth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="flloat.base.truths.Truth">
+<em class="property">class </em><code class="descclassname">flloat.base.truths.</code><code class="descname">Truth</code><a class="reference internal" href="_modules/flloat/base/truths.html#Truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.Truth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="method">
+<dt id="flloat.base.truths.Truth.truth">
+<code class="descname">truth</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/flloat/base/truths.html#Truth.truth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flloat.base.truths.Truth.truth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-flloat.base">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-flloat.base" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">FLLOAT</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">FLLOAT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">flloat</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="flloat.html">flloat package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">flloat</a><ul>
+  <li><a href="flloat.html">flloat package</a><ul>
+      <li>Previous: <a href="flloat.html" title="previous chapter">flloat package</a></li>
+      <li>Next: <a href="flloat.parser.html" title="next chapter">flloat.parser package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Marco Favorito.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/flloat.base.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
