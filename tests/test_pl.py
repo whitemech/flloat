@@ -101,6 +101,7 @@ def test_nnf():
     assert nnf_m.truth(i_b) == material_implication.truth(i_b) == nnf_material_implication.truth(i_b) == True
     assert nnf_m.truth(i_ab) == material_implication.truth(i_ab) == nnf_material_implication.truth(i_ab) == True
 
+
 def test_find_labels():
     parser = PLParser()
 
