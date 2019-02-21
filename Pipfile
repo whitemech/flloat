@@ -7,6 +7,7 @@ verify_ssl = true
 pytest = "*"
 sphinx = "*"
 tox = "*"
+ipython = "*"
 
 [packages]
 ply = "*"

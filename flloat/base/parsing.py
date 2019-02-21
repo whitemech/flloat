@@ -1,10 +1,7 @@
 from abc import ABC
 
-import sys
-from ply import lex
 import ply.yacc as yacc
-
-import os
+from ply import lex
 
 
 class Lexer(ABC):

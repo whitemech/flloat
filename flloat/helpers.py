@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import copy
 
+
 class Hashable(ABC):
 
     def __init__(self):

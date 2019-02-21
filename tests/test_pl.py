@@ -1,4 +1,4 @@
-from flloat.base.Symbol import Symbol
+from flloat.base.symbols import Symbol
 from flloat.parser.pl import PLParser
 from flloat.semantics.pl import PLInterpretation
 from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue

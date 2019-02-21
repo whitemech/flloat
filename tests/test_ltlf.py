@@ -38,7 +38,7 @@ def test_parser():
 
 def test_truth():
     parser = LTLfParser()
-    t = FiniteTrace.fromStringSets([
+    t = FiniteTrace.from_string_sets([
         {"A"},
         {"A"},
         {"B"},

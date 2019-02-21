@@ -2,8 +2,7 @@ from abc import abstractmethod
 from functools import lru_cache
 from typing import Set
 
-
-from flloat.base.Alphabet import _Alphabet, Alphabet
+from flloat.base.symbols import _Alphabet, Alphabet
 from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
@@ -18,6 +17,7 @@ class PLTruth(Truth):
     @abstractmethod
     def truth(self, i: PLInterpretation, *args):
         raise NotImplementedError
+
 
 class PLFormula(Formula, PLTruth, NNF):
     def __init__(self):
@@ -70,6 +70,7 @@ class PLFormula(Formula, PLTruth, NNF):
     def _find_atomics(self):
         raise NotImplementedError
 
+
 class PLBinaryOperator(BinaryOperator, PLFormula):
     # def __init__(self, formulas):
     #     PLFormula.__init__(self)
@@ -84,10 +85,8 @@ class PLBinaryOperator(BinaryOperator, PLFormula):
                 res.add(subf)
         return res
 
+
 class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
-    # def __init__(self, formulas):
-    #     PLFormula.__init__(self)
-    #     DualCommutativeOperatorNNF.__init__(self, formulas)
 
     def _find_atomics(self):
         res = set()
@@ -104,7 +103,7 @@ class PLAtomic(AtomicFormula, PLFormula):
     #     PLFormula.__init__(self)
     #     AtomicFormula.__init__(self, s)
 
-    def truth(self, i:PLInterpretation, *args):
+    def truth(self, i: PLInterpretation, *args):
         return self.s in i
 
     def _to_nnf(self):
@@ -119,6 +118,7 @@ class PLAtomic(AtomicFormula, PLFormula):
     def _find_atomics(self):
         return {self}
 
+
 class PLTrue(PLAtomic):
     def __init__(self):
         PLAtomic.__init__(self, Symbol(Symbols.TRUE.value))
@@ -131,6 +131,7 @@ class PLTrue(PLAtomic):
 
     def find_labels(self):
         return set()
+
 
 class PLFalse(PLAtomic):
     def __init__(self):
@@ -174,6 +175,7 @@ class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
     And = PLAnd
     Or = PLOr
     Not = PLNot
+
 
 PLOr.Dual = PLAnd
 PLAnd.Dual = PLOr

@@ -20,7 +20,8 @@ class NNF(ABC):
         raise NotImplementedError
 
 
-class DualNNF(NNF):
+class DualNNF(NNF, ABC):
+
     @property
     def Dual(self):
         raise NotImplementedError
@@ -29,7 +30,8 @@ class DualNNF(NNF):
     def Dual(self, x):
         self.Dual = x
 
-class NotNNF(UnaryOperator, NNF):
+
+class NotNNF(UnaryOperator, NNF, ABC):
     def _to_nnf(self):
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
@@ -40,7 +42,7 @@ class NotNNF(UnaryOperator, NNF):
         return self.f
 
 
-class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
+class DualUnaryOperatorNNF(UnaryOperator, DualNNF, ABC):
     @property
     def Not(self):
         raise NotImplementedError
@@ -55,7 +57,8 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF):
     def negate(self):
         return self.Dual(self.Not(self.f))
 
-class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
+
+class DualBinaryOperatorNNF(BinaryOperator, DualNNF, ABC):
 
     def _to_nnf(self):
         childs = [child.to_nnf() for child in self.formulas]
@@ -66,14 +69,6 @@ class DualBinaryOperatorNNF(BinaryOperator, DualNNF):
         return self.Dual(childs).simplify()
 
 
-class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF):
+class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF, ABC):
     pass
-    # def _to_nnf(self):
-    #     childs = [child.to_nnf() for child in self.members]
-    #     return type(self)(childs).simplify()
-    #
-    # def negate(self):
-    #     childs = [child.negate().to_nnf() for child in self.members]
-    #     return self.Dual(childs)
-
 

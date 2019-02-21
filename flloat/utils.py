@@ -17,11 +17,13 @@ def powerset(iterable) -> FrozenSet:
     # res = map(frozenset, combs)
     return res
 
+
 def _powerset(iterable):
     s = list(set(iterable))
     combs = chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
     for c in combs:
         yield c
+
 
 def sym2regexp(sym:Symbols):
     s = sym.value
@@ -29,6 +31,7 @@ def sym2regexp(sym:Symbols):
         return r"\%s"%s
     else:
         return s
+
 
 MAX_CACHE_SIZE = 1024
 

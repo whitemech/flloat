@@ -36,8 +36,6 @@ class PLLexer(Lexer):
     t_LPAREN       = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
     t_RPAREN       = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
 
-
-
     def t_ATOM(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = PLLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
@@ -97,7 +95,7 @@ if __name__ == '__main__':
     parser = PLParser()
     while True:
         try:
-            s = input('calc > ')
+            s = input('pl > ')
         except EOFError:
             break
         if not s: continue

@@ -3,10 +3,11 @@ from typing import Sequence, Set
 
 from flloat.base.Symbol import Symbol
 from flloat.base.Symbols import Symbols
-from flloat.base.hashable import Hashable
+
+from flloat.helpers import Hashable
 
 
-class Formula(Hashable):
+class Formula(Hashable, ABC):
     def __init__(self):
         super().__init__()
 
@@ -17,8 +18,9 @@ class Formula(Hashable):
     def simplify(self):
         return self
 
+
 class AtomicFormula(Formula):
-    def __init__(self, s:Symbol):
+    def __init__(self, s: Symbol):
         super().__init__()
         self.s = s
 
@@ -31,7 +33,8 @@ class AtomicFormula(Formula):
     def find_labels(self):
         return {self.s}
 
-class Operator(Formula):
+
+class Operator(Formula, ABC):
     base_expression = Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
 
     @property
@@ -39,7 +42,7 @@ class Operator(Formula):
         raise NotImplementedError
 
 
-class UnaryOperator(Operator):
+class UnaryOperator(Operator, ABC):
     def __init__(self, f: Formula):
         super().__init__()
         self.f = f.simplify()
@@ -48,7 +51,7 @@ class UnaryOperator(Operator):
         return self.operator_symbol + Symbols.ROUND_BRACKET_LEFT.value + str(self.f) + Symbols.ROUND_BRACKET_RIGHT.value
 
     def _members(self):
-        return (self.operator_symbol, self.f)
+        return self.operator_symbol, self.f
 
     def __lt__(self, other):
         return self.f.__lt__(other.f)
@@ -61,11 +64,10 @@ OperatorChilds = Sequence[Formula]
 CommOperatorChilds = Set[Formula]
 
 
-class BinaryOperator(Operator):
+class BinaryOperator(Operator, ABC):
     """A generic binary formula"""
 
-
-    def __init__(self, formulas:OperatorChilds):
+    def __init__(self, formulas: OperatorChilds):
         super().__init__()
         assert len(formulas) >= 2
         self.formulas = tuple(formulas)
@@ -92,9 +94,9 @@ class BinaryOperator(Operator):
     def find_labels(self):
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
-class CommutativeBinaryOperator(BinaryOperator):
-    """A generic commutative binary formula"""
 
+class CommutativeBinaryOperator(BinaryOperator, ABC):
+    """A generic commutative binary formula"""
 
     def __init__(self, formulas:OperatorChilds, idempotence=True):
         # Assuming idempotence: e.g. A & A === A
@@ -116,10 +118,9 @@ class CommutativeBinaryOperator(BinaryOperator):
         else:
             return self
 
-
     def _members(self):
         if self.idempotence:
-            return (self.operator_symbol, self.members)
+            return self.operator_symbol, self.members
             # return (self.operator_symbol, self.formulas_set)
         else:
             return super()._members()
@@ -129,6 +130,6 @@ class CommutativeBinaryOperator(BinaryOperator):
 
     def __str__(self):
         if self.idempotence:
-            return "(" + (" "+self.operator_symbol+" ").join(map(str,self.members)) + ")"
+            return "(" + (" "+self.operator_symbol+" ").join(map(str, self.members)) + ")"
         else:
             return super().__str__()

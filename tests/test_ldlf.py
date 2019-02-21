@@ -1,4 +1,4 @@
-from flloat.base.Symbol import Symbol
+from flloat.base.symbols import Symbol
 from flloat.parser.ldlf import LDLfParser
 from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
@@ -94,7 +94,7 @@ def test_truth():
     assert not  LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
 
     parser = LDLfParser()
-    trace = FiniteTrace.fromStringSets([
+    trace = FiniteTrace.from_string_sets([
         {},
         {"A"},
         {"A"},

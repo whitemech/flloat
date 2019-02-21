@@ -16,7 +16,7 @@ def test_ldlf_example_readme():
 
     from flloat.semantics.ldlf import FiniteTrace
 
-    t1 = FiniteTrace.fromStringSets([
+    t1 = FiniteTrace.from_string_sets([
         {},
         {"A"},
         {"A"},
@@ -25,7 +25,7 @@ def test_ldlf_example_readme():
     ])
     assert parsed_formula.truth(t1, 0)
 
-    t2 = FiniteTrace.fromStringSets([
+    t2 = FiniteTrace.from_string_sets([
         {},
         {"A"},
         {"B"}
@@ -46,7 +46,7 @@ def test_ltlf_example_readme():
     formula = "F (A & !B)"
     parsed_formula = parser(formula)
 
-    t1 = FiniteTrace.fromStringSets([
+    t1 = FiniteTrace.from_string_sets([
         {},
         {"A"},
         {"A"},
@@ -54,7 +54,7 @@ def test_ltlf_example_readme():
     ])
     assert parsed_formula.truth(t1, 0)
 
-    t2 = FiniteTrace.fromStringSets([
+    t2 = FiniteTrace.from_string_sets([
         {},
         {"A", "B"},
         {"B"}

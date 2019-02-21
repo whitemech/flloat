@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from flloat.base.Formula import Formula, BinaryOperator, CommutativeBinaryOperator
 from flloat.base.misc import Delta
@@ -13,7 +13,7 @@ class ConvertibleFormula(Formula):
         raise NotImplementedError
 
 
-class BaseConvertibleFormula(ConvertibleFormula, Truth, NNF):
+class BaseConvertibleFormula(ConvertibleFormula, Truth, NNF, ABC):
     def truth(self, *args):
         return self._convert().truth(*args)
 
@@ -25,11 +25,13 @@ class BaseConvertibleFormula(ConvertibleFormula, Truth, NNF):
 
 
 class DeltaConvertibleFormula(BaseConvertibleFormula, Delta):
-    def _delta(self, i:PLInterpretation, epsilon=False):
+
+    def _delta(self, i: PLInterpretation, epsilon=False):
         return self._convert().delta(i, epsilon)
 
 
 class ImpliesConvertible(ImpliesTruth, BaseConvertibleFormula, BinaryOperator):
+
     @property
     def And(self):
         raise NotImplementedError
@@ -51,10 +53,13 @@ class ImpliesConvertible(ImpliesTruth, BaseConvertibleFormula, BinaryOperator):
         res = self.Or([self.Not(a), b])
         return res
 
-class ImpliesDeltaConvertible(ImpliesConvertible, DeltaConvertibleFormula):
+
+class ImpliesDeltaConvertible(ImpliesConvertible, DeltaConvertibleFormula, ABC):
     pass
 
-class EquivalenceConvertible(EquivalenceTruth, BaseConvertibleFormula, CommutativeBinaryOperator):
+
+class EquivalenceConvertible(EquivalenceTruth, BaseConvertibleFormula, CommutativeBinaryOperator, ABC):
+
     @property
     def And(self):
         raise NotImplementedError
@@ -75,5 +80,6 @@ class EquivalenceConvertible(EquivalenceTruth, BaseConvertibleFormula, Commutati
         res = self.Or([pos, neg])
         return res
 
-class EquivalenceDeltaConvertible(EquivalenceConvertible, DeltaConvertibleFormula):
+
+class EquivalenceDeltaConvertible(EquivalenceConvertible, DeltaConvertibleFormula, ABC):
     pass
