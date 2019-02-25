@@ -24,6 +24,8 @@ FLLOAT
      :alt: Join the chat at https://gitter.im/rltg_flloat/Lobby
      :target: https://gitter.im/rltg_flloat/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2577006.svg
+   :target: https://doi.org/10.5281/zenodo.2577006
 
 A Python implementation of the `FLLOAT`_ library.
 
