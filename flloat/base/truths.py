@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from flloat.base.Formula import UnaryOperator, BinaryOperator
-from flloat.base.Symbols import Symbols
+from flloat.base.formulas import UnaryOperator, BinaryOperator
+from flloat.base.symbols import Symbols
 
 
 class Truth(ABC):

@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Set
 
 from flloat.base.symbols import Interpretation
-from flloat.base.Symbol import Symbol
+from flloat.base.symbols import Symbol
 from flloat.base.truths import Truth
 from flloat.semantics.pl import PLInterpretation
 
@@ -16,7 +16,7 @@ class FiniteTrace(Interpretation):
         return tuple(self.trace)
 
     @staticmethod
-    def from_symbol_sets(l:List[Set[Symbol]]):
+    def from_symbol_sets(l: List[Set[Symbol]]):
         return FiniteTrace([PLInterpretation(s) for s in l])
 
     def length(self):

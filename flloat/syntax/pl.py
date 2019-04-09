@@ -2,18 +2,18 @@ from abc import abstractmethod
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.symbols import _Alphabet, Alphabet
-from flloat.base.Formula import Formula, CommutativeBinaryOperator, BinaryOperator, AtomicFormula
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
+
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
-from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualCommutativeOperatorNNF
+from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula
+from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF
+from flloat.base.symbols import _Alphabet, Symbol, Symbols
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
-from flloat.utils import powerset, _powerset, MAX_CACHE_SIZE
+from flloat.helpers import MAX_CACHE_SIZE
 
 
 class PLTruth(Truth):
+
     @abstractmethod
     def truth(self, i: PLInterpretation, *args):
         raise NotImplementedError
@@ -72,9 +72,6 @@ class PLFormula(Formula, PLTruth, NNF):
 
 
 class PLBinaryOperator(BinaryOperator, PLFormula):
-    # def __init__(self, formulas):
-    #     PLFormula.__init__(self)
-    #     BinaryOperator.__init__(self, formulas)
 
     def _find_atomics(self):
         res = set()
@@ -99,9 +96,6 @@ class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
 
 
 class PLAtomic(AtomicFormula, PLFormula):
-    # def __init__(self, s):
-    #     PLFormula.__init__(self)
-    #     AtomicFormula.__init__(self, s)
 
     def truth(self, i: PLInterpretation, *args):
         return self.s in i
@@ -150,10 +144,6 @@ class PLFalse(PLAtomic):
 class PLNot(NotTruth, PLFormula, NotNNF):
 
     def _find_atomics(self):
-        # try:
-        #     return self.f.find_atomics()
-        # except:
-        #     return self.f
         return self.f.find_atomics()
 
 

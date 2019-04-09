@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
 
-from flloat.base.Formula import UnaryOperator, CommutativeBinaryOperator, AtomicFormula, BinaryOperator
-from flloat.utils import MAX_CACHE_SIZE
+from flloat.base.formulas import UnaryOperator, CommutativeBinaryOperator, AtomicFormula, BinaryOperator
+
+from flloat.helpers import MAX_CACHE_SIZE
 
 
 class NNF(ABC):

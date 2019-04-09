@@ -2,20 +2,21 @@ from abc import abstractmethod
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.Formula import Formula, CommutativeBinaryOperator, AtomicFormula, BinaryOperator, UnaryOperator
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
 from flloat.base.convertible import ImpliesDeltaConvertible, EquivalenceDeltaConvertible, ConvertibleFormula, \
     BaseConvertibleFormula, DeltaConvertibleFormula
+from flloat.base.delta import Delta
+from flloat.base.formulas import Formula, CommutativeBinaryOperator, AtomicFormula, UnaryOperator
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualUnaryOperatorNNF
+from flloat.base.symbols import Symbol, Symbols
 from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth
-from flloat.utils import MAX_CACHE_SIZE
-from flloat.flloat import DFAOTF, to_automaton, to_automaton_
+from flloat.flloat import DFAOTF, to_automaton
+# from flloat.flloat import DFAOTF, to_automaton_
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
-from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.ldlf import Delta, LDLfAtomic, LDLfNot, LDLfAnd, LDLfOr, LDLfEquivalence, LDLfDiamond, \
-    RegExpPropositional, RegExpStar, RegExpSequence, RegExpTest, LDLfPropositional, LDLfBox, LDLfEnd
+from flloat.semantics.pl import PLInterpretation
+from flloat.syntax.ldlf import LDLfNot, LDLfAnd, LDLfOr, LDLfDiamond, \
+    RegExpPropositional, RegExpStar, RegExpSequence, RegExpTest, LDLfPropositional, LDLfEnd
 from flloat.syntax.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic
+from flloat.helpers import MAX_CACHE_SIZE
 
 
 class LTLfTruth(Truth):
@@ -50,7 +51,8 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
     def __repr__(self):
         return self.__str__()
 
-    def to_automaton(self, labels:Set[Symbol]=None, on_the_fly=False, determinize=False, minimize=True):
+    def to_automaton(self, labels: Set[Symbol] = None, on_the_fly: bool = False, determinize: bool = False,
+                     minimize: bool = True):
         if labels is None:
             labels = self.find_labels()
         if on_the_fly:
@@ -58,7 +60,8 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         elif determinize:
             return to_automaton(self, labels, minimize)
         else:
-            return to_automaton_(self, labels)
+            pass
+            # return to_automaton_(self, labels)
 
 
 class LTLfCommBinaryOperator(CommutativeBinaryOperator, LTLfFormula):
@@ -119,7 +122,6 @@ class LTLfFalse(LTLfAtomic):
         return LTLfTrue()
 
 
-
 class LTLfNot(NotTruth, LTLfFormula, NotNNF):
 
     def _delta(self, i: PLInterpretation, epsilon=False):
@@ -131,6 +133,7 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
 
     def to_LDLf(self):
         return LDLfNot(self.f.to_LDLf())
+
 
 class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
 
@@ -157,6 +160,7 @@ class LTLfImplies(ImpliesDeltaConvertible, LTLfFormula):
 
     def to_LDLf(self):
         return self._convert().to_LDLf()
+
 
 class LTLfEquivalence(EquivalenceDeltaConvertible, LTLfCommBinaryOperator):
     And = LTLfAnd

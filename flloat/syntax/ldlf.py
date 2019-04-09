@@ -2,17 +2,17 @@ from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.Formula import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
+from flloat.base.delta import Delta
+from flloat.base.formulas import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
     AtomicFormula
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
+from flloat.base.symbols import Symbol, Symbols
 from flloat.base.convertible import DeltaConvertibleFormula, ImpliesDeltaConvertible, EquivalenceDeltaConvertible, \
     ConvertibleFormula
-from flloat.base.misc import Delta
 from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
-from flloat.utils import MAX_CACHE_SIZE
-from flloat.flloat import to_automaton, DFAOTF, to_automaton_
+from flloat.helpers import MAX_CACHE_SIZE
+from flloat.flloat import to_automaton, DFAOTF
+# from flloat.flloat import to_automaton_
 from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
@@ -22,6 +22,7 @@ class RegExpTruth(Truth):
     @abstractmethod
     def truth(self, tr: FiniteTrace, start: int=0, end: int=0):
         raise NotImplementedError
+
 
 class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
 
@@ -45,7 +46,8 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
     def __repr__(self):
         return self.__str__()
 
-    def to_automaton(self, labels:Set[Symbol]=None, on_the_fly=False, determinize=False, minimize=True):
+    def to_automaton(self, labels: Set[Symbol] = None, on_the_fly: bool = False, determinize: bool = False,
+                     minimize: bool = True):
         if labels is None:
             labels = self.find_labels()
         if on_the_fly:
@@ -53,7 +55,8 @@ class LDLfFormula(Formula, FiniteTraceTruth, NNF, Delta):
         elif determinize:
             return to_automaton(self, labels, minimize)
         else:
-            return to_automaton_(self, labels)
+            pass
+            # return to_automaton_(self, labels)
 
 
 class LDLfCommBinaryOperator(CommutativeBinaryOperator, LDLfFormula):
@@ -258,6 +261,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
     def _find_atomics(self):
         return self.pl_formula.find_atomics()
 
+
 class RegExpTest(UnaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_TEST.value
 
@@ -288,6 +292,7 @@ class RegExpTest(UnaryOperator, RegExpFormula):
     def find_labels(self):
         return self.f.find_labels()
 
+
 class RegExpUnion(CommutativeBinaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_UNION.value
     def __init__(self, formulas):
@@ -306,6 +311,7 @@ class RegExpUnion(CommutativeBinaryOperator, RegExpFormula):
     def deltaBox(self, f:LDLfFormula, i: PLInterpretation, epsilon=False):
         return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas_set])
 
+
 class RegExpSequence(BinaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_SEQUENCE.value
 
@@ -321,7 +327,6 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
             f2 = RegExpSequence(self.formulas[1:])
 
         return any(f1.truth(tr, start, k) and f2.truth(tr, k, end) for k in range(start, end + 1))
-
 
     def _to_nnf(self):
         return RegExpSequence([r.to_nnf() for r in self.formulas])

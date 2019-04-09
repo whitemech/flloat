@@ -1,19 +1,16 @@
 from typing import Set, List
 
+from flloat.base.formulas import Formula
+from flloat.base.symbols import Symbol
 from pythomata.base.Alphabet import Alphabet as PythomataAlphabet
-
 from pythomata.base.DFA import DFA
-from pythomata.base.NFA import NFA
 from pythomata.base.Simulator import Simulator
-from pythomata.base.utils import MacroState
 
 from flloat.base.symbols import Alphabet
-from flloat.base.Formula import Formula
-from flloat.base.Symbol import Symbol
-from flloat.semantics.pl import PLInterpretation, PLTrueInterpretation, PLFalseInterpretation
-from flloat.syntax.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLBinaryOperator, PLAnd, PLOr, PLImplies, \
+from flloat.semantics.pl import PLInterpretation
+from flloat.syntax.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
     PLEquivalence
-from flloat.utils import powerset
+from flloat.helpers import powerset
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
@@ -164,7 +161,6 @@ def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
                 if new_state not in visited:
                     visited.add(new_state)
                     if DFAOTF._is_true(new_state): final_states.add(new_state)
-
 
     new_alphabet = PythomataAlphabet({PLInterpretation(set(sym)) for sym in alphabet})
     dfa = DFA(new_alphabet, frozenset(states), initial_state, frozenset(final_states), transition_function)

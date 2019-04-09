@@ -4,7 +4,7 @@ import os
 
 def test_ldlf_example_readme():
     from flloat.parser.ldlf import LDLfParser
-    from flloat.base.Symbol import Symbol
+    from flloat.base.symbols import Symbol
     from flloat.semantics.ldlf import FiniteTrace
 
     parser = LDLfParser()
@@ -16,7 +16,7 @@ def test_ldlf_example_readme():
 
     from flloat.semantics.ldlf import FiniteTrace
 
-    t1 = FiniteTrace.from_string_sets([
+    t1 = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"A"},
@@ -25,7 +25,7 @@ def test_ldlf_example_readme():
     ])
     assert parsed_formula.truth(t1, 0)
 
-    t2 = FiniteTrace.from_string_sets([
+    t2 = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"B"}
@@ -39,14 +39,14 @@ def test_ldlf_example_readme():
 
 def test_ltlf_example_readme():
     from flloat.parser.ltlf import LTLfParser
-    from flloat.base.Symbol import Symbol
+    from flloat.base.symbols import Symbol
     from flloat.semantics.ldlf import FiniteTrace
 
     parser = LTLfParser()
     formula = "F (A & !B)"
     parsed_formula = parser(formula)
 
-    t1 = FiniteTrace.from_string_sets([
+    t1 = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"A"},
@@ -54,7 +54,7 @@ def test_ltlf_example_readme():
     ])
     assert parsed_formula.truth(t1, 0)
 
-    t2 = FiniteTrace.from_string_sets([
+    t2 = FiniteTrace.from_symbol_sets([
         {},
         {"A", "B"},
         {"B"}

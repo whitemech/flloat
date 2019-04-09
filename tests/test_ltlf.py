@@ -1,5 +1,4 @@
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
+from flloat.base.symbols import Symbol
 from flloat.parser.ltlf import LTLfParser
 from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
@@ -38,7 +37,7 @@ def test_parser():
 
 def test_truth():
     parser = LTLfParser()
-    t = FiniteTrace.from_string_sets([
+    t = FiniteTrace.from_symbol_sets([
         {"A"},
         {"A"},
         {"B"},

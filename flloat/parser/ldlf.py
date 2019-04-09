@@ -1,12 +1,11 @@
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
+from flloat.base.symbols import Symbol, Symbols
 from flloat.base.parsing import Lexer, Parser
 
 from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfOr, LDLfEquivalence, LDLfImplies, \
     LDLfAnd, LDLfDiamond, LDLfBox, RegExpTest, RegExpStar, RegExpUnion, RegExpSequence, RegExpPropositional, LDLfEnd, \
     LDLfLast
 from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
-from flloat.utils import sym2regexp
+from flloat.helpers import sym2regexp
 
 
 class LDLfLexer(Lexer):

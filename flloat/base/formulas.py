@@ -1,9 +1,7 @@
 from abc import abstractmethod, ABC
 from typing import Sequence, Set
 
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
-
+from flloat.base.symbols import Symbol, Symbols
 from flloat.helpers import Hashable
 
 

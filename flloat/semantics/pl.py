@@ -1,7 +1,7 @@
 from typing import FrozenSet, Set
 
 from flloat.base.symbols import Symbol, Interpretation
-from flloat.utils import ObjFactory, ObjConstructor
+from flloat.helpers import ObjFactory, ObjConstructor
 
 
 class _PLInterpretation(Interpretation):
@@ -47,6 +47,7 @@ class PLFalseInterpretation(_PLInterpretation):
 
 
 class _PLInterpretationConstructor(ObjConstructor):
+
     def __call__(self, true_propositions: Set[Symbol]):
         f_sym = frozenset(true_propositions)
         return super().__call__(f_sym)

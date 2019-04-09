@@ -94,7 +94,7 @@ def test_truth():
     assert not  LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
 
     parser = LDLfParser()
-    trace = FiniteTrace.from_string_sets([
+    trace = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"A"},

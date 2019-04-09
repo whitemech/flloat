@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 
-from flloat.base.Formula import Formula, BinaryOperator, CommutativeBinaryOperator
-from flloat.base.misc import Delta
+from flloat.base.formulas import Formula, BinaryOperator, CommutativeBinaryOperator
+from flloat.base.delta import Delta
 from flloat.base.nnf import NNF
 from flloat.base.truths import Truth, ImpliesTruth, EquivalenceTruth
 from flloat.semantics.pl import PLInterpretation

@@ -1,10 +1,7 @@
 from enum import Enum
-from typing import List, FrozenSet, Set
+from typing import FrozenSet, Set
 
-from flloat.base.Symbol import Symbol
-
-from flloat.helpers import Hashable
-from flloat.utils import powerset, ObjConstructor, ObjFactory
+from flloat.helpers import Hashable, powerset, ObjFactory, ObjConstructor
 
 Symbol = str
 
@@ -42,7 +39,7 @@ class Symbols(Enum):
     LTLf_LAST = "last"
 
 
-ALL_SYMBOLS = {v.value for v in Symbols}  # type: List[str]
+ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
 
 
 class _Alphabet(Hashable):
