@@ -8,6 +8,8 @@ pytest = "*"
 sphinx = "*"
 tox = "*"
 ipython = "*"
+codecov = "*"
+tox-travis = "*"
 
 [packages]
 ply = "*"
