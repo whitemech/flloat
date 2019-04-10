@@ -5,10 +5,11 @@
 from abc import ABC, abstractmethod
 from copy import copy
 from itertools import chain, combinations
-from typing import FrozenSet
+from typing import FrozenSet, Iterable, Set
 
 
 class Hashable(ABC):
+    """A base class to """
 
     def __init__(self):
         self._hash = None
@@ -38,16 +39,30 @@ class Hashable(ABC):
         self._hash = None
 
 
-def powerset(iterable) -> FrozenSet:
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
-    combs = _powerset(iterable)
-    res = frozenset(frozenset(x) for x in combs)
-    # res = map(frozenset, combs)
+def powerset(s: Set) -> Set:
+    """
+    Compute the power set of a set.
+
+    >>> sorted(map(tuple, powerset({1,2,3})))
+    [(), (1,), (1, 2), (1, 2, 3), (1, 3), (2,), (2, 3), (3,)]
+
+
+    :param s: the set of elements on which to compute the power set.
+    :return: the power set of the set provided in input.
+    """
+    combs = _powerset(s)
+    res = set(frozenset(x) for x in combs)
     return res
 
 
-def _powerset(iterable):
-    s = list(set(iterable))
+def _powerset(s: Set) -> Iterable:
+    """
+    The generative version of the power set function.
+
+    :param s: the set of ee
+    :return:
+    """
+    s = list(s)
     combs = chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
     for c in combs:
         yield c

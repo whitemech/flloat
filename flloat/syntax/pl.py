@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
@@ -12,14 +12,21 @@ from flloat.semantics.pl import PLInterpretation
 from flloat.helpers import MAX_CACHE_SIZE
 
 
-class PLTruth(Truth):
+class PLTruth(Truth, ABC):
 
     @abstractmethod
-    def truth(self, i: PLInterpretation, *args):
-        raise NotImplementedError
+    def truth(self, i: PLInterpretation, *args) -> bool:
+        """
+        Tell if the formula is true under a propositional interpretation.
+
+        :param i: the propositional interpretation.
+        :return: True if the formula is true under the interpretation i, False otherwise.
+        """
 
 
 class PLFormula(Formula, PLTruth, NNF):
+    """A class to represent propositional formulas."""
+
     def __init__(self):
         Formula.__init__(self)
 
@@ -61,17 +68,22 @@ class PLFormula(Formula, PLTruth, NNF):
     def __repr__(self):
         return self.__str__()
 
-    def find_atomics(self):
+    def find_atomics(self) -> Set[AtomicFormula]:
+        """
+        Find all the atomic formulas (i.e. the leaves in the syntax tree.) in the propositional formulas.
+        :return: the set of  atomic formulas.
+        """
         if self._atoms is None:
             self._atoms = self._find_atomics()
         return self._atoms
 
     @abstractmethod
-    def _find_atomics(self):
-        raise NotImplementedError
+    def _find_atomics(self) -> Set[AtomicFormula]:
+        """Find all the atomic formulas in the propositional formulas."""
 
 
 class PLBinaryOperator(BinaryOperator, PLFormula):
+    """A class to represent propositional binary formulas."""
 
     def _find_atomics(self):
         res = set()
@@ -84,6 +96,7 @@ class PLBinaryOperator(BinaryOperator, PLFormula):
 
 
 class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
+    """A class to represent propositional binary formulas of a commutative operator."""
 
     def _find_atomics(self):
         res = set()
@@ -96,17 +109,18 @@ class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
 
 
 class PLAtomic(AtomicFormula, PLFormula):
+    """A class to represent propositional atomic formulas."""
 
-    def truth(self, i: PLInterpretation, *args):
+    def truth(self, i: PLInterpretation, *args) -> bool:
         return self.s in i
 
-    def _to_nnf(self):
+    def _to_nnf(self) -> 'PLAtomic':
         return self
 
-    def negate(self):
+    def negate(self) -> 'PLNot':
         return PLNot(self)
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return {self.s}
 
     def _find_atomics(self):

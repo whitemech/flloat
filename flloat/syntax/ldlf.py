@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Set
 
 from flloat.base.delta import Delta
-from flloat.base.formulas import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChilds, \
+from flloat.base.formulas import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChildren, \
     AtomicFormula
 from flloat.base.symbols import Symbol, Symbols
 from flloat.base.convertible import DeltaConvertibleFormula, ImpliesDeltaConvertible, EquivalenceDeltaConvertible, \
@@ -315,7 +315,7 @@ class RegExpUnion(CommutativeBinaryOperator, RegExpFormula):
 class RegExpSequence(BinaryOperator, RegExpFormula):
     operator_symbol = Symbols.PATH_SEQUENCE.value
 
-    def __init__(self, formulas: OperatorChilds):
+    def __init__(self, formulas: OperatorChildren):
         RegExpFormula.__init__(self)
         BinaryOperator.__init__(self, formulas)
 
