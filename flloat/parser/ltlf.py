@@ -47,7 +47,6 @@ class LTLfLexer(Lexer):
     t_ALWAYS            = sym2regexp(Symbols.ALWAYS)
     t_RELEASE           = sym2regexp(Symbols.RELEASE)
 
-
     def t_ATOM(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = LTLfLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
@@ -132,9 +131,10 @@ if __name__ == '__main__':
     parser = LTLfParser()
     while True:
         try:
-            s = input('calc > ')
+            s = input('parser > ')
         except EOFError:
             break
-        if not s: continue
+        if not s:
+            continue
         result = parser(s)
-        print(result)
+        print(str(result))

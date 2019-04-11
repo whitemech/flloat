@@ -4,8 +4,8 @@ from typing import Set
 
 
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
-from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula
-from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF
+from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula, UnaryOperator
+from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF, AtomicNNF
 from flloat.base.symbols import _Alphabet, Symbol, Symbols
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.semantics.pl import PLInterpretation
@@ -82,6 +82,26 @@ class PLFormula(Formula, PLTruth, NNF):
         """Find all the atomic formulas in the propositional formulas."""
 
 
+class PLAtomic(AtomicFormula, AtomicNNF, PLFormula):
+    """A class to represent propositional atomic formulas."""
+
+    def truth(self, i: PLInterpretation, *args) -> bool:
+        return self.s in i
+
+    def find_labels(self) -> Set[Symbol]:
+        return {self.s}
+
+    def _find_atomics(self):
+        return {self}
+
+
+class PLUnaryOperator(UnaryOperator, PLFormula):
+    """A class to represent propositional unary operators."""
+
+    def _find_atomics(self):
+        return self.f.find_atomics()
+
+
 class PLBinaryOperator(BinaryOperator, PLFormula):
     """A class to represent propositional binary formulas."""
 
@@ -95,91 +115,68 @@ class PLBinaryOperator(BinaryOperator, PLFormula):
         return res
 
 
-class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLFormula):
+class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLBinaryOperator):
     """A class to represent propositional binary formulas of a commutative operator."""
-
-    def _find_atomics(self):
-        res = set()
-        for subf in self.formulas:
-            try:
-                res = res.union(subf.find_atomics())
-            except:
-                res.add(subf)
-        return res
-
-
-class PLAtomic(AtomicFormula, PLFormula):
-    """A class to represent propositional atomic formulas."""
-
-    def truth(self, i: PLInterpretation, *args) -> bool:
-        return self.s in i
-
-    def _to_nnf(self) -> 'PLAtomic':
-        return self
-
-    def negate(self) -> 'PLNot':
-        return PLNot(self)
-
-    def find_labels(self) -> Set[Symbol]:
-        return {self.s}
-
-    def _find_atomics(self):
-        return {self}
 
 
 class PLTrue(PLAtomic):
+    """Propositional true."""
+
     def __init__(self):
         PLAtomic.__init__(self, Symbol(Symbols.TRUE.value))
 
-    def truth(self, *args):
+    def truth(self, *args) -> bool:
         return True
 
-    def negate(self):
+    def negate(self) -> 'PLFalse':
         return PLFalse()
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return set()
 
 
 class PLFalse(PLAtomic):
+    """Propositional false."""
+
     def __init__(self):
         PLAtomic.__init__(self, Symbol(Symbols.FALSE.value))
 
-    def truth(self, *args):
+    def truth(self, *args) -> bool:
         return False
 
-    def negate(self):
+    def negate(self) -> 'PLTrue':
         return PLTrue()
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return set()
 
 
-class PLNot(NotTruth, PLFormula, NotNNF):
-
-    def _find_atomics(self):
-        return self.f.find_atomics()
+class PLNot(PLUnaryOperator, NotNNF, NotTruth):
+    """Propositional Not."""
 
 
 class PLOr(PLCommBinaryOperator, OrTruth):
-    pass
+    """Propositional Or"""
 
 
 class PLAnd(PLCommBinaryOperator, AndTruth):
-    pass
+    """Propositional And"""
 
 
 class PLImplies(PLBinaryOperator, ImpliesConvertible):
+    """Propositional Implication"""
     And = PLAnd
     Or = PLOr
     Not = PLNot
 
 
 class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
+    """Propositional Equivalence"""
     And = PLAnd
     Or = PLOr
     Not = PLNot
 
 
+PLAtomic.Not = PLNot
 PLOr.Dual = PLAnd
 PLAnd.Dual = PLOr

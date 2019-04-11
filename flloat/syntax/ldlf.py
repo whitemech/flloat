@@ -2,13 +2,12 @@ from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.delta import Delta
+from flloat.base.delta import Delta, DeltaConvertibleFormula, EquivalenceDeltaConvertible, ImpliesDeltaConvertible
 from flloat.base.formulas import Formula, CommutativeBinaryOperator, UnaryOperator, BinaryOperator, OperatorChildren, \
     AtomicFormula
 from flloat.base.symbols import Symbol, Symbols
-from flloat.base.convertible import DeltaConvertibleFormula, ImpliesDeltaConvertible, EquivalenceDeltaConvertible, \
-    ConvertibleFormula
-from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF
+from flloat.base.convertible import ConvertibleFormula
+from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF, AtomicNNF
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.helpers import MAX_CACHE_SIZE
 from flloat.flloat import to_automaton, DFAOTF
@@ -107,7 +106,7 @@ class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF):
         return self.Dual(self.r, LDLfNot(self.f))
 
 
-class LDLfAtomic(AtomicFormula, LDLfFormula):
+class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula):
 
     def __str__(self):
         return AtomicFormula.__str__(self)
@@ -185,10 +184,12 @@ class LDLfImplies(ImpliesDeltaConvertible, LDLfFormula):
     Or =  LDLfOr
     Not = LDLfNot
 
+
 class LDLfEquivalence(EquivalenceDeltaConvertible, LDLfCommBinaryOperator):
     And = LDLfAnd
     Or = LDLfOr
     Not = LDLfNot
+
 
 class LDLfDiamond(LDLfTemporalFormulaNNF, FiniteTraceTruth):
     temporal_brackets = "<>"
@@ -204,11 +205,11 @@ class LDLfDiamond(LDLfTemporalFormulaNNF, FiniteTraceTruth):
 class LDLfBox(ConvertibleFormula, LDLfTemporalFormulaNNF):
     temporal_brackets = "[]"
 
-    def _convert(self):
+    def convert(self):
         return LDLfNot(LDLfDiamond(self.r, LDLfNot(self.f)))
 
     def truth(self, i: FiniteTrace, pos: int=0):
-        return self._convert().truth(i, pos)
+        return self.convert().truth(i, pos)
 
     def _delta(self, i:PLInterpretation, epsilon=False):
         d = self.r.deltaBox(self.f, i, epsilon)
@@ -380,24 +381,24 @@ class LDLfPropositional(DeltaConvertibleFormula, LDLfFormula):
         super().__init__()
         self.pl_formula = pl_formula
 
-    def _convert(self):
+    def convert(self):
         return LDLfDiamond(RegExpPropositional(self.pl_formula), LDLfLogicalTrue())
 
     def _members(self):
-        return (LDLfPropositional, self.pl_formula)
+        return LDLfPropositional, self.pl_formula
 
     def find_labels(self):
         return self.pl_formula.find_labels()
 
     def __str__(self):
-        return str(self._convert())
+        return str(self.convert())
 
 
 class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
     def __init__(self):
         super().__init__(Symbol(Symbols.END.value))
 
-    def _convert(self):
+    def convert(self):
         return LDLfBox(RegExpPropositional(PLTrue()), LDLfLogicalFalse())
 
 
@@ -405,8 +406,8 @@ class LDLfLast(DeltaConvertibleFormula, LDLfAtomic):
     def __init__(self):
         super().__init__(Symbol(Symbols.LAST.value))
 
-    def _convert(self):
-        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd()._convert())
+    def convert(self):
+        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd().convert())
 
 
 class F(Formula, Delta, NNF):
@@ -479,6 +480,9 @@ def _expand(f:Formula):
     #     return PLFalse()
     else:
         return f
+
+
+AtomicNNF.Not = LDLfNot
 
 LDLfAnd.Dual = LDLfOr
 LDLfOr.Dual = LDLfAnd

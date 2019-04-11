@@ -33,7 +33,7 @@ A Python implementation of the `FLLOAT`_ library.
 
 
 * Free software: MIT license
-* Documentation: https://flloat.readthedocs.io.
+* Documentation: https://marcofavorito.github.io/flloat/
 
 Install
 --------

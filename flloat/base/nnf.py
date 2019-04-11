@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
+from typing import Type
 
-from flloat.base.formulas import UnaryOperator, CommutativeBinaryOperator, AtomicFormula, BinaryOperator
-
+from flloat.base.formulas import UnaryOperator, CommutativeBinaryOperator, BinaryOperator
 from flloat.helpers import MAX_CACHE_SIZE
 
 
@@ -14,42 +14,61 @@ class NNF(ABC):
 
     @abstractmethod
     def _to_nnf(self):
-        raise NotImplementedError
+        """Actual implementation of the NNF transformation."""
 
     @abstractmethod
     def negate(self):
-        raise NotImplementedError
+        """Negate the formula."""
 
 
 class DualNNF(NNF, ABC):
 
     @property
-    def Dual(self):
-        raise NotImplementedError
+    def Dual(self) -> Type:
+        """The 'dual' formula type for the concrete class."""
 
     @Dual.setter
     def Dual(self, x):
         self.Dual = x
 
 
-class NotNNF(UnaryOperator, NNF, ABC):
+class AtomicNNF(NNF, ABC):
+
+    @property
+    def Not(self) -> Type:
+        """The 'not' formula type for the concrete class."""
+
+    @Not.setter
+    def Not(self, x) -> None:
+        self.Not = x
+
     def _to_nnf(self):
-        if not isinstance(self.f, AtomicFormula):
-            return self.f.negate().to_nnf()
-        else:
+        return self
+
+    def negate(self):
+        return self.Not(self)
+
+
+class NotNNF(UnaryOperator, NNF, ABC):
+
+    def _to_nnf(self):
+        if isinstance(self.f, AtomicNNF):
             return self.f.negate()
+        else:
+            return self.f.negate().to_nnf()
 
     def negate(self):
         return self.f
 
 
 class DualUnaryOperatorNNF(UnaryOperator, DualNNF, ABC):
+
     @property
-    def Not(self):
-        raise NotImplementedError
+    def Not(self) -> Type:
+        """The 'not' formula type for the concrete class."""
 
     @Not.setter
-    def Not(self, x):
+    def Not(self, x) -> None:
         self.Not = x
 
     def _to_nnf(self):

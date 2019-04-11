@@ -1,18 +1,16 @@
 from abc import ABC, abstractmethod
 
-from flloat.base.formulas import UnaryOperator, BinaryOperator
+from flloat.base.formulas import UnaryOperator, BinaryOperator, Formula
 from flloat.base.symbols import Symbols
 
 
 class Truth(ABC):
     @abstractmethod
     def truth(self, *args) -> bool:
-        raise NotImplementedError
+        """Return true under interpretation to be specified in the arguments of the implementation."""
 
 
 class NotTruth(UnaryOperator, Truth):
-    def __init__(self, f):
-        UnaryOperator.__init__(self, f)
 
     operator_symbol = Symbols.NOT.value
 
