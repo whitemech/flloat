@@ -1,10 +1,9 @@
-from typing import Set, List
+from typing import Set, List, Any
 
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
-from pythomata.base.Alphabet import Alphabet as PythomataAlphabet
-from pythomata.base.DFA import DFA
-from pythomata.base.Simulator import Simulator
+from pythomata.dfa import DFA
+from pythomata.simulator import Simulator
 
 from flloat.base.symbols import Alphabet
 from flloat.semantics.pl import PLInterpretation
@@ -47,6 +46,12 @@ def _transform_delta(f:Formula, formula2AtomicFormula):
 class DFAOTF(Simulator):
     """DFA on the fly"""
 
+    def step(self, s: Symbol) -> Any:
+        pass
+
+    def accepts(self, word: List[Symbol]) -> bool:
+        return self.word_acceptance(word)
+
     def __init__(self, f):
         self.f = f.to_nnf()
         self.reset()
@@ -54,7 +59,7 @@ class DFAOTF(Simulator):
     def reset(self):
         self.cur_state = frozenset([frozenset([self.f])])
 
-    def word_acceptance(self, action_set_list:List[PLInterpretation]):
+    def word_acceptance(self, action_set_list: List[PLInterpretation]):
         self.reset()
         for a in action_set_list:
             self.make_transition(a)
@@ -162,8 +167,8 @@ def to_automaton(f, labels:Set[Symbol]=None, minimize=True):
                     visited.add(new_state)
                     if DFAOTF._is_true(new_state): final_states.add(new_state)
 
-    new_alphabet = PythomataAlphabet({PLInterpretation(set(sym)) for sym in alphabet})
-    dfa = DFA(new_alphabet, frozenset(states), initial_state, frozenset(final_states), transition_function)
+    new_alphabet = {PLInterpretation(set(sym)) for sym in alphabet}
+    dfa = DFA(states, new_alphabet, initial_state, final_states, transition_function)
 
     if minimize:
         dfa = dfa.minimize().trim()
