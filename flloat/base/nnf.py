@@ -85,7 +85,7 @@ class DualBinaryOperatorNNF(BinaryOperator, DualNNF, ABC):
         return type(self)(childs).simplify()
 
     def negate(self):
-        childs = [child.negate().to_nnf() for child in self.formulas]
+        childs = [child.negate() for child in self.formulas]
         return self.Dual(childs).simplify()
 
 

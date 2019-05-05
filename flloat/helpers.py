@@ -1,7 +1,3 @@
-# import pythomata.base.DFA
-# import pythomata.base.NFA
-
-
 from abc import ABC, abstractmethod
 from copy import copy
 from itertools import chain, combinations
@@ -9,7 +5,7 @@ from typing import FrozenSet, Iterable, Set
 
 
 class Hashable(ABC):
-    """A base class to """
+    """A base class to represent hashable object."""
 
     def __init__(self):
         self._hash = None
@@ -39,7 +35,7 @@ class Hashable(ABC):
         self._hash = None
 
 
-def powerset(s: Set) -> Set:
+def powerset(s: Set) -> FrozenSet:
     """
     Compute the power set of a set.
 
@@ -51,7 +47,7 @@ def powerset(s: Set) -> Set:
     :return: the power set of the set provided in input.
     """
     combs = _powerset(s)
-    res = set(frozenset(x) for x in combs)
+    res = frozenset(frozenset(x) for x in combs)
     return res
 
 

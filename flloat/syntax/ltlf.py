@@ -30,7 +30,6 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False):
         f = self.to_nnf()
-        # f = self.to_LDLf().to_nnf()
         d = f._delta(i, epsilon)
         if epsilon:
             # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
