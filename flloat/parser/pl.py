@@ -2,7 +2,7 @@
 
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbols, Symbol
-from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
 from flloat.helpers import sym2regexp
 
 
@@ -65,7 +65,7 @@ class PLParser(Parser):
         elif p[1]==Symbols.FALSE.value:
             p[0] = PLFalse()
         else:
-            p[0] = PLAtomic(Symbol(p[1]))
+            p[0] = PLAtomic(p[1])
 
     def p_formula_not(self, p):
         'formula : NOT formula'

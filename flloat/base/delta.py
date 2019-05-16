@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from flloat.base.convertible import BaseConvertibleFormula, EquivalenceConvertible, ImpliesConvertible
 from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.pl import PLFormula
+from flloat.pl import PLFormula
 
 
 class Delta(ABC):

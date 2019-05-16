@@ -12,9 +12,9 @@ from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.helpers import MAX_CACHE_SIZE
 from flloat.flloat import to_automaton, DFAOTF
 # from flloat.flloat import to_automaton_
-from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
+from flloat.semantics.traces import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
+from flloat.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr
 
 
 class RegExpTruth(Truth):
@@ -117,7 +117,7 @@ class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula):
 
 class LDLfLogicalTrue(LDLfAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.LOGICAL_TRUE.value))
+        super().__init__(Symbols.LOGICAL_TRUE.value)
 
     def truth(self, *args):
         return True
@@ -128,13 +128,13 @@ class LDLfLogicalTrue(LDLfAtomic):
     def negate(self):
         return LDLfLogicalFalse()
 
-    def _delta(self, i:PLInterpretation, epsilon=False):
+    def _delta(self, i: PLInterpretation, epsilon=False):
         return PLTrue()
 
 
 class LDLfLogicalFalse(LDLfAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.LOGICAL_FALSE.value))
+        super().__init__(Symbols.LOGICAL_FALSE.value)
 
     def truth(self, *args):
         return False
@@ -242,7 +242,7 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         if epsilon:
             return PLFalse()
         if self.pl_formula.truth(i):
-            # return PLAtomic(Symbol(str(_expand(f))))
+            # return PLAtomic(str(_expand(f)))
             return _expand(f)
         else:
             return PLFalse()
@@ -396,7 +396,7 @@ class LDLfPropositional(DeltaConvertibleFormula, LDLfFormula):
 
 class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.END.value))
+        super().__init__(Symbols.END.value)
 
     def convert(self):
         return LDLfBox(RegExpPropositional(PLTrue()), LDLfLogicalFalse())
@@ -404,7 +404,7 @@ class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
 
 class LDLfLast(DeltaConvertibleFormula, LDLfAtomic):
     def __init__(self):
-        super().__init__(Symbol(Symbols.LAST.value))
+        super().__init__(Symbols.LAST.value)
 
     def convert(self):
         return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd().convert())

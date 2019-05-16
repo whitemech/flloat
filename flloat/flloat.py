@@ -1,15 +1,13 @@
 from typing import Set, List, Any
 
+from pythomata.base.Simulator import Simulator
+
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
-from pythomata.dfa import DFA
-from pythomata.simulator import Simulator
-
-from flloat.base.symbols import Alphabet
-from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
-    PLEquivalence
 from flloat.helpers import powerset
+from flloat.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
+    PLEquivalence
+from flloat.semantics.pl import PLInterpretation
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
@@ -125,7 +123,7 @@ class DFAOTF(Simulator):
 
             # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
             # is true.
-            models = frozenset(conjunctions.minimal_models(Alphabet(symbol2formula)))
+            models = frozenset(conjunctions.minimal_models(set(symbol2formula)))
 
             for min_model in models:
                 q_prime = frozenset({id2atom[s] for s in min_model.true_propositions})

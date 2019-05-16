@@ -1,6 +1,6 @@
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbol, Symbols
-from flloat.syntax.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
+from flloat.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
     LTLfEventually, LTLfAlways, LTLfAtomic, LTLfRelease, LTLfTrue, LTLfFalse, LTLfWeakNext
 from flloat.helpers import sym2regexp
 
@@ -91,7 +91,7 @@ class LTLfParser(Parser):
             elif p[1] == Symbols.FALSE.value:
                 p[0] = LTLfFalse()
             else:
-                p[0] = LTLfAtomic(Symbol(p[1]))
+                p[0] = LTLfAtomic(p[1])
         elif len(p) == 3:
             if p[1] == Symbols.NEXT.value:
                 p[0] = LTLfNext(p[2])

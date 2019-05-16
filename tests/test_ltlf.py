@@ -2,17 +2,17 @@ from pythomata.dfa import DFA
 
 from flloat.base.symbols import Symbol
 from flloat.parser.ltlf import LTLfParser
-from flloat.semantics.ldlf import FiniteTrace
+from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
-from flloat.syntax.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
+from flloat.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
     LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfFalse
-from flloat.syntax.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
+from flloat.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 
 
 def test_parser():
     parser = LTLfParser()
 
-    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
+    a, b, c = [LTLfAtomic(c) for c in "ABC"]
 
     assert parser("!A | B <-> !(A & !B) <-> A->B") == LTLfEquivalence([
         LTLfOr([LTLfNot(a), b]),
@@ -96,7 +96,7 @@ def test_truth():
 
 def test_nnf():
     parser = LTLfParser()
-    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
+    a, b, c = [LTLfAtomic(c) for c in "ABC"]
 
     f = parser("!(A & !B)")
     assert f.to_nnf() == LTLfOr([LTLfNot(a), b])
@@ -135,7 +135,7 @@ def test_nnf():
 
 def test_delta():
     parser = LTLfParser()
-    sa, sb = Symbol("A"), Symbol("B")
+    sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
 
     i_ = PLFalseInterpretation()
@@ -224,9 +224,10 @@ def _dfa_test(name, parser, string_formula, alphabet, test_function):
     dfa = ldlf.to_automaton(alphabet, on_the_fly=True)
     test_function(dfa)
 
+
 def test_to_automaton():
     parser = LTLfParser()
-    a, b, c = Symbol("A"), Symbol("B"), Symbol("C")
+    a, b, c = "A", "B", "C"
     alphabet_abc = {a, b, c}
 
     i_ = PLInterpretation(set())

@@ -1,16 +1,16 @@
 from flloat.base.symbols import Symbol
 from flloat.parser.ldlf import LDLfParser
-from flloat.semantics.ldlf import FiniteTrace
+from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
+from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
     RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
     LDLfEnd, RegExpTest, LDLfLast
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
+from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
 
 
 def test_parser():
     parser = LDLfParser()
-    sa, sb = Symbol("A"), Symbol("B")
+    sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
 
     tt = LDLfLogicalTrue()
@@ -50,10 +50,10 @@ def test_parser():
     assert parser("!(<!(A<->D)+(B;C)*+(!last)?>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
             RegExpUnion([
-                RegExpPropositional(PLNot(PLEquivalence([PLAtomic(Symbol("A")), PLAtomic(Symbol("D"))]))),
+                RegExpPropositional(PLNot(PLEquivalence([PLAtomic("A"), PLAtomic("D")]))),
                 RegExpStar(RegExpSequence([
-                    RegExpPropositional(PLAtomic(Symbol("B"))),
-                    RegExpPropositional(PLAtomic(Symbol("C"))),
+                    RegExpPropositional(PLAtomic("B")),
+                    RegExpPropositional(PLAtomic("C")),
                 ])),
                 RegExpTest(LDLfNot(LDLfLast()))
             ]),
@@ -65,10 +65,9 @@ def test_parser():
     )
 
 
-
 def test_truth():
-    sa, sb = Symbol("a"), Symbol("b")
-    a, b =   PLAtomic(sa), PLAtomic(sb)
+    sa, sb = "a", "b"
+    a, b = PLAtomic(sa), PLAtomic(sb)
 
     i_ = PLFalseInterpretation()
     i_a = PLInterpretation({sa})
@@ -133,7 +132,7 @@ def test_nnf():
 
 def test_delta():
     parser = LDLfParser()
-    sa, sb, sc = Symbol("A"), Symbol("B"), Symbol("C")
+    sa, sb, sc = "A", "B", "C"
     a, b, c = PLAtomic(sa), PLAtomic(sb), PLAtomic(sc)
 
     i_ = PLFalseInterpretation()
@@ -173,15 +172,16 @@ def test_find_labels():
 
     f = "< (!(A | B | C ))* ; (A | C) ; (!(A | B | C))* ; (B | C) ><true>tt"
     formula = parser(f)
-    assert formula.find_labels() == {Symbol(c) for c in "ABC"}
+    assert formula.find_labels() == {c for c in "ABC"}
 
     f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
     formula = parser(f)
-    assert formula.find_labels() == {Symbol(c) for c in "AB"}
+    assert formula.find_labels() == {c for c in "AB"}
+
 
 def test_to_automaton():
     parser = LDLfParser()
-    a, b, c = Symbol("A"), Symbol("B"), Symbol("C")
+    a, b, c = "A", "B", "C"
     alphabet_abc = {a, b, c}
 
     i_ = PLInterpretation(set())

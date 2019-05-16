@@ -1,11 +1,11 @@
 from flloat.base.symbols import Symbol
 from flloat.parser.pl import PLParser
 from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
+from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
 
 
 def test_truth():
-    sa, sb = Symbol("a"), Symbol("b")
+    sa, sb = "a", "b"
     a, b = PLAtomic(sa), PLAtomic(sb)
     i_ = PLInterpretation(set())
     i_a = PLInterpretation({sa})
@@ -51,7 +51,7 @@ def test_truth():
 
 def test_parser():
     parser = PLParser()
-    sa, sb = Symbol("A"), Symbol("B")
+    sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
 
     a_and_b = parser("A & B")
@@ -75,7 +75,7 @@ def test_parser():
 
 def test_nnf():
     parser = PLParser()
-    sa, sb = Symbol("A"), Symbol("B")
+    sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
     i_ = PLInterpretation(set())
     i_a = PLInterpretation({sa})
@@ -108,9 +108,9 @@ def test_find_labels():
     # complete formula
     f = "!A | B <-> !(A & !B) <-> A->B"
     formula = parser(f)
-    assert formula.find_labels() == {Symbol("A"), Symbol("B")}
+    assert formula.find_labels() == {"A", "B"}
 
     # more than one character
     f = "!A & (!AB & !A0)"
     formula = parser(f)
-    assert formula.find_labels() == {Symbol(c) for c in {"A", "AB", "A0"}}
+    assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}

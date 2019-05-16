@@ -1,9 +1,8 @@
 from enum import Enum
-from typing import FrozenSet, Set
+from typing import Set, Union
 
-from flloat.helpers import Hashable, powerset, ObjFactory, ObjConstructor
-
-Symbol = str
+Symbol = Union[str, int]
+Alphabet = Set[Symbol]
 
 
 class Symbols(Enum):
@@ -40,37 +39,3 @@ class Symbols(Enum):
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
-
-
-class _Alphabet(Hashable):
-    def __init__(self, symbols: FrozenSet[Symbol]):
-        super().__init__()
-        self.symbols = symbols
-        self._powerset = None
-
-    def _members(self):
-        return self.symbols
-
-    def powerset(self):
-        if self._powerset is None:
-            self._powerset = _Alphabet(powerset(self.symbols))
-        return self._powerset
-
-
-class AlphabetConstructor(ObjConstructor):
-    def __call__(self, symbols: Set[Symbol]) -> _Alphabet:
-        f_symbols = frozenset(symbols)
-        return super().__call__(f_symbols)
-
-    @classmethod
-    def from_strings(cls, symbol_strings: Set[str]):
-        f_symbols = frozenset(Symbol(s) for s in symbol_strings)
-        return alphabet_factory.new(f_symbols)
-
-
-alphabet_factory = ObjFactory(_Alphabet)
-Alphabet = AlphabetConstructor(alphabet_factory)
-
-
-class Interpretation(Hashable):
-    pass

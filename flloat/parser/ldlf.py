@@ -1,10 +1,10 @@
 from flloat.base.symbols import Symbol, Symbols
 from flloat.base.parsing import Lexer, Parser
 
-from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfOr, LDLfEquivalence, LDLfImplies, \
+from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfOr, LDLfEquivalence, LDLfImplies, \
     LDLfAnd, LDLfDiamond, LDLfBox, RegExpTest, RegExpStar, RegExpUnion, RegExpSequence, RegExpPropositional, LDLfEnd, \
     LDLfLast
-from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
 from flloat.helpers import sym2regexp
 
 
@@ -196,7 +196,7 @@ class LDLfParser(Parser):
             elif p[1]==Symbols.FALSE.value:
                 p[0] = PLFalse()
             else:
-                p[0] = PLAtomic(Symbol(p[1]))
+                p[0] = PLAtomic(p[1])
         else:
             raise ValueError
 
