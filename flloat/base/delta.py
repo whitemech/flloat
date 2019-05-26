@@ -20,7 +20,7 @@ class Delta(ABC):
 
 class DeltaConvertibleFormula(BaseConvertibleFormula, Delta):
 
-    def _delta(self, i: PLInterpretation, epsilon=False):
+    def _delta(self, i: PLInterpretation, epsilon=False) -> PLFormula:
         return self.convert().delta(i, epsilon)
 
 

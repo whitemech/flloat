@@ -21,7 +21,7 @@ class _PLInterpretation(Interpretation):
         return self.true_propositions.__iter__()
 
     def __str__(self):
-        return "{" + ", ".join(map(str,self._members())) + "}"
+        return "{" + ", ".join(map(str, self._members())) + "}"
 
     def __repr__(self):
         return self.__str__()

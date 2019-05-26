@@ -6,6 +6,7 @@ from flloat.helpers import Hashable
 
 
 class Formula(Hashable, ABC):
+
     def __init__(self):
         super().__init__()
 
@@ -18,6 +19,7 @@ class Formula(Hashable, ABC):
 
 
 class AtomicFormula(Formula):
+
     def __init__(self, s: Symbol):
         super().__init__()
         self.s = s

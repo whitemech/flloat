@@ -4,14 +4,13 @@ import os
 
 def test_ldlf_example_readme():
     from flloat.parser.ldlf import LDLfParser
-    from flloat.base.symbols import Symbol
 
     parser = LDLfParser()
     formula = "<true*; A & B>tt"
     parsed_formula = parser(formula)
 
     assert str(parsed_formula) == "<((true)* ; (B & A))>(tt)" or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
-    assert parsed_formula.find_labels() == {Symbol(c) for c in "AB"}
+    assert parsed_formula.find_labels() == {c for c in "AB"}
 
     from flloat.semantics.ldlf import FiniteTrace
 
@@ -31,7 +30,7 @@ def test_ldlf_example_readme():
     ])
     assert not parsed_formula.truth(t2, 0)
 
-    dfa = parsed_formula.to_automaton(determinize=True)
+    dfa = parsed_formula.to_automaton()
     assert     dfa.accepts(t1.trace)
     assert not dfa.accepts(t2.trace)
 
@@ -59,7 +58,7 @@ def test_ltlf_example_readme():
     ])
     assert not parsed_formula.truth(t2, 0)
 
-    dfa = parsed_formula.to_automaton(determinize=True)
+    dfa = parsed_formula.to_automaton()
     assert dfa.accepts(t1.trace)
     assert not dfa.accepts(t2.trace)
 
@@ -77,6 +76,6 @@ def test_hash_consistency_after_pickling():
     new_obj = pickle.load(open("temp", "rb"))
 
     assert new_obj._hash is None
-    assert h==hash(new_obj)
+    assert h == hash(new_obj)
 
     os.remove("temp")

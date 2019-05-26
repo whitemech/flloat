@@ -1,6 +1,3 @@
-from pythomata.dfa import DFA
-
-from flloat.base.symbols import Symbol
 from flloat.parser.ltlf import LTLfParser
 from flloat.semantics.ldlf import FiniteTrace
 from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
@@ -11,8 +8,7 @@ from flloat.syntax.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 
 def test_parser():
     parser = LTLfParser()
-
-    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
+    a, b, c = [LTLfAtomic(c) for c in "ABC"]
 
     assert parser("!A | B <-> !(A & !B) <-> A->B") == LTLfEquivalence([
         LTLfOr([LTLfNot(a), b]),
@@ -36,67 +32,84 @@ def test_parser():
     ])
 
 
+class TestTruth:
 
-def test_truth():
-    parser = LTLfParser()
-    t = FiniteTrace.from_symbol_sets([
-        {"A"},
-        {"A"},
-        {"B"},
-        {"B"},
-        {"C"},
-        {"C"},
-    ])
+    @classmethod
+    def setup_class(cls):
+        cls.parser = LTLfParser()
 
-    # Next and Weak Next
-    f = "X A"
-    assert parser("X A").truth(t, 0)
-    assert not parser("X A").truth(t, 1)
-    assert not parser("WX A").truth(t, 1)
-    assert parser("X B").truth(t, 1)
-    assert parser("X C").truth(t, 4)
-    # at the last step, Next != WeakNext
-    assert not parser("X C").truth(t, 5)
-    assert parser("WX C").truth(t, 5)
+        cls.trace = FiniteTrace.from_symbol_sets([
+            {"A"},
+            {"A"},
+            {"B"},
+            {"B"},
+            {"C"},
+            {"C"},
+        ])
 
-    # Until
-    f = "A U B U C"
-    assert parser(f).truth(t, 0)
-    assert parser(f).truth(t, 2)
-    assert parser(f).truth(t, 4)
-    assert not parser(f).truth(t, 10)
+    def test_truth_next(self):
+        parser = self.parser
+        t = self.trace
 
-    assert not parser("A U C").truth(t, 0)
-    assert not parser("C U B").truth(t, 0)
+        assert parser("X A").truth(t, 0)
+        assert not parser("X A").truth(t, 1)
+        assert parser("X B").truth(t, 1)
+        assert parser("X C").truth(t, 4)
+        # at the last step, Next != WeakNext
+        assert not parser("X C").truth(t, 5)
 
-    # Release - dual of Until
-    f = "(!A R !B R !C)"
-    assert not parser(f).truth(t, 0)
-    assert not parser(f).truth(t, 2)
-    assert not parser(f).truth(t, 4)
-    assert     parser(f).truth(t, 10)
+    def test_truth_weaknext(self):
+        parser = self.parser
+        t = self.trace
 
-    assert not parser("A U C").truth(t, 0)
-    assert not parser("C U B").truth(t, 0)
+        assert not parser("WX A").truth(t, 1)
+        assert parser("WX C").truth(t, 5)
 
-    # Eventually
-    assert      parser("F C & !A & !B").truth(t, 0)
-    assert not  parser("F A & B & C").truth(t, 0)
-    assert      parser("F G C").truth(t, 0)
-    assert not  parser("F G B").truth(t, 0)
+    def test_until(self):
+        parser = self.parser
+        t = self.trace
 
-    # Always
-    assert parser("G A | B | C").truth(t, 0)
-    assert parser("G F (C & !A & !B)").truth(t, 0)
-    assert not parser("G C").truth(t, 0)
-    assert parser("G C").truth(t, 4)
-    assert parser("G C").truth(t, 10)
-    assert parser("G F C").truth(t, 0)
+        assert parser("A U B U C").truth(t, 0)
+        assert parser("A U B U C").truth(t, 2)
+        assert parser("A U B U C").truth(t, 4)
+        assert not parser("A U B U C").truth(t, 10)
+
+        assert not parser("A U C").truth(t, 0)
+        assert not parser("C U B").truth(t, 0)
+
+    def test_release(self):
+        parser = self.parser
+        t = self.trace
+
+        assert not parser("(!A R !B R !C)").truth(t, 0)
+        assert not parser("(!A R !B R !C)").truth(t, 2)
+        assert not parser("(!A R !B R !C)").truth(t, 4)
+        assert parser("(!A R !B R !C)").truth(t, 10)
+
+    def test_eventually(self):
+        parser = self.parser
+        t = self.trace
+
+        assert parser("F C & !A & !B").truth(t, 0)
+        assert not parser("F A & B & C").truth(t, 0)
+        assert parser("F G C").truth(t, 0)
+        assert not parser("F G B").truth(t, 0)
+
+    def test_always(self):
+        parser = self.parser
+        t = self.trace
+
+        assert parser("G A | B | C").truth(t, 0)
+        assert parser("G F (C & !A & !B)").truth(t, 0)
+        assert not parser("G C").truth(t, 0)
+        assert parser("G C").truth(t, 4)
+        assert parser("G C").truth(t, 10)
+        assert parser("G F C").truth(t, 0)
 
 
 def test_nnf():
     parser = LTLfParser()
-    a, b, c = [LTLfAtomic(Symbol(c)) for c in "ABC"]
+    a, b, c = [LTLfAtomic(c) for c in "ABC"]
 
     f = parser("!(A & !B)")
     assert f.to_nnf() == LTLfOr([LTLfNot(a), b])
@@ -133,254 +146,303 @@ def test_nnf():
     assert f.to_nnf() == LTLfUntil([LTLfNot(a), LTLfNot(b)])
 
 
-def test_delta():
-    parser = LTLfParser()
-    sa, sb = Symbol("A"), Symbol("B")
-    a, b = PLAtomic(sa), PLAtomic(sb)
+class TestDelta:
 
-    i_ = PLFalseInterpretation()
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
+    @classmethod
+    def setup_class(cls):
+        cls.parser = LTLfParser()
+        cls.i_, cls.i_a, cls.i_b, cls.i_ab = \
+            PLFalseInterpretation(), PLInterpretation({"A"}), PLInterpretation({"B"}), PLInterpretation({"A", "B"})
+        cls.true = PLTrue()
+        cls.false = PLFalse()
 
-    true = PLTrue()
-    false = PLFalse()
+    def test_atomic(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
 
-    assert parser("A").delta(i_) == false
-    assert parser("A").delta(i_a) == true
-    assert parser("A").delta(i_b) == false
-    assert parser("A").delta(i_ab) == true
+        assert parser("A").delta(i_) == false
+        assert parser("A").delta(i_a) == true
+        assert parser("A").delta(i_b) == false
+        assert parser("A").delta(i_ab) == true
+        assert parser("A").delta(None, epsilon=True) == false
 
-    assert parser("!A").delta(i_) == true
-    assert parser("!A").delta(i_a) == false
-    assert parser("!A").delta(i_b) == true
-    assert parser("!A").delta(i_ab) == false
+    def test_not(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
 
-    assert parser("A & B").delta(i_) ==   PLAnd([false, false])
-    assert parser("A & B").delta(i_a) ==  PLAnd([true, false])
-    assert parser("A & B").delta(i_b) ==  PLAnd([false, true])
-    assert parser("A & B").delta(i_ab) == PLAnd([true, true])
+        assert parser("!A").delta(i_) == true
+        assert parser("!A").delta(i_a) == false
+        assert parser("!A").delta(i_b) == true
+        assert parser("!A").delta(i_ab) == false
+        assert parser("!A").delta(None, epsilon=True) == false
 
-    assert parser("A | B").delta(i_) ==   PLOr([false, false])
-    assert parser("A | B").delta(i_a) ==  PLOr([true, false])
-    assert parser("A | B").delta(i_b) ==  PLOr([false, true])
-    assert parser("A | B").delta(i_ab) == PLOr([true, true])
+    def test_and(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
 
-    assert parser("X A").delta(i_)   ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
-    assert parser("X A").delta(i_a)  ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
-    assert parser("X A").delta(i_b)  ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
-    assert parser("X A").delta(i_ab) ==   PLAnd([LTLfAtomic(sa), LTLfEventually(LTLfTrue()).to_nnf()])
-    assert parser("X A").delta(i_, epsilon=True) == false
+        assert parser("A & B").delta(i_) == PLAnd([false, false])
+        assert parser("A & B").delta(i_a) == PLAnd([true, false])
+        assert parser("A & B").delta(i_b) == PLAnd([false, true])
+        assert parser("A & B").delta(i_ab) == PLAnd([true, true])
+        assert parser("A & B").delta(i_, epsilon=True) == false
 
-    assert parser("F A").delta(i_a) ==    PLOr([true,  PLAnd([LTLfEventually(LTLfTrue()).to_nnf(), true, LTLfUntil([LTLfTrue(), LTLfAtomic(sa)])])])
-    assert parser("F A").delta(i_) ==     PLOr([false, PLAnd([LTLfEventually(LTLfTrue()).to_nnf(), true, LTLfUntil([LTLfTrue(), LTLfAtomic(sa)])])])
-    assert parser("F A").delta(i_a, epsilon=True) == false
-    assert parser("F A").delta(i_, epsilon=True) == false
+    def test_or(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
 
-    assert parser("G A").delta(i_a) ==  PLAnd([true, PLOr([false, LTLfAlways(LTLfFalse()).to_nnf(), LTLfRelease([LTLfFalse(), LTLfAtomic(sa)])])])
-    assert parser("G A").delta(i_a) ==  PLAnd([true, PLOr([false, LTLfAlways(LTLfFalse()).to_nnf(), LTLfRelease([LTLfFalse(), LTLfAtomic(sa)])])])
-    assert parser("G A").delta(i_a, epsilon=True) == true
-    assert parser("G A").delta(i_,  epsilon=True) == true
+        assert parser("A | B").delta(i_) == PLOr([false, false])
+        assert parser("A | B").delta(i_a) == PLOr([true, false])
+        assert parser("A | B").delta(i_b) == PLOr([false, true])
+        assert parser("A | B").delta(i_ab) == PLOr([true, true])
+        assert parser("A | B").delta(i_, epsilon=True) == false
 
-    assert parser("A U B").delta(i_a) == PLOr([
-        false,
-        PLAnd([
-            true,
-            LTLfUntil([LTLfAtomic(sa), LTLfAtomic(sb)]),
-            LTLfEventually(LTLfTrue()).to_nnf()
+    def test_next(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
+
+        assert parser("X A").delta(i_) == PLAnd(
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+        assert parser("X A").delta(i_a) == PLAnd(
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+        assert parser("X A").delta(i_b) == PLAnd(
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+        assert parser("X A").delta(i_ab) == PLAnd(
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+        assert parser("X A").delta(i_, epsilon=True) == false
+
+    def test_until(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
+
+        assert parser("A U B").delta(i_a) == PLOr([
+            false,
+            PLAnd([
+                true,
+                PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
+                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())
+            ])
         ])
-    ])
+        assert parser("A U B").delta(i_ab, epsilon=True) == false
 
-    assert parser("A R B").delta(i_a) == PLAnd([
-        false,
-        PLOr([
-            true,
-            LTLfRelease([LTLfAtomic(sa), LTLfAtomic(sb)]),
-            LTLfAlways(LTLfFalse()).to_nnf()
+    def test_release(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
+
+        assert parser("A R B").delta(i_a) == PLAnd([
+            false,
+            PLOr([
+                true,
+                PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
+                PLAtomic(LTLfAlways(LTLfFalse()).to_nnf())
+            ])
         ])
-    ])
+        assert parser("A R B").delta(i_ab, epsilon=True) == true
+
+    def test_eventually(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
+
+        assert parser("F A").delta(i_a) == PLOr(
+            [true, PLAnd([
+                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                true,
+                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")]))
+            ])])
+        assert parser("F A").delta(i_) == PLOr(
+            [false, PLAnd([
+                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                true,
+                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")]))
+            ])])
+        assert parser("F A").delta(i_a, epsilon=True) == false
+        assert parser("F A").delta(i_, epsilon=True) == false
+
+    def test_always(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+        true = self.true
+        false = self.false
+
+        assert parser("G A").delta(i_a) == PLAnd(
+            [true, PLOr([false, PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()), PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")]))])])
+        assert parser("G A").delta(i_a) == PLAnd(
+            [true, PLOr([false, PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()), PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")]))])])
+        assert parser("G A").delta(i_a, epsilon=True) == true
+        assert parser("G A").delta(i_, epsilon=True) == true
 
 
-def _dfa_test(name, parser, string_formula, alphabet, test_function):
-    """temporary function to easily test both the full DFA and the on-the-fly DFA"""
-    ltlf = parser(string_formula)
-    ldlf = ltlf.to_LDLf()
+class TestToAutomaton:
 
-    # dfa = ltlf.to_automaton(alphabet, determinize=False, minimize=False)
-    # dfa.to_dot("tests/automata/" + name + "_ltlf_no_min", title=name + "\n" + string_formula)
-    dfa = ltlf.to_automaton(alphabet, determinize=True, minimize=True)
-    # dfa.to_dot("tests/automata/" + name + "_ltlf", title=name+"\n"+string_formula)
-    test_function(dfa)
-    dfa = ltlf.to_automaton(alphabet, on_the_fly=True)
-    test_function(dfa)
+    @classmethod
+    def setup_class(cls):
+        cls.parser = LTLfParser()
+        cls.a, cls.b, cls.c = "A", "B", "C"
+        cls.alphabet_abc = {cls.a, cls.b, cls.c}
 
-    # LDLf equivalent
-    # print(str(ltlf), str(ldlf.to_nnf()))
-    # dfa = ldlf.to_automaton(alphabet, determinize=True, minimize=False)
-    # dfa.to_dot("tests/automata/" + name + "_ldlf_no_min", title=name + "\n" + string_formula)
-    dfa = ldlf.to_automaton(alphabet, determinize=True, minimize=True)
-    # dfa.to_dot("tests/automata/" + name + "_ldlf", title=name+"\n"+str(ldlf.to_nnf()))
-    test_function(dfa)
-    dfa = ldlf.to_automaton(alphabet, on_the_fly=True)
-    test_function(dfa)
+        cls.i_ = PLInterpretation(set())
+        cls.i_a = PLInterpretation({cls.a})
+        cls.i_b = PLInterpretation({cls.b})
+        cls.i_ab = PLInterpretation({cls.a, cls.b})
 
-def test_to_automaton():
-    parser = LTLfParser()
-    a, b, c = Symbol("A"), Symbol("B"), Symbol("C")
-    alphabet_abc = {a, b, c}
+    def test_atomic(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    i_ = PLInterpretation(set())
-    i_a = PLInterpretation({a})
-    i_b = PLInterpretation({b})
-    i_ab = PLInterpretation({a, b})
-
-    ##################################################################################
-    f = "A"
-    name = "atomic"
-
-    def test_f(dfa: DFA):
+        ltlf = parser("A")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
-        assert     dfa.accepts([i_a])
+        assert dfa.accepts([i_a])
         assert not dfa.accepts([i_b])
-        assert     dfa.accepts([i_ab])
-        assert not dfa.accepts([i_,   i_])
-        assert not dfa.accepts([i_,   i_a])
-        assert not dfa.accepts([i_,   i_b])
-        assert not dfa.accepts([i_,   i_ab])
-        assert     dfa.accepts([i_a,  i_])
-        assert     dfa.accepts([i_a,  i_a])
-        assert     dfa.accepts([i_a,  i_b])
-        assert     dfa.accepts([i_a,  i_ab])
-        assert not dfa.accepts([i_b,  i_])
-        assert not dfa.accepts([i_b,  i_a])
-        assert not dfa.accepts([i_b,  i_b])
-        assert not dfa.accepts([i_b,  i_ab])
-        assert     dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
-        assert     dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_ab])
+        assert not dfa.accepts([i_, i_])
+        assert not dfa.accepts([i_, i_a])
+        assert not dfa.accepts([i_, i_b])
+        assert not dfa.accepts([i_, i_ab])
+        assert dfa.accepts([i_a, i_])
+        assert dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_a, i_b])
+        assert dfa.accepts([i_a, i_ab])
+        assert not dfa.accepts([i_b, i_])
+        assert not dfa.accepts([i_b, i_a])
+        assert not dfa.accepts([i_b, i_b])
+        assert not dfa.accepts([i_b, i_ab])
+        assert dfa.accepts([i_ab, i_])
+        assert dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_b])
+        assert dfa.accepts([i_ab, i_ab])
 
         assert dfa.accepts([i_a, i_, i_ab, i_b])
         assert not dfa.accepts([i_, i_ab])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_next(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "X A"
-    name = "next"
+        ltlf = parser("X A")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
         assert not dfa.accepts([i_a])
         assert not dfa.accepts([i_b])
         assert not dfa.accepts([i_ab])
         assert not dfa.accepts([i_, i_])
-        assert     dfa.accepts([i_, i_a])
+        assert dfa.accepts([i_, i_a])
         assert not dfa.accepts([i_, i_b])
-        assert     dfa.accepts([i_, i_ab])
+        assert dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
-        assert     dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_a, i_a])
         assert not dfa.accepts([i_a, i_b])
-        assert     dfa.accepts([i_a, i_ab])
+        assert dfa.accepts([i_a, i_ab])
         assert not dfa.accepts([i_b, i_])
-        assert     dfa.accepts([i_b, i_a])
+        assert dfa.accepts([i_b, i_a])
         assert not dfa.accepts([i_b, i_b])
-        assert     dfa.accepts([i_b, i_ab])
+        assert dfa.accepts([i_b, i_ab])
         assert not dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_a])
         assert not dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_ab, i_ab])
 
         assert not dfa.accepts([i_a, i_b, i_])
         assert not dfa.accepts([i_, i_, i_, i_, i_a, i_, i_ab, i_, i_])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_weak_next(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "WX A"
-    name = "weak_next"
+        ltlf = parser("WX A")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
-        assert     dfa.accepts([])
-        assert     dfa.accepts([i_])
-        assert     dfa.accepts([i_a])
-        assert     dfa.accepts([i_b])
-        assert     dfa.accepts([i_ab])
+        assert dfa.accepts([])
+        assert dfa.accepts([i_])
+        assert dfa.accepts([i_a])
+        assert dfa.accepts([i_b])
+        assert dfa.accepts([i_ab])
         assert not dfa.accepts([i_, i_])
-        assert     dfa.accepts([i_, i_a])
+        assert dfa.accepts([i_, i_a])
         assert not dfa.accepts([i_, i_b])
-        assert     dfa.accepts([i_, i_ab])
+        assert dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
-        assert     dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_a, i_a])
         assert not dfa.accepts([i_a, i_b])
-        assert     dfa.accepts([i_a, i_ab])
+        assert dfa.accepts([i_a, i_ab])
         assert not dfa.accepts([i_b, i_])
-        assert     dfa.accepts([i_b, i_a])
+        assert dfa.accepts([i_b, i_a])
         assert not dfa.accepts([i_b, i_b])
-        assert     dfa.accepts([i_b, i_ab])
+        assert dfa.accepts([i_b, i_ab])
         assert not dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_a])
         assert not dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_ab, i_ab])
 
-
-        assert     dfa.accepts([i_b])
+        assert dfa.accepts([i_b])
         assert not dfa.accepts([i_b, i_b, i_b])
-        assert     dfa.accepts([i_b, i_a, i_ab])
+        assert dfa.accepts([i_b, i_a, i_ab])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_until(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "A U B"
-    name = "until"
+        ltlf = parser("A U B")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
         assert not dfa.accepts([i_a])
-        assert     dfa.accepts([i_b])
-        assert     dfa.accepts([i_ab])
+        assert dfa.accepts([i_b])
+        assert dfa.accepts([i_ab])
         assert not dfa.accepts([i_, i_])
         assert not dfa.accepts([i_, i_a])
         assert not dfa.accepts([i_, i_b])
         assert not dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
         assert not dfa.accepts([i_a, i_a])
-        assert     dfa.accepts([i_a, i_b])
-        assert     dfa.accepts([i_a, i_ab])
-        assert     dfa.accepts([i_b, i_])
-        assert     dfa.accepts([i_b, i_a])
-        assert     dfa.accepts([i_b, i_b])
-        assert     dfa.accepts([i_b, i_ab])
-        assert     dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
-        assert     dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_a, i_b])
+        assert dfa.accepts([i_a, i_ab])
+        assert dfa.accepts([i_b, i_])
+        assert dfa.accepts([i_b, i_a])
+        assert dfa.accepts([i_b, i_b])
+        assert dfa.accepts([i_b, i_ab])
+        assert dfa.accepts([i_ab, i_])
+        assert dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_b])
+        assert dfa.accepts([i_ab, i_ab])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_release(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    #################################################################################
-    f = "!A R !B"
-    name = "release"
+        ltlf = parser("!A R !B")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
-        assert     dfa.accepts([])
-        assert     dfa.accepts([i_])
-        assert     dfa.accepts([i_a])
+        assert dfa.accepts([])
+        assert dfa.accepts([i_])
+        assert dfa.accepts([i_a])
         assert not dfa.accepts([i_b])
         assert not dfa.accepts([i_ab])
-        assert     dfa.accepts([i_, i_])
-        assert     dfa.accepts([i_, i_a])
-        assert     dfa.accepts([i_, i_b])
-        assert     dfa.accepts([i_, i_ab])
-        assert     dfa.accepts([i_a, i_])
-        assert     dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_, i_])
+        assert dfa.accepts([i_, i_a])
+        assert dfa.accepts([i_, i_b])
+        assert dfa.accepts([i_, i_ab])
+        assert dfa.accepts([i_a, i_])
+        assert dfa.accepts([i_a, i_a])
         assert not dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_ab])
         assert not dfa.accepts([i_b, i_])
@@ -392,189 +454,149 @@ def test_to_automaton():
         assert not dfa.accepts([i_ab, i_b])
         assert not dfa.accepts([i_ab, i_ab])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    #################################################################################
+    def test_eventually(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "F A"
-    name = "eventually"
+        ltlf = parser("F A")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
-        assert     dfa.accepts([i_a])
+        assert dfa.accepts([i_a])
         assert not dfa.accepts([i_b])
-        assert     dfa.accepts([i_ab])
+        assert dfa.accepts([i_ab])
         assert not dfa.accepts([i_, i_])
-        assert     dfa.accepts([i_, i_a])
+        assert dfa.accepts([i_, i_a])
         assert not dfa.accepts([i_, i_b])
-        assert     dfa.accepts([i_, i_ab])
-        assert     dfa.accepts([i_a, i_])
-        assert     dfa.accepts([i_a, i_a])
-        assert     dfa.accepts([i_a, i_b])
-        assert     dfa.accepts([i_a, i_ab])
+        assert dfa.accepts([i_, i_ab])
+        assert dfa.accepts([i_a, i_])
+        assert dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_a, i_b])
+        assert dfa.accepts([i_a, i_ab])
         assert not dfa.accepts([i_b, i_])
-        assert     dfa.accepts([i_b, i_a])
+        assert dfa.accepts([i_b, i_a])
         assert not dfa.accepts([i_b, i_b])
-        assert     dfa.accepts([i_b, i_ab])
-        assert     dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
-        assert     dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_b, i_ab])
+        assert dfa.accepts([i_ab, i_])
+        assert dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_b])
+        assert dfa.accepts([i_ab, i_ab])
 
         assert not dfa.accepts([i_b, i_b, i_b])
-        assert     dfa.accepts([i_b, i_a, i_ab])
+        assert dfa.accepts([i_b, i_a, i_ab])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_always(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "G A"
-    name = "always"
+        ltlf = parser("G A")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
-        assert     dfa.accepts([])
+        assert dfa.accepts([])
         assert not dfa.accepts([i_])
-        assert     dfa.accepts([i_a])
+        assert dfa.accepts([i_a])
         assert not dfa.accepts([i_b])
-        assert     dfa.accepts([i_ab])
+        assert dfa.accepts([i_ab])
         assert not dfa.accepts([i_, i_])
         assert not dfa.accepts([i_, i_a])
         assert not dfa.accepts([i_, i_b])
         assert not dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
-        assert     dfa.accepts([i_a, i_a])
+        assert dfa.accepts([i_a, i_a])
         assert not dfa.accepts([i_a, i_b])
-        assert     dfa.accepts([i_a, i_ab])
+        assert dfa.accepts([i_a, i_ab])
         assert not dfa.accepts([i_b, i_])
         assert not dfa.accepts([i_b, i_a])
         assert not dfa.accepts([i_b, i_b])
         assert not dfa.accepts([i_b, i_ab])
         assert not dfa.accepts([i_ab, i_])
-        assert     dfa.accepts([i_ab, i_a])
+        assert dfa.accepts([i_ab, i_a])
         assert not dfa.accepts([i_ab, i_b])
-        assert     dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_ab, i_ab])
 
         assert not dfa.accepts([i_b, i_b, i_b])
         assert not dfa.accepts([i_b, i_a, i_ab])
-        assert     dfa.accepts([i_a, i_a, i_ab])
+        assert dfa.accepts([i_a, i_a, i_ab])
         assert not dfa.accepts([i_a, i_a, i_ab, i_b])
-        assert     dfa.accepts([i_a, i_a, i_ab, i_a])
+        assert dfa.accepts([i_a, i_a, i_ab, i_a])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_always_a_implies_next_b(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "G (A -> X(B) )"
-    name = "always implication and next"
+        ltlf = parser("G (A -> X(B) )")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
-        assert     dfa.accepts([])
-        assert     dfa.accepts([i_])
+        assert dfa.accepts([])
+        assert dfa.accepts([i_])
         assert not dfa.accepts([i_a])
-        assert     dfa.accepts([i_b])
+        assert dfa.accepts([i_b])
         assert not dfa.accepts([i_ab])
-        assert     dfa.accepts([i_, i_])
+        assert dfa.accepts([i_, i_])
         assert not dfa.accepts([i_, i_a])
-        assert     dfa.accepts([i_, i_b])
+        assert dfa.accepts([i_, i_b])
         assert not dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
         assert not dfa.accepts([i_a, i_a])
-        assert     dfa.accepts([i_a, i_b])
+        assert dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_ab])
-        assert     dfa.accepts([i_b, i_])
+        assert dfa.accepts([i_b, i_])
         assert not dfa.accepts([i_b, i_a])
-        assert     dfa.accepts([i_b, i_b])
+        assert dfa.accepts([i_b, i_b])
         assert not dfa.accepts([i_b, i_ab])
         assert not dfa.accepts([i_ab, i_])
         assert not dfa.accepts([i_ab, i_a])
-        assert     dfa.accepts([i_ab, i_b])
+        assert dfa.accepts([i_ab, i_b])
         assert not dfa.accepts([i_ab, i_ab])
 
-        assert     dfa.accepts([i_b, i_b, i_b])
+        assert dfa.accepts([i_b, i_b, i_b])
         assert not dfa.accepts([i_b, i_a, i_ab])
         assert not dfa.accepts([i_a, i_a, i_ab])
         assert not dfa.accepts([i_a, i_a, i_ab, i_b])
-        assert     dfa.accepts([i_a, i_ab, i_ab, i_b])
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b])
         assert not dfa.accepts([i_a, i_ab, i_ab, i_])
         # very important
-        assert     dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
-        assert     dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
-        assert     dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
+        assert dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-    ##################################################################################
+    def test_always_a_implies_next_always_b(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-    ##################################################################################
-    f = "G (A -> X(G(B)) )"
-    name = "always implication next always"
+        ltlf = parser("G (A -> X(B))")
+        dfa = ltlf.to_automaton(labels={"A", "B"})
 
-    def test_f(dfa):
-        assert     dfa.accepts([])
-        assert     dfa.accepts([i_])
+        assert dfa.accepts([])
+        assert dfa.accepts([i_])
         assert not dfa.accepts([i_a])
-        assert     dfa.accepts([i_b])
+        assert dfa.accepts([i_b])
         assert not dfa.accepts([i_ab])
-        assert     dfa.accepts([i_, i_])
+        assert dfa.accepts([i_, i_])
         assert not dfa.accepts([i_, i_a])
-        assert     dfa.accepts([i_, i_b])
+        assert dfa.accepts([i_, i_b])
         assert not dfa.accepts([i_, i_ab])
         assert not dfa.accepts([i_a, i_])
         assert not dfa.accepts([i_a, i_a])
-        assert     dfa.accepts([i_a, i_b])
+        assert dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_ab])
-        assert     dfa.accepts([i_b, i_])
+        assert dfa.accepts([i_b, i_])
         assert not dfa.accepts([i_b, i_a])
-        assert     dfa.accepts([i_b, i_b])
+        assert dfa.accepts([i_b, i_b])
         assert not dfa.accepts([i_b, i_ab])
         assert not dfa.accepts([i_ab, i_])
         assert not dfa.accepts([i_ab, i_a])
-        assert     dfa.accepts([i_ab, i_b])
+        assert dfa.accepts([i_ab, i_b])
         assert not dfa.accepts([i_ab, i_ab])
 
-        assert     dfa.accepts([i_b, i_b, i_b])
+        assert dfa.accepts([i_b, i_b, i_b])
         assert not dfa.accepts([i_b, i_a, i_ab])
         assert not dfa.accepts([i_a, i_a, i_ab])
         assert not dfa.accepts([i_a, i_a, i_ab, i_b])
-        assert     dfa.accepts([i_a, i_ab, i_ab, i_b])
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b])
         assert not dfa.accepts([i_a, i_ab, i_ab, i_])
-        # very important
-        assert not dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
-        assert     dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
-        assert     dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])
 
-    _dfa_test(name, parser, f, alphabet_abc, test_f)
-
-# def test_sapientino_formula():
-#     p = LTLfParser()
-#
-#     f = '''(!bip U ( (A | B | C) & bip))
-#                 & (G (A & bip -> X(G (bip -> !A) ) ) )
-#                 & (G (B & bip -> X(G (bip -> !B) ) ) )
-#                 & (G (C & bip -> X(G (bip -> !C) ) ) )
-#                 & (
-#                       (G (A & bip -> X( !bip U ((B | C) & bip) ) ) )
-#                     | (G (B & bip -> X( !bip U ((A | C) & bip) ) ) )
-#                     | (G (C & bip -> X( !bip U ((A | B) & bip) ) ) )
-#                 )'''
-#
-#     f = '''( !bip U A & bip )'''
-#
-#     a, b, c, bip = Symbol("A"), Symbol("B"), Symbol("C"), Symbol("bip")
-#     alphabet_abc = {a, b, c, bip}
-#
-#     def tr(l):
-#         return FiniteTrace.fromSymbolSets(l).trace
-#
-#
-#     def test_sapientino(dfa):
-#         dfa.to_dot("temptemptemp")
-#         assert not dfa.accepts([])
-#         assert not dfa.accepts(tr([{bip}]))
-#         assert     dfa.accepts(tr([{bip, a}]))
-#         assert     dfa.accepts(tr([{bip, b}]))
-#         assert     dfa.accepts(tr([{bip, c}]))
-#         assert not dfa.accepts(tr([{bip, a}, {bip}]))
-#         assert not dfa.accepts(tr([{bip, b}, {bip}]))
-#         assert not dfa.accepts(tr([{bip, c}, {bip}]))
-#     _dfa_test(p, f, alphabet_abc, test_sapientino)
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
+        assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
+        assert dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])

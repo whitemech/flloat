@@ -196,7 +196,7 @@ class LDLfParser(Parser):
             elif p[1]==Symbols.FALSE.value:
                 p[0] = PLFalse()
             else:
-                p[0] = PLAtomic(Symbol(p[1]))
+                p[0] = PLAtomic(p[1])
         else:
             raise ValueError
 

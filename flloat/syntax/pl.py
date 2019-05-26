@@ -108,10 +108,7 @@ class PLBinaryOperator(BinaryOperator, PLFormula):
     def _find_atomics(self):
         res = set()
         for subf in self.formulas:
-            try:
-                res = res.union(subf.find_atomics())
-            except:
-                res.add(subf)
+            res = res.union(subf.find_atomics())
         return res
 
 
@@ -123,7 +120,7 @@ class PLTrue(PLAtomic):
     """Propositional true."""
 
     def __init__(self):
-        PLAtomic.__init__(self, Symbol(Symbols.TRUE.value))
+        PLAtomic.__init__(self, Symbols.TRUE.value)
 
     def truth(self, *args) -> bool:
         return True
@@ -139,7 +136,7 @@ class PLFalse(PLAtomic):
     """Propositional false."""
 
     def __init__(self):
-        PLAtomic.__init__(self, Symbol(Symbols.FALSE.value))
+        PLAtomic.__init__(self, Symbols.FALSE.value)
 
     def truth(self, *args) -> bool:
         return False
