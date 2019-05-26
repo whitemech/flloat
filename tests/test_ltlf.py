@@ -1,9 +1,9 @@
 from flloat.parser.ltlf import LTLfParser
-from flloat.semantics.ldlf import FiniteTrace
+from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
-from flloat.syntax.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
+from flloat.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
     LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfFalse
-from flloat.syntax.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
+from flloat.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 
 
 def test_parser():
@@ -306,6 +306,7 @@ class TestToAutomaton:
 
         ltlf = parser("A")
         dfa = ltlf.to_automaton(labels={"A", "B"})
+
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
         assert dfa.accepts([i_a])

@@ -12,7 +12,7 @@ def test_ldlf_example_readme():
     assert str(parsed_formula) == "<((true)* ; (B & A))>(tt)" or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
     assert parsed_formula.find_labels() == {c for c in "AB"}
 
-    from flloat.semantics.ldlf import FiniteTrace
+    from flloat.semantics.traces import FiniteTrace
 
     t1 = FiniteTrace.from_symbol_sets([
         {},
@@ -37,7 +37,7 @@ def test_ldlf_example_readme():
 
 def test_ltlf_example_readme():
     from flloat.parser.ltlf import LTLfParser
-    from flloat.semantics.ldlf import FiniteTrace
+    from flloat.semantics.traces import FiniteTrace
 
     parser = LTLfParser()
     formula = "F (A & !B)"

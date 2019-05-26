@@ -1,15 +1,15 @@
 from typing import Set, List, Any, FrozenSet, Optional, Dict
 
-from flloat.base.formulas import Formula
-from flloat.base.symbols import Symbol
 from pythomata.dfa import DFA
 from pythomata.simulator import Simulator
 
-from flloat.base.symbols import Alphabet
-from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
-    PLEquivalence
+from flloat.base.formulas import Formula
+from flloat.base.symbols import Symbol
 from flloat.helpers import powerset
+from flloat.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
+    PLEquivalence
+from flloat.semantics.pl import PLFalseInterpretation
+from flloat.semantics.pl import PLInterpretation
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
@@ -89,7 +89,7 @@ def _make_transition(Q: FrozenSet[FrozenSet[PLAtomic]], i: PLInterpretation):
 
         # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
         # is true.
-        alphabet = Alphabet(symbol2formula)
+        alphabet = frozenset(symbol2formula)
         models = frozenset(conjunctions.minimal_models(alphabet))
 
         for min_model in models:

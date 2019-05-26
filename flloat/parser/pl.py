@@ -1,8 +1,6 @@
-
-
 from flloat.base.parsing import Lexer, Parser
-from flloat.base.symbols import Symbols, Symbol
-from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.base.symbols import Symbols
+from flloat.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
 from flloat.helpers import sym2regexp
 
 

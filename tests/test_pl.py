@@ -1,7 +1,6 @@
-from flloat.base.symbols import Symbol
 from flloat.parser.pl import PLParser
 from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
+from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
 
 
 def test_parser():
@@ -141,4 +140,3 @@ def test_find_labels():
     f = "!A & (!AB & !A0)"
     formula = parser(f)
     assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}
-

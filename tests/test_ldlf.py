@@ -1,11 +1,10 @@
-from flloat.base.symbols import Symbol
 from flloat.parser.ldlf import LDLfParser
-from flloat.semantics.ldlf import FiniteTrace
+from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
+from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
     RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
     LDLfEnd, RegExpTest, LDLfLast
-from flloat.syntax.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
+from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
 
 
 def test_parser():
@@ -194,6 +193,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         dfa = parser("<A+!B>tt").to_automaton()
+
         assert not dfa.accepts([])
         assert dfa.accepts([i_, i_b])
         assert dfa.accepts([i_a])

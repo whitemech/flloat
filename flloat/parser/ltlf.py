@@ -1,6 +1,6 @@
 from flloat.base.parsing import Lexer, Parser
-from flloat.base.symbols import Symbol, Symbols
-from flloat.syntax.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
+from flloat.base.symbols import Symbols
+from flloat.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
     LTLfEventually, LTLfAlways, LTLfAtomic, LTLfRelease, LTLfTrue, LTLfFalse, LTLfWeakNext
 from flloat.helpers import sym2regexp
 

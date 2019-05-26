@@ -1,18 +1,18 @@
-from typing import FrozenSet, Set
+from typing import FrozenSet, Set, Union
 
-from flloat.base.symbols import Symbol, Interpretation
-from flloat.helpers import ObjFactory, ObjConstructor
+from flloat.base.symbols import Symbol
+from flloat.helpers import Hashable
 
 
-class _PLInterpretation(Interpretation):
+class PLInterpretation(Hashable):
 
-    def __init__(self, true_propositions: FrozenSet[Symbol]):
+    def __init__(self, true_propositions: Union[Set[Symbol], FrozenSet[Symbol]]):
         super().__init__()
         self.true_propositions = frozenset(true_propositions)
 
     def _members(self):
         # return tuple(sorted(self.true_propositions, key=lambda x: x.name))
-        return self.true_propositions
+        return tuple(sorted(self.true_propositions))
 
     def __contains__(self, item: Symbol):
         return item in self.true_propositions
@@ -27,7 +27,7 @@ class _PLInterpretation(Interpretation):
         return self.__str__()
 
 
-class PLTrueInterpretation(_PLInterpretation):
+class PLTrueInterpretation(PLInterpretation):
     def __init__(self):
         super().__init__(frozenset())
 
@@ -38,20 +38,10 @@ class PLTrueInterpretation(_PLInterpretation):
         return True
 
 
-class PLFalseInterpretation(_PLInterpretation):
+class PLFalseInterpretation(PLInterpretation):
     def __init__(self):
         super().__init__(frozenset())
 
     def __contains__(self, item):
         return False
 
-
-class _PLInterpretationConstructor(ObjConstructor):
-
-    def __call__(self, true_propositions: Set[Symbol]):
-        f_sym = frozenset(true_propositions)
-        return super().__call__(f_sym)
-
-
-plinterpretation_factory = ObjFactory(_PLInterpretation)
-PLInterpretation = _PLInterpretationConstructor(plinterpretation_factory)

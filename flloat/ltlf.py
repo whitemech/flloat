@@ -11,11 +11,11 @@ from flloat.base.symbols import Symbol, Symbols
 from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth
 from flloat.flloat import DFAOTF, to_automaton
 # from flloat.flloat import DFAOTF, to_automaton_
-from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
+from flloat.semantics.traces import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation
-from flloat.syntax.ldlf import LDLfNot, LDLfAnd, LDLfOr, LDLfDiamond, \
+from flloat.ldlf import LDLfNot, LDLfAnd, LDLfOr, LDLfDiamond, \
     RegExpPropositional, RegExpStar, RegExpSequence, RegExpTest, LDLfPropositional, LDLfEnd
-from flloat.syntax.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic, PLFormula
+from flloat.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic, PLFormula
 from flloat.helpers import MAX_CACHE_SIZE
 
 
@@ -313,7 +313,7 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
 class LTLfEnd(DeltaConvertibleFormula, BaseConvertibleFormula, LTLfAtomic):
 
     def __init__(self):
-        LTLfAtomic.__init__(self, "End")
+        LTLfAtomic.__init__(self, Symbols.END.value)
 
     def _members(self):
         return self.s,

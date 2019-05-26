@@ -11,9 +11,9 @@ from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualNNF, AtomicN
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
 from flloat.helpers import MAX_CACHE_SIZE
 from flloat.flloat import to_automaton, DFAOTF
-from flloat.semantics.ldlf import FiniteTrace, FiniteTraceTruth
+from flloat.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr, PLAtomic
+from flloat.semantics.traces import FiniteTrace, FiniteTraceTruth
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
-from flloat.syntax.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr, PLAtomic
 
 
 class RegExpTruth(Truth):
@@ -234,7 +234,6 @@ class RegExpPropositional(RegExpFormula, PLFormula):
         if epsilon:
             return PLFalse()
         if self.pl_formula.truth(i):
-            # return PLAtomic(Symbol(str(_expand(f))))
             return PLAtomic(_expand(f))
         else:
             return PLFalse()

@@ -2,14 +2,13 @@ from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
-
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
 from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula, UnaryOperator
 from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF, AtomicNNF
-from flloat.base.symbols import _Alphabet, Symbol, Symbols
+from flloat.base.symbols import Alphabet, Symbol, Symbols
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
+from flloat.helpers import MAX_CACHE_SIZE, _powerset
 from flloat.semantics.pl import PLInterpretation
-from flloat.helpers import MAX_CACHE_SIZE
 
 
 class PLTruth(Truth, ABC):
@@ -34,10 +33,10 @@ class PLFormula(Formula, PLTruth, NNF):
         self._minimal_models = None
         self._atoms = None
 
-    def all_models(self, alphabet: _Alphabet) -> Set[PLInterpretation]:
+    def all_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
         """Find all the possible interpretations given a set of symbols"""
 
-        all_possible_interpretations = alphabet.powerset().symbols
+        all_possible_interpretations = _powerset(alphabet)
         all_models = set()
         for i in all_possible_interpretations:
             # compute current Interpretation, considering False
@@ -50,7 +49,7 @@ class PLFormula(Formula, PLTruth, NNF):
         return all_models
 
     @lru_cache(maxsize=MAX_CACHE_SIZE)
-    def minimal_models(self, alphabet: _Alphabet) -> Set[PLInterpretation]:
+    def minimal_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
         """Find models of min size (i.e. the less number of proposition to True).
         Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations."""
         models = self.all_models(alphabet)
