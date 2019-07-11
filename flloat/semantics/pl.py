@@ -11,8 +11,10 @@ class PLInterpretation(Hashable):
         self.true_propositions = frozenset(true_propositions)
 
     def _members(self):
-        # return tuple(sorted(self.true_propositions, key=lambda x: x.name))
         return tuple(sorted(self.true_propositions))
+
+    def __lt__(self, other):
+        return self.true_propositions < other.true_propositions
 
     def __contains__(self, item: Symbol):
         return item in self.true_propositions
@@ -33,6 +35,9 @@ class PLTrueInterpretation(PLInterpretation):
 
     def _members(self):
         return PLTrueInterpretation
+
+    def __lt__(self, other):
+        return
 
     def __contains__(self, item):
         return True
