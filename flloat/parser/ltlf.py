@@ -1,8 +1,8 @@
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbols
-from flloat.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
-    LTLfEventually, LTLfAlways, LTLfAtomic, LTLfRelease, LTLfTrue, LTLfFalse, LTLfWeakNext
 from flloat.helpers import sym2regexp
+from flloat.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
+    LTLfEventually, LTLfAlways, LTLfAtomic, LTLfRelease, LTLfTrue, LTLfFalse, LTLfWeakNext, LTLfEnd
 
 
 class LTLfLexer(Lexer):
@@ -19,6 +19,7 @@ class LTLfLexer(Lexer):
         Symbols.EVENTUALLY.value:   'EVENTUALLY',
         Symbols.ALWAYS.value:       'ALWAYS',
         Symbols.RELEASE.value:      'RELEASE',
+        Symbols.END.value:          'END',
     }
 
     # List of token names.   This is always required
@@ -46,6 +47,7 @@ class LTLfLexer(Lexer):
     t_EVENTUALLY        = sym2regexp(Symbols.EVENTUALLY)
     t_ALWAYS            = sym2regexp(Symbols.ALWAYS)
     t_RELEASE           = sym2regexp(Symbols.RELEASE)
+    t_END               = sym2regexp(Symbols.END)
 
     def t_ATOM(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -84,12 +86,15 @@ class LTLfParser(Parser):
                    | NOT formula
                    | TRUE
                    | FALSE
+                   | END
                    | ATOM"""
         if len(p) == 2:
             if p[1] == Symbols.TRUE.value:
                 p[0] = LTLfTrue()
             elif p[1] == Symbols.FALSE.value:
                 p[0] = LTLfFalse()
+            elif p[1] == Symbols.END.value:
+                p[0] = LTLfEnd()
             else:
                 p[0] = LTLfAtomic(p[1])
         elif len(p) == 3:
