@@ -60,11 +60,11 @@ class LTLfParser(Parser):
         lexer = LTLfLexer()
         precedence = (
             ('left', 'UNTIL', 'EVENTUALLY', 'ALWAYS', 'RELEASE'),
-            ('right', 'NEXT', 'WEAK_NEXT'),
             ('left',  'EQUIVALENCE'),
             ('left',  'IMPLIES'),
             ('left',  'OR'),
             ('left',  'AND'),
+            ('right', 'NEXT', 'WEAK_NEXT'),
             ('right', 'NOT'),
 
         )
