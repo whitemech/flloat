@@ -13,7 +13,7 @@ tox-travis = "*"
 
 [packages]
 ply = "*"
-pythomata = "==0.1.7rc0"
+pythomata = {git = "https://github.com/marcofavorito/pythomata.git",ref = "develop"}
 
 [requires]
-python_version = "3.7"
+python_version = "3"
