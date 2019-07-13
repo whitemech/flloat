@@ -1,8 +1,7 @@
-from flloat.base.Symbol import Symbol
-from flloat.base.Symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
-from flloat.syntax.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
-from flloat.utils import sym2regexp
+from flloat.base.symbols import Symbols
+from flloat.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.helpers import sym2regexp
 
 
 class PLLexer(Lexer):
@@ -36,8 +35,6 @@ class PLLexer(Lexer):
     t_LPAREN       = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
     t_RPAREN       = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
 
-
-
     def t_ATOM(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = PLLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
@@ -66,7 +63,7 @@ class PLParser(Parser):
         elif p[1]==Symbols.FALSE.value:
             p[0] = PLFalse()
         else:
-            p[0] = PLAtomic(Symbol(p[1]))
+            p[0] = PLAtomic(p[1])
 
     def p_formula_not(self, p):
         'formula : NOT formula'
@@ -97,7 +94,7 @@ if __name__ == '__main__':
     parser = PLParser()
     while True:
         try:
-            s = input('calc > ')
+            s = input('pl > ')
         except EOFError:
             break
         if not s: continue

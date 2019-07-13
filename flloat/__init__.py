@@ -2,6 +2,5 @@
 
 """Top-level package for FLLOAT."""
 
-__author__ = """Marco Favorito"""
-__email__ = 'marco.favorito@gmail.com'
-__version__ = '0.1.4.post1'
+from .__version__ import __title__, __description__, __url__, __version__
+from .__version__ import __author__, __author_email__, __license__, __copyright__

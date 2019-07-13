@@ -7,6 +7,7 @@ SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = flloat
 SOURCEDIR     = .
 BUILDDIR      = _build
+#BUILDDIR      = ../../flloat-docs
 
 # Put it first so that "make" without argument is like "make help".
 help:

@@ -33,7 +33,7 @@ A Python implementation of the `FLLOAT`_ library.
 
 
 * Free software: MIT license
-* Documentation: https://flloat.readthedocs.io.
+* Documentation: https://marcofavorito.github.io/flloat/
 
 Install
 --------
@@ -66,34 +66,34 @@ How to use
     from flloat.parser.ldlf import LDLfParser
 
     parser = LDLfParser()
-    formula = "<true*; A & B>tt"
-    parsed_formula = parser(formula)        # returns a LDLfFormula
+    formula_string = "<true*; A & B>tt"
+    formula = parser(formula_string)        # returns a LDLfFormula
 
-    print(parsed_formula)                   # prints "<((true)* ; (A & B))>(tt)"
-    print(parsed_formula.find_labels())     # prints {A, B}
+    print(formula)                          # prints "<((true)* ; (A & B))>(tt)"
+    print(formula.find_labels())            # prints {A, B}
 
 
 *  Evaluate it over finite traces:
 
 .. code-block:: python
 
-    from flloat.semantics.ldlf import FiniteTrace
+    from flloat.semantics.traces import FiniteTrace
 
-    t1 = FiniteTrace.fromStringSets([
+    t1 = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"A"},
         {"A", "B"},
         {}
     ])
-    parsed_formula.truth(t1, 0)  # True
+    formula.truth(t1, 0)  # True
 
 
 * Transform it into an automaton (``pythomata.DFA`` object):
 
 .. code-block:: python
 
-    dfa = parsed_formula.to_automaton(determinize=True)
+    dfa = formula.to_automaton()
 
     # print the automaton
     dfa.to_dot("./automaton.DFA")
@@ -106,26 +106,25 @@ For info about how to use a ``pythomata.DFA`` please look at the `docs <https://
 .. code-block:: python
 
     from flloat.parser.ltlf import LTLfParser
-    from flloat.base.Symbol import Symbol
-    from flloat.semantics.ldlf import FiniteTrace
+    from flloat.semantics.traces import FiniteTrace
 
     # parse the formula
     parser = LTLfParser()
-    formula = "F (A & !B)"
-    parsed_formula = parser(formula)
+    formula_string = "F (A & !B)"
+    formula = parser(formula_string)
 
     # evaluate over finite traces
-    t1 = FiniteTrace.fromStringSets([
+    t1 = FiniteTrace.from_symbol_sets([
         {},
         {"A"},
         {"A"},
         {"A", "B"}
     ])
-    assert parsed_formula.truth(t1, 0)
+    assert formula.truth(t1, 0)
 
     # from LTLf formula to DFA
-    dfa = parsed_formula.to_automaton(determinize=True)
-    assert dfa.word_acceptance(t1.trace)
+    dfa = formula.to_automaton()
+    assert dfa.accepts(t1.trace)
 
 Features
 --------
@@ -135,7 +134,7 @@ Features
     * Linear Temporal Logic on Finite Traces
     * Linear Dynamic Logic on Finite Traces;
 
-* Conversion from LTLf/LDLf formula to NFA, DFA and DFA on-the-fly
+* Conversion from LTLf/LDLf formula to DFA
 
 Credits
 -------

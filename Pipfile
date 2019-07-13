@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+sphinx = "*"
+tox = "*"
+ipython = "*"
+codecov = "*"
+tox-travis = "*"
+
+[packages]
+ply = "*"
+pythomata = {git = "https://github.com/marcofavorito/pythomata.git",ref = "develop"}
+
+[requires]
+python_version = "3"

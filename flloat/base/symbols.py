@@ -1,12 +1,14 @@
 from enum import Enum
+from typing import Hashable, Union, FrozenSet, Set
+
+Symbol = Hashable
+Alphabet = Union[FrozenSet[Symbol], Set[Symbol]]
 
 
 class Symbols(Enum):
     NOT = "!"
     AND = "&"
     OR = "|"
-    # EXISTS = "∃"
-    # FORALL = "Ɐ"
     EQUAL = "="
     IMPLIES = "->"
     EQUIVALENCE = "<->"
@@ -26,18 +28,14 @@ class Symbols(Enum):
     EVENTUALLY_BRACKET_RIGHT = ">"
     ALWAYS_BRACKET_LEFT = "["
     ALWAYS_BRACKET_RIGHT = "]"
-    # TOP = "⊤"
-    # BOTTOM = "⊥"
     LAST = "last"
     END = "end"
-    # LOGICAL_TRUE = "⊤⊤"
-    # LOGICAL_FALSE = "⊥⊥"
     LOGICAL_TRUE = "tt"
     LOGICAL_FALSE = "ff"
     CARET = "^"
-    TRUE="true"
+    TRUE = "true"
     FALSE = "false"
     LTLf_LAST = "last"
 
 
-ALL_SYMBOLS = {v.value for v in Symbols}
+ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]

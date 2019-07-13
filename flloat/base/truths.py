@@ -1,25 +1,27 @@
 from abc import ABC, abstractmethod
 
-from flloat.base.Formula import Formula, UnaryOperator, BinaryOperator
-from flloat.base.Symbols import Symbols
+from flloat.base.formulas import UnaryOperator, BinaryOperator, Formula
+from flloat.base.symbols import Symbols
 
 
 class Truth(ABC):
     @abstractmethod
     def truth(self, *args) -> bool:
-        raise NotImplementedError
+        """Return true under interpretation to be specified in the arguments of the implementation."""
+
 
 class NotTruth(UnaryOperator, Truth):
-    def __init__(self, f):
-        UnaryOperator.__init__(self, f)
 
     operator_symbol = Symbols.NOT.value
+
     def truth(self, *args):
         return not self.f.truth(*args)
 
 
 class AndTruth(BinaryOperator, Truth):
+
     operator_symbol = Symbols.AND.value
+
     def truth(self, *args):
         for f in self.formulas:
             if not f.truth(*args):
@@ -27,8 +29,11 @@ class AndTruth(BinaryOperator, Truth):
         return True
         # return all(f.truth(*args) for f in self.formulas)
 
+
 class OrTruth(BinaryOperator, Truth):
+
     operator_symbol = Symbols.OR.value
+
     def truth(self, *args):
         for f in self.formulas:
             if f.truth(*args):
@@ -38,8 +43,8 @@ class OrTruth(BinaryOperator, Truth):
 
 
 class ImpliesTruth(BinaryOperator, Truth):
-    operator_symbol = Symbols.IMPLIES.value
 
+    operator_symbol = Symbols.IMPLIES.value
 
     def truth(self, *args):
         # eq_formula = self._convert()
@@ -57,12 +62,13 @@ class ImpliesTruth(BinaryOperator, Truth):
 
         return truth
 
+
 class EquivalenceTruth(BinaryOperator, Truth):
+
     operator_symbol = Symbols.EQUIVALENCE.value
 
     def truth(self, *args):
         fs = self.formulas
-        N = len(fs)
         t = [f.truth(*args) for f in fs]
         # either all true or all false
         return all(t) or not any(t)
