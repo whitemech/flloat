@@ -5,18 +5,17 @@ from ply import lex
 
 
 class Lexer(ABC):
-
     @property
     def tokens(self):
         raise NotImplementedError
 
     # Define a rule so we can track line numbers
     def t_newline(self, t):
-        r'\n+'
+        r"\n+"
         t.lexer.lineno += len(t.value)
 
     # A string containing ignored characters (spaces and tabs)
-    t_ignore = ' \t'
+    t_ignore = " \t"
 
     # Error handling rule
     def t_error(self, t):
@@ -29,7 +28,6 @@ class Lexer(ABC):
 
 
 class Parser(ABC):
-
     def __init__(self, name, tokens, lexer, precedence=None):
         self.name = name
         self.tokens = tokens
@@ -40,11 +38,11 @@ class Parser(ABC):
 
         # Build the parser
         # outputdir = "flloat/base/tables/%s" % name
-        self.parser = yacc.yacc(module=self)#, outputdir=outputdir)
+        self.parser = yacc.yacc(module=self)  # , outputdir=outputdir)
 
     def __call__(self, s, **kwargs):
         return self.parser.parse(s, lexer=self.lexer.lexer)
 
     # Error rule for syntax errors
     def p_error(self, p):
-        raise ValueError("Syntax error in input! %s" %str(p))
+        raise ValueError("Syntax error in input! %s" % str(p))

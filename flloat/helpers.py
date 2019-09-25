@@ -68,7 +68,7 @@ def _powerset(s: Set) -> Iterable:
 def sym2regexp(sym):
     s = sym.value
     if s in r"|()+?*.[]":
-        return r"\%s"%s
+        return r"\%s" % s
     else:
         return s
 

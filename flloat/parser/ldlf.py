@@ -1,94 +1,115 @@
 from flloat.base.symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
 
-from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfOr, LDLfEquivalence, LDLfImplies, \
-    LDLfAnd, LDLfDiamond, LDLfBox, RegExpTest, RegExpStar, RegExpUnion, RegExpSequence, RegExpPropositional, LDLfEnd, \
-    LDLfLast
-from flloat.pl import PLNot, PLAtomic, PLOr, PLAnd, PLImplies, PLEquivalence, PLTrue, PLFalse
+from flloat.ldlf import (
+    LDLfLogicalTrue,
+    LDLfLogicalFalse,
+    LDLfNot,
+    LDLfOr,
+    LDLfEquivalence,
+    LDLfImplies,
+    LDLfAnd,
+    LDLfDiamond,
+    LDLfBox,
+    RegExpTest,
+    RegExpStar,
+    RegExpUnion,
+    RegExpSequence,
+    RegExpPropositional,
+    LDLfEnd,
+    LDLfLast,
+)
+from flloat.pl import (
+    PLNot,
+    PLAtomic,
+    PLOr,
+    PLAnd,
+    PLImplies,
+    PLEquivalence,
+    PLTrue,
+    PLFalse,
+)
 from flloat.helpers import sym2regexp
 
 
 class LDLfLexer(Lexer):
-
     def __init__(self):
         super().__init__()
 
     reserved = {
-        'true':  'TRUE',
-        'false': 'FALSE',
-        'tt':    'TT',
-        'ff':    'FF',
-        'end':   'END',
-        'last':  'LAST',
+        "true": "TRUE",
+        "false": "FALSE",
+        "tt": "TT",
+        "ff": "FF",
+        "end": "END",
+        "last": "LAST",
     }
 
     # List of token names.   This is always required
     tokens = (
-        'ATOM',
-        'NOT',
-        'AND',
-        'OR',
-        'IMPLIES',
-        'EQUIVALENCE',
-        'TEST',
-        'SEQ',
-        'UNION',
-        'STAR',
-        'LPAREN',
-        'RPAREN',
-        'BOXLSEPARATOR',
-        'BOXRSEPARATOR',
-        'DIAMONDLSEPARATOR',
-        'DIAMONDRSEPARATOR',
+        "ATOM",
+        "NOT",
+        "AND",
+        "OR",
+        "IMPLIES",
+        "EQUIVALENCE",
+        "TEST",
+        "SEQ",
+        "UNION",
+        "STAR",
+        "LPAREN",
+        "RPAREN",
+        "BOXLSEPARATOR",
+        "BOXRSEPARATOR",
+        "DIAMONDLSEPARATOR",
+        "DIAMONDRSEPARATOR",
     ) + tuple(reserved.values())
 
     # Regular expression rules for simple tokens
-    t_NOT               = sym2regexp(Symbols.NOT)
-    t_AND               = sym2regexp(Symbols.AND)
-    t_OR                = sym2regexp(Symbols.OR)
-    t_IMPLIES           = sym2regexp(Symbols.IMPLIES)
-    t_EQUIVALENCE       = sym2regexp(Symbols.EQUIVALENCE)
-    t_TEST              = sym2regexp(Symbols.PATH_TEST)
-    t_SEQ               = sym2regexp(Symbols.PATH_SEQUENCE)
-    t_UNION             = sym2regexp(Symbols.PATH_UNION)
-    t_STAR              = sym2regexp(Symbols.PATH_STAR)
-    t_LPAREN            = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
-    t_RPAREN            = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
-    t_BOXLSEPARATOR     = sym2regexp(Symbols.ALWAYS_BRACKET_LEFT)
-    t_BOXRSEPARATOR     = sym2regexp(Symbols.ALWAYS_BRACKET_RIGHT)
+    t_NOT = sym2regexp(Symbols.NOT)
+    t_AND = sym2regexp(Symbols.AND)
+    t_OR = sym2regexp(Symbols.OR)
+    t_IMPLIES = sym2regexp(Symbols.IMPLIES)
+    t_EQUIVALENCE = sym2regexp(Symbols.EQUIVALENCE)
+    t_TEST = sym2regexp(Symbols.PATH_TEST)
+    t_SEQ = sym2regexp(Symbols.PATH_SEQUENCE)
+    t_UNION = sym2regexp(Symbols.PATH_UNION)
+    t_STAR = sym2regexp(Symbols.PATH_STAR)
+    t_LPAREN = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
+    t_RPAREN = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
+    t_BOXLSEPARATOR = sym2regexp(Symbols.ALWAYS_BRACKET_LEFT)
+    t_BOXRSEPARATOR = sym2regexp(Symbols.ALWAYS_BRACKET_RIGHT)
     t_DIAMONDLSEPARATOR = sym2regexp(Symbols.EVENTUALLY_BRACKET_LEFT)
     t_DIAMONDRSEPARATOR = sym2regexp(Symbols.EVENTUALLY_BRACKET_RIGHT)
 
     def t_ATOM(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9]*'
-        t.type = LDLfLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
+        r"[a-zA-Z_][a-zA-Z_0-9]*"
+        t.type = LDLfLexer.reserved.get(t.value, "ATOM")  # Check for reserved words
         return t
 
 
 # Yacc example
 class LDLfParser(Parser):
-
     def __init__(self):
         lexer = LDLfLexer()
         precedence = (
-            ('left',  'EQUIVALENCE'),
-            ('left',  'IMPLIES'),
-            ('left',  'UNION'),
-            ('left',  'SEQ'),
-            ('left',  'STAR'),
-            ('left',  'TEST'),
-            ('left',  'OR'),
-            ('left',  'AND'),
-            ('right', 'DIAMONDLSEPARATOR', 'BOXLSEPARATOR'),
-            ('left',  'DIAMONDRSEPARATOR', 'BOXRSEPARATOR'),
-            ('right', 'NOT'),
-
+            ("left", "EQUIVALENCE"),
+            ("left", "IMPLIES"),
+            ("left", "UNION"),
+            ("left", "SEQ"),
+            ("left", "STAR"),
+            ("left", "TEST"),
+            ("left", "OR"),
+            ("left", "AND"),
+            ("right", "DIAMONDLSEPARATOR", "BOXLSEPARATOR"),
+            ("left", "DIAMONDRSEPARATOR", "BOXRSEPARATOR"),
+            ("right", "NOT"),
         )
         super().__init__("ldlf", lexer.tokens, lexer, precedence)
 
         # self.pl_parser = PLParser()
 
-    def p_temp_formula(self, p):
+    def p_temp_formula(self, p):  # NOQA
         """temp_formula : temp_formula EQUIVALENCE temp_formula
                         | temp_formula IMPLIES temp_formula
                         | temp_formula OR temp_formula
@@ -146,17 +167,17 @@ class LDLfParser(Parser):
                 | temp_formula TEST
                 | propositional"""
 
-        if len(p)==2:
+        if len(p) == 2:
             p[0] = RegExpPropositional(p[1])
-        elif len(p)==3:
-            if p[2]==Symbols.PATH_TEST.value:
+        elif len(p) == 3:
+            if p[2] == Symbols.PATH_TEST.value:
                 p[0] = RegExpTest(p[1])
             elif p[2] == Symbols.PATH_STAR.value:
                 p[0] = RegExpStar(p[1])
             else:
                 raise ValueError
-        elif len(p)==4:
-            if p[2]==Symbols.PATH_UNION.value:
+        elif len(p) == 4:
+            if p[2] == Symbols.PATH_UNION.value:
                 p[0] = RegExpUnion([p[1], p[3]])
             elif p[2] == Symbols.PATH_SEQUENCE.value:
                 p[0] = RegExpSequence([p[1], p[3]])
@@ -164,7 +185,6 @@ class LDLfParser(Parser):
                 raise ValueError
         else:
             raise ValueError
-
 
     def p_propositional(self, p):
         """propositional : propositional EQUIVALENCE propositional
@@ -175,7 +195,7 @@ class LDLfParser(Parser):
                          | FALSE
                          | TRUE
                          | ATOM"""
-        if len(p)==4:
+        if len(p) == 4:
             if p[2] == Symbols.EQUIVALENCE.value:
                 p[0] = PLEquivalence([p[1], p[3]])
             elif p[2] == Symbols.IMPLIES.value:
@@ -188,12 +208,12 @@ class LDLfParser(Parser):
                 raise ValueError
             # else:
             #     p[0] = p[2]
-        elif len(p)==3:
+        elif len(p) == 3:
             p[0] = PLNot(p[2])
-        elif len(p)==2:
-            if p[1]==Symbols.TRUE.value:
+        elif len(p) == 2:
+            if p[1] == Symbols.TRUE.value:
                 p[0] = PLTrue()
-            elif p[1]==Symbols.FALSE.value:
+            elif p[1] == Symbols.FALSE.value:
                 p[0] = PLFalse()
             else:
                 p[0] = PLAtomic(p[1])
@@ -208,15 +228,14 @@ class LDLfParser(Parser):
         p[0] = p[2]
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = LDLfParser()
     while True:
         try:
-            s = input('calc > ')
+            s = input("calc > ")
         except EOFError:
             break
-        if not s: continue
+        if not s:
+            continue
         result = parser(s)
         print(result)

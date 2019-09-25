@@ -2,12 +2,15 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Type
 
-from flloat.base.formulas import UnaryOperator, CommutativeBinaryOperator, BinaryOperator
+from flloat.base.formulas import (
+    UnaryOperator,
+    CommutativeBinaryOperator,
+    BinaryOperator,
+)
 from flloat.helpers import MAX_CACHE_SIZE
 
 
 class NNF(ABC):
-
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def to_nnf(self):
         return self._to_nnf()
@@ -22,7 +25,6 @@ class NNF(ABC):
 
 
 class DualNNF(NNF, ABC):
-
     @property
     def Dual(self) -> Type:
         """The 'dual' formula type for the concrete class."""
@@ -33,7 +35,6 @@ class DualNNF(NNF, ABC):
 
 
 class AtomicNNF(NNF, ABC):
-
     @property
     def Not(self) -> Type:
         """The 'not' formula type for the concrete class."""
@@ -50,7 +51,6 @@ class AtomicNNF(NNF, ABC):
 
 
 class NotNNF(UnaryOperator, NNF, ABC):
-
     def _to_nnf(self):
         if isinstance(self.f, AtomicNNF):
             return self.f.negate()
@@ -62,7 +62,6 @@ class NotNNF(UnaryOperator, NNF, ABC):
 
 
 class DualUnaryOperatorNNF(UnaryOperator, DualNNF, ABC):
-
     @property
     def Not(self) -> Type:
         """The 'not' formula type for the concrete class."""
@@ -79,7 +78,6 @@ class DualUnaryOperatorNNF(UnaryOperator, DualNNF, ABC):
 
 
 class DualBinaryOperatorNNF(BinaryOperator, DualNNF, ABC):
-
     def _to_nnf(self):
         childs = [child.to_nnf() for child in self.formulas]
         return type(self)(childs).simplify()
@@ -91,4 +89,3 @@ class DualBinaryOperatorNNF(BinaryOperator, DualNNF, ABC):
 
 class DualCommutativeOperatorNNF(CommutativeBinaryOperator, DualBinaryOperatorNNF, ABC):
     pass
-

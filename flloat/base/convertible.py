@@ -23,7 +23,6 @@ class BaseConvertibleFormula(ConvertibleFormula, Truth, NNF, ABC):
 
 
 class ImpliesConvertible(ImpliesTruth, BaseConvertibleFormula, BinaryOperator):
-
     @property
     def And(self):
         raise NotImplementedError
@@ -46,8 +45,9 @@ class ImpliesConvertible(ImpliesTruth, BaseConvertibleFormula, BinaryOperator):
         return res
 
 
-class EquivalenceConvertible(EquivalenceTruth, BaseConvertibleFormula, CommutativeBinaryOperator, ABC):
-
+class EquivalenceConvertible(
+    EquivalenceTruth, BaseConvertibleFormula, CommutativeBinaryOperator, ABC
+):
     @property
     def And(self):
         raise NotImplementedError
@@ -67,5 +67,3 @@ class EquivalenceConvertible(EquivalenceTruth, BaseConvertibleFormula, Commutati
 
         res = self.Or([pos, neg])
         return res
-
-

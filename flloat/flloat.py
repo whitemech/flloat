@@ -6,8 +6,17 @@ from pythomata.simulator import Simulator
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
 from flloat.helpers import powerset
-from flloat.pl import PLFormula, PLAtomic, PLTrue, PLFalse, PLNot, PLAnd, PLOr, PLImplies, \
-    PLEquivalence
+from flloat.pl import (
+    PLFormula,
+    PLAtomic,
+    PLTrue,
+    PLFalse,
+    PLNot,
+    PLAnd,
+    PLOr,
+    PLImplies,
+    PLEquivalence,
+)
 from flloat.semantics.pl import PLFalseInterpretation
 from flloat.semantics.pl import PLInterpretation
 
@@ -40,9 +49,14 @@ def _transform_delta(f: Formula, formula2AtomicFormula):
 def _is_true(Q: FrozenSet[FrozenSet]):
     if frozenset() in Q:
         return True
-    conj = [PLAnd([subf.s.delta(None, epsilon=True) for subf in q]) if len(q) >= 2 else
-            next(iter(q)).s.delta(None, epsilon=True) if len(q) == 1 else
-            PLFalse() for q in Q]
+    conj = [
+        PLAnd([subf.s.delta(None, epsilon=True) for subf in q])
+        if len(q) >= 2
+        else next(iter(q)).s.delta(None, epsilon=True)
+        if len(q) == 1
+        else PLFalse()
+        for q in Q
+    ]
     if len(conj) == 0:
         return False
     else:
@@ -60,24 +74,31 @@ def _make_transition(Q: FrozenSet[FrozenSet[PLAtomic]], i: PLInterpretation):
         # delta function applied to every formula in the macro state Q
         delta_formulas = [f.s.delta(actions_set) for f in q]
 
-        # find the list of atoms, which are "true" atoms (i.e. propositional atoms) or LDLf formulas
+        # find the list of atoms, which are "true" atoms
+        # (i.e. propositional atoms) or LDLf formulas
         atomics = [s for subf in delta_formulas for s in find_atomics(subf)]
 
         atom2id = {v: k for k, v in enumerate(atomics)}  # type: Dict[int, PLAtomic]
-        id2atom = {v: k for k, v in atom2id.items()}     # type: Dict[PLAtomic, int]
+        id2atom = {v: k for k, v in atom2id.items()}  # type: Dict[PLAtomic, int]
 
         # "freeze" the found atoms as symbols and build a mapping from symbols to formulas
-        symbol2formula = {atom2id[f] for f in atomics if f != PLTrue() and f != PLFalse()}
+        symbol2formula = {
+            atom2id[f] for f in atomics if f != PLTrue() and f != PLFalse()
+        }
 
         # build a map from formula to a "freezed" propositional Atomic Formula
         formula2atomic_formulas = {
             f: PLAtomic(atom2id[f])
             if f != PLTrue() and f != PLFalse()  # and not isinstance(f, PLAtomic)
-            else f for f in atomics
+            else f
+            for f in atomics
         }
 
-        # the final list of Propositional Atomic Formulas, one for each formula in the original macro state Q
-        transformed_delta_formulas = [_transform_delta(f, formula2atomic_formulas) for f in delta_formulas]
+        # the final list of Propositional Atomic Formulas,
+        # one for each formula in the original macro state Q
+        transformed_delta_formulas = [
+            _transform_delta(f, formula2atomic_formulas) for f in delta_formulas
+        ]
 
         # the empty conjunction stands for true
         if len(transformed_delta_formulas) == 0:
@@ -87,8 +108,8 @@ def _make_transition(Q: FrozenSet[FrozenSet[PLAtomic]], i: PLInterpretation):
         else:
             conjunctions = PLAnd(transformed_delta_formulas)
 
-        # the model in this case is the smallest set of symbols s.t. the conjunction of "freezed" atomic formula
-        # is true.
+        # the model in this case is the smallest set of symbols
+        # s.t. the conjunction of "freezed" atomic formula is true.
         alphabet = frozenset(symbol2formula)
         models = frozenset(conjunctions.minimal_models(alphabet))
 
@@ -158,7 +179,9 @@ def to_automaton(f, labels: Optional[Set[Symbol]] = None):
                     states.add(new_state)
                     to_be_visited.add(new_state)
 
-                transition_function.setdefault(q, {})[PLInterpretation(actions_set)] = new_state
+                transition_function.setdefault(q, {})[
+                    PLInterpretation(actions_set)
+                ] = new_state
 
                 if new_state not in visited:
                     visited.add(new_state)
@@ -171,4 +194,3 @@ def to_automaton(f, labels: Optional[Set[Symbol]] = None):
     dfa = dfa.trim()
 
     return dfa
-

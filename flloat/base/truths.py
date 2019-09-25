@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 
-from flloat.base.formulas import UnaryOperator, BinaryOperator, Formula
+from flloat.base.formulas import UnaryOperator, BinaryOperator
 from flloat.base.symbols import Symbols
 
 
 class Truth(ABC):
     @abstractmethod
     def truth(self, *args) -> bool:
-        """Return true under interpretation to be specified in the arguments of the implementation."""
+        """Return true if formula is true in a given interpretation."""
 
 
 class NotTruth(UnaryOperator, Truth):
@@ -51,7 +51,10 @@ class ImpliesTruth(BinaryOperator, Truth):
         # return eq_formula.truth(i)
         fs = self.formulas
         N = len(fs)
-        evaluation = lambda x, y: not x or y
+
+        def evaluation(x, y):
+            return not x or y
+
         truth = evaluation(fs[0].truth(*args), fs[1].truth(*args))
         for idx in range(2, N):
             # if at some point the premise is False, then return True

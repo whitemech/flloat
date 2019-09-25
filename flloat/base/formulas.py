@@ -6,7 +6,6 @@ from flloat.helpers import Hashable
 
 
 class Formula(Hashable, ABC):
-
     def __init__(self):
         super().__init__()
 
@@ -19,7 +18,6 @@ class Formula(Hashable, ABC):
 
 
 class AtomicFormula(Formula):
-
     def __init__(self, s: Symbol):
         super().__init__()
         self.s = s
@@ -35,7 +33,9 @@ class AtomicFormula(Formula):
 
 
 class Operator(Formula, ABC):
-    base_expression = Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
+    base_expression = (
+        Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
+    )
 
     @property
     def operator_symbol(self) -> Symbol:
@@ -55,7 +55,12 @@ class UnaryOperator(Operator, ABC):
         self.f = f.simplify()
 
     def __str__(self):
-        return self.operator_symbol + Symbols.ROUND_BRACKET_LEFT.value + str(self.f) + Symbols.ROUND_BRACKET_RIGHT.value
+        return (
+            self.operator_symbol
+            + Symbols.ROUND_BRACKET_LEFT.value
+            + str(self.f)
+            + Symbols.ROUND_BRACKET_RIGHT.value
+        )
 
     def _members(self):
         return self.operator_symbol, self.f
@@ -86,7 +91,9 @@ class BinaryOperator(Operator, ABC):
         self.formulas = self._popup()
 
     def __str__(self):
-        return "(" + (" "+self.operator_symbol+" ").join(map(str, self.formulas)) + ")"
+        return (
+            "(" + (" " + self.operator_symbol + " ").join(map(str, self.formulas)) + ")"
+        )
 
     def _members(self) -> Tuple[Symbol, OperatorChildren]:
         return self.operator_symbol, self.formulas
@@ -115,7 +122,8 @@ class CommutativeBinaryOperator(BinaryOperator, ABC):
         Instantiate a commutative binary operator.
 
         :param formulas: a sequence of sub-formulas concatenated with the binary operator.
-        :param idempotence: whether the binary operator satisfies the idempotence property (e.g. A & A === A)
+        :param idempotence: whether the binary operator satisfies
+                          | the idempotence property (e.g. A & A === A)
         """
         super().__init__(formulas)
         self.idempotence = idempotence
@@ -151,6 +159,10 @@ class CommutativeBinaryOperator(BinaryOperator, ABC):
 
     def __str__(self):
         if self.idempotence:
-            return "(" + (" "+self.operator_symbol+" ").join(map(str, self.members)) + ")"
+            return (
+                "("
+                + (" " + self.operator_symbol + " ").join(map(str, self.members))
+                + ")"
+            )
         else:
             return super().__str__()

@@ -32,7 +32,7 @@ A Python implementation of the `FLLOAT`_ library.
 .. _FLLOAT: https://github.com/RiccardoDeMasellis/FLLOAT.git
 
 
-* Free software: MIT license
+* Free software: Apache 2.0 license
 * Documentation: https://marcofavorito.github.io/flloat/
 
 Install

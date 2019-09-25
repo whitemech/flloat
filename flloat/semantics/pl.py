@@ -5,7 +5,6 @@ from flloat.helpers import Hashable
 
 
 class PLInterpretation(Hashable):
-
     def __init__(self, true_propositions: Union[Set[Symbol], FrozenSet[Symbol]]):
         super().__init__()
         self.true_propositions = frozenset(true_propositions)
@@ -49,4 +48,3 @@ class PLFalseInterpretation(PLInterpretation):
 
     def __contains__(self, item):
         return False
-
