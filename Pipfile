@@ -11,6 +11,7 @@ ipython = "*"
 codecov = "*"
 tox-travis = "*"
 black = "==19.3b0"
+mypy = "*"
 
 [packages]
 ply = "*"

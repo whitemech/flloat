@@ -365,13 +365,13 @@ class LTLfEnd(DeltaConvertibleFormula, BaseConvertibleFormula, LTLfAtomic):
         return "_".join(map(str, self._members()))
 
 
-LTLfAtomic.Not = LTLfNot
+LTLfAtomic.Not = LTLfNot  # type: ignore
 
-LTLfAnd.Dual = LTLfOr
-LTLfOr.Dual = LTLfAnd
+LTLfAnd.Dual = LTLfOr  # type: ignore
+LTLfOr.Dual = LTLfAnd  # type: ignore
 
-LTLfNext.Dual = LTLfWeakNext
-LTLfWeakNext.Dual = LTLfNext
+LTLfNext.Dual = LTLfWeakNext  # type: ignore
+LTLfWeakNext.Dual = LTLfNext  # type: ignore
 
-LTLfEventually.Dual = LTLfAlways
-LTLfAlways.Dual = LTLfEventually
+LTLfEventually.Dual = LTLfAlways  # type: ignore
+LTLfAlways.Dual = LTLfEventually  # type: ignore
