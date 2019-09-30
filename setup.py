@@ -35,7 +35,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    install_requires=["ply", "pythomata==1.0.0a0"],
+    install_requires=["ply", "pythomata"],
     license=about["__license__"],
     include_package_data=True,
     keywords='flloat',

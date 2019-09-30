@@ -12,10 +12,13 @@ codecov = "*"
 tox-travis = "*"
 black = "==19.3b0"
 mypy = "*"
+flake8 = "*"
+flake8-docstrings = "*"
+pytest-cov = "*"
 
 [packages]
 ply = "*"
-pythomata = {git = "https://github.com/marcofavorito/pythomata.git",ref = "develop"}
+pythomata = "*"
 
 [requires]
 python_version = "3.7"

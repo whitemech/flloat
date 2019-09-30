@@ -8,7 +8,7 @@ deploy:
     secure: "iY3n9r2nlAnOkAWe0cyQ4Tevk0In/HJUzpFEy4hzkTb515PoWDgUopWmAZW4IicjgciX4LCa0/Ihb/fwy2qVufePvb64LUmj6/dqbiCLBBWgqry7t5t1CmXInYrPOj2ugw77baAOjFtaFSyelxqfAPePsQJKddkU/317FkQ3X5auZ/W1rEDOEtGkF10gwAnWgomH7w9refVFXgA5/l+qh7vBDqzL84LMPZwOq8+eVGQwQ+asqLhTXxGgMc7/4la/DvadrE141ySHKQg9ElN6PeWve89bnZHG50yLeTs3tzSbFuCya/gA04QYZeZSxoFSYQ2dyHpJ7Pceyil62reBWkOSLkufGt3YU1HZynA9qQDl6UYUkYM3Nr+BW/PKPm6sldukeKwsz5TFGVgzpDPCWcyVU6HcsTPLd4uH33gHvnQDKePQhyTNHsXMN2F8AUL0YhAMfSv4EWGLQJw238uHoFuoUUV8OzrUa5oj+klE/kavu8Oz7Yq5YlwI0vuDl1coe+Q385Gxa+BApPROnKk9tM065OJ9Zjam9kMDh08+AJk4lCYDUk5HF1KWICwsE7D0/0P6YwLWjC47SVnEwoLLG72IpZoSCzwkANox8MXgY9+ALYO8IX/vjvQddTB1RhoENNpS2ZodsdKztbpaOlW7UChYv/HQtIIe8fVa2C6IcoY="
   on:
     tags: true
-    repo: marcofavorito/temprl
+    repo: marcofavorito/flloat
     python: 3.6
 matrix:
   include:
@@ -25,4 +25,3 @@ script:
 
 after_success:
   - coveralls
-
