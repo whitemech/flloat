@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbols
 from flloat.pl import (

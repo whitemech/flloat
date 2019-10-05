@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import FrozenSet, Set, Union
 
 from flloat.base.symbols import Symbol

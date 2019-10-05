@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import ABC
 
 import ply.yacc as yacc

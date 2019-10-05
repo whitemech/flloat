@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 
 from flloat.base.formulas import UnaryOperator, BinaryOperator

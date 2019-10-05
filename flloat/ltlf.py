@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set

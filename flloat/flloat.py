@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Set, List, Any, FrozenSet, Optional, Dict
 
 from pythomata.dfa import DFA
