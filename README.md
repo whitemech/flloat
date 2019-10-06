@@ -25,8 +25,6 @@ to get all the needed dependencies.
 
 ## Install
 
-## Install
-
 - from [PyPI](https://pypi.org/project/flloat/):
 
       pip install flloat
