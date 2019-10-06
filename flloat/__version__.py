@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Declaration of metadata for the package."""
 
 __title__ = "flloat"
 __description__ = "A Python implementation of the FLLOAT library."
