@@ -79,7 +79,7 @@ class LDLfLexer(Lexer):
     t_EQUIVALENCE = sym2regexp(Symbols.EQUIVALENCE)
     t_ALT_NOT = sym2regexp(Symbols.ALT_NOT)
     t_ALT_AND = sym2regexp(Symbols.ALT_AND)
-    t_ALT_OR = sym2regexp(Symbols.ALT_OR)
+    t_ALT_OR = r"\|\|"
     t_ALT_IMPLIES = sym2regexp(Symbols.ALT_IMPLIES)
     t_ALT_EQUIVALENCE = sym2regexp(Symbols.ALT_EQUIVALENCE)
     t_TEST = sym2regexp(Symbols.PATH_TEST)

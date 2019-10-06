@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """This module contains the definition to deal with symbols."""
+import re
 from enum import Enum
 from typing import Hashable, Union, FrozenSet, Set
 
@@ -18,7 +19,7 @@ class Symbols(Enum):
     EQUIVALENCE = "<->"
     ALT_NOT = "!!"
     ALT_AND = "&&"
-    ALT_OR = "\|\|"
+    ALT_OR = "||"
     ALT_EQUAL = "=="
     ALT_IMPLIES = "-->"
     ALT_EQUIVALENCE = "<-->"
