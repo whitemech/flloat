@@ -138,72 +138,68 @@
 <p>A Python implementation of the <a href="https://github.com/RiccardoDeMasellis/FLLOAT.git">FLLOAT</a> library.</p>
 <ul>
 <li>Free software: Apache 2.0 license</li>
-<li>Documentation: https://marcofavorito.github.io/flloat/</li>
+<li>Documentation: <a href="https://marcofavorito.github.io/flloat/">https://marcofavorito.github.io/flloat/</a></li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
 <p>The package depends on <a href="https://marcofavorito.github.io/pythomata">Pythomata</a>. Please follow the install instruction 
 to get all the needed dependencies. </p>
 <h2 id="install">Install</h2>
 <ul>
-<li>
-<p>from <a href="https://pypi.org/project/flloat/">PyPI</a>:</p>
-<p>pip install flloat</p>
-</li>
-<li>
-<p>or, from source (<code>master</code> branch):</p>
-<p>pip install git+https://github.com/marcofavorito/flloat.git</p>
-</li>
-<li>
-<p>or, clone the repository and install:</p>
-<p>git clone htts://github.com/marcofavorito/flloat.git
-  cd flloat
-  pip install .</p>
-<pre><code>pip install .
-</code></pre>
-</li>
+<li>from <a href="https://pypi.org/project/flloat/">PyPI</a>:</li>
 </ul>
+<pre><code>pip install flloat
+</code></pre>
+
+<ul>
+<li>or, from source (<code>master</code> branch):</li>
+</ul>
+<pre><code>pip install git+https://github.com/marcofavorito/flloat.git
+</code></pre>
+
+<ul>
+<li>or, clone the repository and install:</li>
+</ul>
+<pre><code>git clone htts://github.com/marcofavorito/flloat.git
+cd flloat
+pip install .
+</code></pre>
+
 <h2 id="how-to-use">How to use</h2>
 <ul>
 <li>Parse a LDLf formula:</li>
 </ul>
-<pre><code class="python">
-    from flloat.parser.ldlf import LDLfParser
+<pre><code class="python">from flloat.parser.ldlf import LDLfParser
 
-    parser = LDLfParser()
-    formula_string = &quot;&lt;true*; A &amp; B&gt;tt&quot;
-    formula = parser(formula_string)        # returns a LDLfFormula
+parser = LDLfParser()
+formula_string = &quot;&lt;true*; A &amp; B&gt;tt&quot;
+formula = parser(formula_string)        # returns a LDLfFormula
 
-    print(formula)                          # prints &quot;&lt;((true)* ; (A &amp; B))&gt;(tt)&quot;
-    print(formula.find_labels())            # prints {A, B}
-
+print(formula)                          # prints &quot;&lt;((true)* ; (A &amp; B))&gt;(tt)&quot;
+print(formula.find_labels())            # prints {A, B}
 </code></pre>
 
 <ul>
 <li>Evaluate it over finite traces:</li>
 </ul>
-<pre><code class="python">
-    from flloat.semantics.traces import FiniteTrace
+<pre><code class="python">from flloat.semantics.traces import FiniteTrace
 
-    t1 = FiniteTrace.from_symbol_sets([
-        {},
-        {&quot;A&quot;},
-        {&quot;A&quot;},
-        {&quot;A&quot;, &quot;B&quot;},
-        {}
-    ])
-    formula.truth(t1, 0)  # True
-
+t1 = FiniteTrace.from_symbol_sets([
+    {},
+    {&quot;A&quot;},
+    {&quot;A&quot;},
+    {&quot;A&quot;, &quot;B&quot;},
+    {}
+])
+formula.truth(t1, 0)  # True
 </code></pre>
 
 <ul>
 <li>Transform it into an automaton (<code>pythomata.DFA</code> object):</li>
 </ul>
-<pre><code class="python">
-    dfa = formula.to_automaton()
+<pre><code class="python">dfa = formula.to_automaton()
 
-    # print the automaton
-    dfa.to_dot(&quot;./automaton.DFA&quot;)
-
+# print the automaton
+dfa.to_dot(&quot;./automaton.DFA&quot;)
 </code></pre>
 
 <p>Notice: <code>to_dot</code> requires <a href="https://graphviz.gitlab.io/download/">Graphviz</a>.
@@ -211,27 +207,26 @@ For info about how to use a <code>pythomata.DFA</code> please look at the <a hre
 <ul>
 <li>The same for a LTLf formula:</li>
 </ul>
-<pre><code class="python">
-    from flloat.parser.ltlf import LTLfParser
-    from flloat.semantics.traces import FiniteTrace
+<pre><code class="python">from flloat.parser.ltlf import LTLfParser
+from flloat.semantics.traces import FiniteTrace
 
-    # parse the formula
-    parser = LTLfParser()
-    formula_string = &quot;F (A &amp; !B)&quot;
-    formula = parser(formula_string)
+# parse the formula
+parser = LTLfParser()
+formula_string = &quot;F (A &amp; !B)&quot;
+formula = parser(formula_string)
 
-    # evaluate over finite traces
-    t1 = FiniteTrace.from_symbol_sets([
-        {},
-        {&quot;A&quot;},
-        {&quot;A&quot;},
-        {&quot;A&quot;, &quot;B&quot;}
-    ])
-    assert formula.truth(t1, 0)
+# evaluate over finite traces
+t1 = FiniteTrace.from_symbol_sets([
+    {},
+    {&quot;A&quot;},
+    {&quot;A&quot;},
+    {&quot;A&quot;, &quot;B&quot;}
+])
+assert formula.truth(t1, 0)
 
-    # from LTLf formula to DFA
-    dfa = formula.to_automaton()
-    assert dfa.accepts(t1.trace)
+# from LTLf formula to DFA
+dfa = formula.to_automaton()
+assert dfa.accepts(t1.trace)
 </code></pre>
 
 <h2 id="features">Features</h2>
@@ -316,5 +311,5 @@ For info about how to use a <code>pythomata.DFA</code> please look at the <a hre
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-10-06 22:22:43
+Build Date UTC : 2019-10-06 23:05:08
 -->
