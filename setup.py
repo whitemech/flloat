@@ -26,10 +26,11 @@ setup(
     url=about['__url__'],
     author_email=about["__author_email__"],
     long_description=readme + '\n\n' + history,
+    long_description_content_type="text/markdown",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache License',
+        'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
