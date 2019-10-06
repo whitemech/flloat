@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
@@ -12,7 +13,6 @@ from flloat.semantics.pl import PLInterpretation
 
 
 class PLTruth(Truth, ABC):
-
     @abstractmethod
     def truth(self, i: PLInterpretation, *args) -> bool:
         """
@@ -50,8 +50,11 @@ class PLFormula(Formula, PLTruth, NNF):
 
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def minimal_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
-        """Find models of min size (i.e. the less number of proposition to True).
-        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations."""
+        """
+        Find models of min size (i.e. the less number of proposition to True).
+
+        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
+        """
         models = self.all_models(alphabet)
 
         minimal_models = set()
@@ -69,7 +72,10 @@ class PLFormula(Formula, PLTruth, NNF):
 
     def find_atomics(self) -> Set[AtomicFormula]:
         """
-        Find all the atomic formulas (i.e. the leaves in the syntax tree.) in the propositional formulas.
+        Find all the atomic formulas in the propositional formulas.
+
+        That is, find the leaves in the syntax tree.
+
         :return: the set of  atomic formulas.
         """
         if self._atoms is None:
@@ -88,6 +94,7 @@ class PLAtomic(AtomicFormula, AtomicNNF, PLFormula):
         return self.s in i
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return {self.s}
 
     def _find_atomics(self):
@@ -124,10 +131,11 @@ class PLTrue(PLAtomic):
     def truth(self, *args) -> bool:
         return True
 
-    def negate(self) -> 'PLFalse':
+    def negate(self) -> "PLFalse":
         return PLFalse()
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
@@ -140,10 +148,11 @@ class PLFalse(PLAtomic):
     def truth(self, *args) -> bool:
         return False
 
-    def negate(self) -> 'PLTrue':
+    def negate(self) -> "PLTrue":
         return PLTrue()
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
@@ -161,6 +170,7 @@ class PLAnd(PLCommBinaryOperator, AndTruth):
 
 class PLImplies(PLBinaryOperator, ImpliesConvertible):
     """Propositional Implication"""
+
     And = PLAnd
     Or = PLOr
     Not = PLNot
@@ -168,6 +178,7 @@ class PLImplies(PLBinaryOperator, ImpliesConvertible):
 
 class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
     """Propositional Equivalence"""
+
     And = PLAnd
     Or = PLOr
     Not = PLNot

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flloat.parser.ldlf import LDLfParser
 from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation

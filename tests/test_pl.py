@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flloat.parser.pl import PLParser
 from flloat.semantics.pl import PLInterpretation
 from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
