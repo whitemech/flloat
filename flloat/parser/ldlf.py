@@ -54,6 +54,11 @@ class LDLfLexer(Lexer):
         "OR",
         "IMPLIES",
         "EQUIVALENCE",
+        "ALT_NOT",
+        "ALT_AND",
+        "ALT_OR",
+        "ALT_IMPLIES",
+        "ALT_EQUIVALENCE",
         "TEST",
         "SEQ",
         "UNION",
@@ -72,6 +77,11 @@ class LDLfLexer(Lexer):
     t_OR = sym2regexp(Symbols.OR)
     t_IMPLIES = sym2regexp(Symbols.IMPLIES)
     t_EQUIVALENCE = sym2regexp(Symbols.EQUIVALENCE)
+    t_ALT_NOT = sym2regexp(Symbols.ALT_NOT)
+    t_ALT_AND = sym2regexp(Symbols.ALT_AND)
+    t_ALT_OR = sym2regexp(Symbols.ALT_OR)
+    t_ALT_IMPLIES = sym2regexp(Symbols.ALT_IMPLIES)
+    t_ALT_EQUIVALENCE = sym2regexp(Symbols.ALT_EQUIVALENCE)
     t_TEST = sym2regexp(Symbols.PATH_TEST)
     t_SEQ = sym2regexp(Symbols.PATH_SEQUENCE)
     t_UNION = sym2regexp(Symbols.PATH_UNION)
@@ -96,34 +106,36 @@ class LDLfParser(Parser):
         """Initialize the LDLf parser."""
         lexer = LDLfLexer()
         precedence = (
-            ("left", "EQUIVALENCE"),
-            ("left", "IMPLIES"),
+            ("left", "EQUIVALENCE", "ALT_EQUIVALENCE"),
+            ("left", "IMPLIES", "ALT_IMPLIES"),
             ("left", "UNION"),
             ("left", "SEQ"),
             ("left", "STAR"),
             ("left", "TEST"),
-            ("left", "OR"),
-            ("left", "AND"),
+            ("left", "OR", "ALT_OR"),
+            ("left", "AND", "ALT_AND"),
             ("right", "DIAMONDLSEPARATOR", "BOXLSEPARATOR"),
             ("left", "DIAMONDRSEPARATOR", "BOXRSEPARATOR"),
-            ("right", "NOT"),
+            ("right", "NOT", "ALT_NOT"),
         )
         super().__init__("ldlf", lexer.tokens, lexer, precedence)
 
         # self.pl_parser = PLParser()
 
     def p_temp_formula(self, p):  # NOQA
-        """temp_formula : temp_formula EQUIVALENCE temp_formula
-                        | temp_formula IMPLIES temp_formula
-                        | temp_formula OR temp_formula
-                        | temp_formula AND temp_formula
+        """temp_formula : temp_formula ALT_EQUIVALENCE temp_formula
+                        | temp_formula ALT_IMPLIES temp_formula
+                        | temp_formula ALT_OR temp_formula
+                        | temp_formula ALT_AND temp_formula
                         | BOXLSEPARATOR path BOXRSEPARATOR temp_formula
                         | DIAMONDLSEPARATOR path DIAMONDRSEPARATOR temp_formula
-                        | NOT temp_formula
+                        | ALT_NOT temp_formula
                         | TT
                         | FF
                         | END
                         | LAST
+                        | propositional
+
          """
         if len(p) == 2:
             if p[1] == Symbols.LOGICAL_TRUE.value:
@@ -140,13 +152,13 @@ class LDLfParser(Parser):
             p[0] = LDLfNot(p[2])
         elif len(p) == 4:
             l, o, r = p[1:]
-            if o == Symbols.EQUIVALENCE.value:
+            if o == Symbols.ALT_EQUIVALENCE.value:
                 p[0] = LDLfEquivalence([l, r])
-            elif o == Symbols.IMPLIES.value:
+            elif o == Symbols.ALT_IMPLIES.value:
                 p[0] = LDLfImplies([l, r])
-            elif o == Symbols.OR.value:
+            elif o == Symbols.ALT_OR.value:
                 p[0] = LDLfOr([l, r])
-            elif o == Symbols.AND.value:
+            elif o == Symbols.ALT_AND.value:
                 p[0] = LDLfAnd([l, r])
             else:
                 raise ValueError
@@ -238,9 +250,11 @@ if __name__ == "__main__":
     while True:
         try:
             s = input("ldlf > ")
+            if not s:
+                continue
+            result = parser(s)
+            print(result)
         except EOFError:
             break
-        if not s:
-            continue
-        result = parser(s)
-        print(result)
+        except Exception as e:
+            print(str(e))
