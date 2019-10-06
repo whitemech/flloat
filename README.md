@@ -24,22 +24,26 @@ to get all the needed dependencies.
 
 ## Install
 
-Install from `master` branch:
+## Install
 
-- with `pip`:
+- from [PyPI](https://pypi.org/project/flloat/):
 
+      pip install flloat
 
-        pip3 install git+https://github.com/marcofavorito/flloat.git
+- or, from source (`master` branch):
+
+      pip install git+https://github.com/marcofavorito/flloat.git
 
 
 - or, clone the repository and install:
 
+      git clone htts://github.com/marcofavorito/flloat.git
+      cd flloat
+      pip install .
 
-        git clone htts://github.com/marcofavorito/flloat.git
-        cd flloat
         pip install .
 
-
+## How to use
 
 * Parse a LDLf formula:
 
