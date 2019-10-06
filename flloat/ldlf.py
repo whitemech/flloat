@@ -108,7 +108,7 @@ class LDLfTemporalFormula(LDLfFormula):
             + ")"
         )
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return self.f.find_labels().union(self.r.find_labels())
 
 

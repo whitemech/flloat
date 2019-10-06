@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+This module contains the implementation of Linear Temporal Logic on finite traces.
+
+References:
+    - Linear Temporal Logic and Linear Dynamic Logic on Finite Traces:
+      https://www.cs.rice.edu/~vardi/papers/ijcai13.pdf
+    - LTLfand LDLfSynthesis Under Partial Observability:
+      http://www.diag.uniroma1.it/~degiacom/papers/2016/IJCAI16dv.pdf
+
+"""
 from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
@@ -46,6 +56,8 @@ from flloat.semantics.traces import FiniteTrace, FiniteTraceTruth
 
 
 class LTLfTruth(Truth):
+    """Interface for"""
+
     @abstractmethod
     def truth(self, i: FiniteTrace, pos: int = 0):
         raise NotImplementedError
@@ -117,7 +129,7 @@ class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
     def truth(self, i: FiniteTrace, pos: int = 0):
         return PLAtomic(self.s).truth(i.get(pos))
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return PLAtomic(self.s).find_labels()
 
     def to_LDLf(self):
@@ -141,6 +153,7 @@ class LTLfTrue(LTLfAtomic):
         return True
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
@@ -158,6 +171,7 @@ class LTLfFalse(LTLfAtomic):
         return False
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 

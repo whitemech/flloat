@@ -94,6 +94,7 @@ class PLAtomic(AtomicFormula, AtomicNNF, PLFormula):
         return self.s in i
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return {self.s}
 
     def _find_atomics(self):
@@ -134,6 +135,7 @@ class PLTrue(PLAtomic):
         return PLFalse()
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
@@ -150,6 +152,7 @@ class PLFalse(PLAtomic):
         return PLTrue()
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
