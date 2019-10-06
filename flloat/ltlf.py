@@ -1,32 +1,69 @@
+# -*- coding: utf-8 -*-
+"""
+This module contains the implementation of Linear Temporal Logic on finite traces.
+
+References:
+    - Linear Temporal Logic and Linear Dynamic Logic on Finite Traces:
+      https://www.cs.rice.edu/~vardi/papers/ijcai13.pdf
+    - LTLfand LDLfSynthesis Under Partial Observability:
+      http://www.diag.uniroma1.it/~degiacom/papers/2016/IJCAI16dv.pdf
+
+"""
 from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.convertible import ConvertibleFormula, \
-    BaseConvertibleFormula
-from flloat.base.delta import Delta, DeltaConvertibleFormula, EquivalenceDeltaConvertible, ImpliesDeltaConvertible
-from flloat.base.formulas import Formula, CommutativeBinaryOperator, AtomicFormula, UnaryOperator
-from flloat.base.nnf import NNF, NotNNF, DualBinaryOperatorNNF, DualUnaryOperatorNNF, AtomicNNF
+from flloat.base.convertible import ConvertibleFormula, BaseConvertibleFormula
+from flloat.base.delta import (
+    Delta,
+    DeltaConvertibleFormula,
+    EquivalenceDeltaConvertible,
+    ImpliesDeltaConvertible,
+)
+from flloat.base.formulas import (
+    Formula,
+    CommutativeBinaryOperator,
+    AtomicFormula,
+    UnaryOperator,
+)
+from flloat.base.nnf import (
+    NNF,
+    NotNNF,
+    DualBinaryOperatorNNF,
+    DualUnaryOperatorNNF,
+    AtomicNNF,
+)
 from flloat.base.symbols import Symbol, Symbols
 from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth
-from flloat.flloat import DFAOTF, to_automaton
+from flloat.flloat import to_automaton
+from flloat.helpers import MAX_CACHE_SIZE
+from flloat.ldlf import (
+    LDLfNot,
+    LDLfAnd,
+    LDLfOr,
+    LDLfDiamond,
+    RegExpPropositional,
+    RegExpStar,
+    RegExpSequence,
+    RegExpTest,
+    LDLfPropositional,
+    LDLfEnd,
+)
+from flloat.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic, PLFormula
+from flloat.semantics.pl import PLInterpretation
 # from flloat.flloat import DFAOTF, to_automaton_
 from flloat.semantics.traces import FiniteTrace, FiniteTraceTruth
-from flloat.semantics.pl import PLInterpretation
-from flloat.ldlf import LDLfNot, LDLfAnd, LDLfOr, LDLfDiamond, \
-    RegExpPropositional, RegExpStar, RegExpSequence, RegExpTest, LDLfPropositional, LDLfEnd
-from flloat.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic, PLFormula
-from flloat.helpers import MAX_CACHE_SIZE
 
 
 class LTLfTruth(Truth):
+    """Interface for"""
+
     @abstractmethod
     def truth(self, i: FiniteTrace, pos: int = 0):
         raise NotImplementedError
 
 
 class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
-
     @lru_cache(maxsize=MAX_CACHE_SIZE)
     def delta(self, i: PLInterpretation, epsilon=False) -> PLFormula:
         f = self.to_nnf()
@@ -43,7 +80,7 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         """apply delta function, assuming that 'self' is a LTLf formula in Negative Normal Form"""
 
     @abstractmethod
-    def to_LDLf(self) -> 'LDLfFormula':
+    def to_LDLf(self):
         """
         Tranform the formula into an equivalent LDLf formula.
 
@@ -69,7 +106,6 @@ class LTLfTemporalFormula(LTLfFormula, FiniteTraceTruth, ABC):
 
 
 class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
-
     def __init__(self, s: Symbol):
         AtomicFormula.__init__(self, s)
 
@@ -93,7 +129,7 @@ class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
     def truth(self, i: FiniteTrace, pos: int = 0):
         return PLAtomic(self.s).truth(i.get(pos))
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
         return PLAtomic(self.s).find_labels()
 
     def to_LDLf(self):
@@ -117,6 +153,7 @@ class LTLfTrue(LTLfAtomic):
         return True
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
@@ -134,11 +171,11 @@ class LTLfFalse(LTLfAtomic):
         return False
 
     def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
 class LTLfNot(NotTruth, LTLfFormula, NotNNF):
-
     def _delta(self, i: PLInterpretation, epsilon=False):
         if isinstance(self.f, LTLfAtomic) or isinstance(self.f, LTLfEnd):
             if epsilon:
@@ -154,7 +191,6 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
 
 
 class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
-
     def _delta(self, i: PLInterpretation, epsilon=False):
         return PLAnd([f._delta(i, epsilon) for f in self.formulas])
 
@@ -163,7 +199,6 @@ class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
 
 
 class LTLfOr(LTLfCommBinaryOperator, OrTruth, DualBinaryOperatorNNF):
-
     def _delta(self, i: PLInterpretation, epsilon=False):
         return PLOr([f._delta(i, epsilon) for f in self.formulas])
 
@@ -203,7 +238,10 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
             return PLAnd([PLAtomic(self.f), PLAtomic(LTLfNot(LTLfEnd()).to_nnf())])
 
     def to_LDLf(self):
-        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]))
+        return LDLfDiamond(
+            RegExpPropositional(PLTrue()),
+            LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula):
@@ -235,33 +273,42 @@ class LTLfUntil(DualBinaryOperatorNNF, LTLfTemporalFormula):
     def negate(self):
         return LTLfRelease([LTLfNot(f) for f in self.formulas])
 
-    def truth(self, i: FiniteTrace, pos: int=0):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         f1 = self.formulas[0]
-        f2 = LTLfUntil(self.formulas[1:]) if len(self.formulas)>2 else self.formulas[1]
+        f2 = (
+            LTLfUntil(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
+        )
 
-        a = any(f2.truth(i, j) for j in range(pos, i.last()+1))
-        b = all(f1.truth(i, k) for j in range(pos, i.last()+1) for k in range(pos, j))
-
-        return any(f2.truth(i, j) and all(f1.truth(i, k) for k in range(pos, j)) for j in range(pos, i.last()+1))
+        return any(
+            f2.truth(i, j) and all(f1.truth(i, k) for k in range(pos, j))
+            for j in range(pos, i.last() + 1)
+        )
 
     def _delta(self, i: PLInterpretation, epsilon: bool = False):
         if epsilon:
             return PLFalse()
         f1 = self.formulas[0]
-        f2 = LTLfUntil(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
-        return PLOr([
-            f2._delta(i, epsilon),
-            PLAnd([
-                f1._delta(i, epsilon),
-                LTLfNext(self)._delta(i, epsilon)
-            ])
-        ])
+        f2 = (
+            LTLfUntil(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
+        )
+        return PLOr(
+            [
+                f2._delta(i, epsilon),
+                PLAnd([f1._delta(i, epsilon), LTLfNext(self)._delta(i, epsilon)]),
+            ]
+        )
 
     def to_LDLf(self):
         f1 = self.formulas[0].to_LDLf()
-        f2 = LTLfUntil(self.formulas[1:]).to_LDLf() if len(self.formulas) > 2 else self.formulas[1].to_LDLf()
-        return LDLfDiamond(RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
-                           LDLfAnd([f2, LDLfNot(LDLfEnd())]))
+        f2 = (
+            LTLfUntil(self.formulas[1:]).to_LDLf()
+            if len(self.formulas) > 2
+            else self.formulas[1].to_LDLf()
+        )
+        return LDLfDiamond(
+            RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
+            LDLfAnd([f2, LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfEventually(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
@@ -272,7 +319,10 @@ class LTLfEventually(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula
         return LTLfUntil([LTLfTrue(), self.f])
 
     def to_LDLf(self):
-        return LDLfDiamond(RegExpStar(RegExpPropositional(PLTrue())), LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]))
+        return LDLfDiamond(
+            RegExpStar(RegExpPropositional(PLTrue())),
+            LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfAlways(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
@@ -297,26 +347,28 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
         if epsilon:
             return PLTrue()
         f1 = self.formulas[0]
-        f2 = LTLfRelease(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
-        return PLAnd([
-            f2._delta(i, epsilon),
-            PLOr([
-                f1._delta(i, epsilon),
-                LTLfWeakNext(self)._delta(i, epsilon)
-            ])
-        ])
+        f2 = (
+            LTLfRelease(self.formulas[1:])
+            if len(self.formulas) > 2
+            else self.formulas[1]
+        )
+        return PLAnd(
+            [
+                f2._delta(i, epsilon),
+                PLOr([f1._delta(i, epsilon), LTLfWeakNext(self)._delta(i, epsilon)]),
+            ]
+        )
 
     def to_LDLf(self):
         return self.convert().to_LDLf()
 
 
 class LTLfEnd(DeltaConvertibleFormula, BaseConvertibleFormula, LTLfAtomic):
-
     def __init__(self):
         LTLfAtomic.__init__(self, Symbols.END.value)
 
     def _members(self):
-        return self.s,
+        return (self.s,)
 
     def convert(self):
         return LTLfAlways(LTLfFalse()).to_nnf()
@@ -328,13 +380,13 @@ class LTLfEnd(DeltaConvertibleFormula, BaseConvertibleFormula, LTLfAtomic):
         return "_".join(map(str, self._members()))
 
 
-LTLfAtomic.Not = LTLfNot
+LTLfAtomic.Not = LTLfNot  # type: ignore
 
-LTLfAnd.Dual = LTLfOr
-LTLfOr.Dual = LTLfAnd
+LTLfAnd.Dual = LTLfOr  # type: ignore
+LTLfOr.Dual = LTLfAnd  # type: ignore
 
-LTLfNext.Dual = LTLfWeakNext
-LTLfWeakNext.Dual = LTLfNext
+LTLfNext.Dual = LTLfWeakNext  # type: ignore
+LTLfWeakNext.Dual = LTLfNext  # type: ignore
 
-LTLfEventually.Dual = LTLfAlways
-LTLfAlways.Dual = LTLfEventually
+LTLfEventually.Dual = LTLfAlways  # type: ignore
+LTLfAlways.Dual = LTLfEventually  # type: ignore

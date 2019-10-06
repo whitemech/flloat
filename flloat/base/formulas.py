@@ -1,26 +1,34 @@
+# -*- coding: utf-8 -*-
+
+"""Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
-from typing import Sequence, Set, Tuple
+from typing import Sequence, Set, Tuple, cast
 
 from flloat.base.symbols import Symbol, Symbols
 from flloat.helpers import Hashable
 
 
 class Formula(Hashable, ABC):
-
-    def __init__(self):
-        super().__init__()
+    """Abstract class for a formula."""
 
     @abstractmethod
     def find_labels(self) -> Set[Symbol]:
-        return set()
+        """Return the set of symbols."""
 
-    def simplify(self):
+    def simplify(self) -> 'Formula':
+        """Simplify the formula."""
         return self
 
 
 class AtomicFormula(Formula):
+    """An abstract atomic formula."""
 
     def __init__(self, s: Symbol):
+        """
+        Inintialize the atomic formula.
+
+        :param s: the atomic symbol.
+        """
         super().__init__()
         self.s = s
 
@@ -28,18 +36,25 @@ class AtomicFormula(Formula):
         return self.s
 
     def __str__(self):
+        """Get the string representation."""
         return str(self.s)
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return {self.s}
 
 
 class Operator(Formula, ABC):
-    base_expression = Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
+    """Implements an operator."""
+
+    base_expression = (
+        Symbols.ROUND_BRACKET_LEFT.value + "%s" + Symbols.ROUND_BRACKET_RIGHT.value
+    )
 
     @property
+    @abstractmethod
     def operator_symbol(self) -> Symbol:
-        raise NotImplementedError
+        """Get the symbol of the operator."""
 
 
 class UnaryOperator(Operator, ABC):
@@ -55,15 +70,23 @@ class UnaryOperator(Operator, ABC):
         self.f = f.simplify()
 
     def __str__(self):
-        return self.operator_symbol + Symbols.ROUND_BRACKET_LEFT.value + str(self.f) + Symbols.ROUND_BRACKET_RIGHT.value
+        """Get the string representation."""
+        return (
+            str(self.operator_symbol)
+            + Symbols.ROUND_BRACKET_LEFT.value
+            + str(self.f)
+            + Symbols.ROUND_BRACKET_RIGHT.value
+        )
 
     def _members(self):
         return self.operator_symbol, self.f
 
     def __lt__(self, other):
+        """Compare the formula with another formula."""
         return self.f.__lt__(other.f)
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return self.f.find_labels()
 
 
@@ -86,36 +109,45 @@ class BinaryOperator(Operator, ABC):
         self.formulas = self._popup()
 
     def __str__(self):
-        return "(" + (" "+self.operator_symbol+" ").join(map(str, self.formulas)) + ")"
+        """Return the string representation."""
+        return (
+            "(" + (" " + str(self.operator_symbol) + " ").join(map(str, self.formulas)) + ")"
+        )
 
     def _members(self) -> Tuple[Symbol, OperatorChildren]:
         return self.operator_symbol, self.formulas
 
     def _popup(self) -> OperatorChildren:
-        """recursively find commutative binary operator
-        among child formulas and pop up them at the same level"""
+        """
+        Refactor the binary formula.
+
+        That is, find recursively commutative binary operator
+        among child formulas and pop up them at the same level.
+        """
         res = []
         for child in self.formulas:
             if type(child) == type(self):
-                superchilds = child.formulas
+                superchilds = cast(BinaryOperator, child).formulas
                 res.extend(superchilds)
             else:
                 res.append(child)
         return tuple(res)
 
-    def find_labels(self):
+    def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
 
 class CommutativeBinaryOperator(BinaryOperator, ABC):
-    """A generic commutative binary formula"""
+    """A generic commutative binary formula."""
 
     def __init__(self, formulas: OperatorChildren, idempotence: bool = True):
         """
         Instantiate a commutative binary operator.
 
         :param formulas: a sequence of sub-formulas concatenated with the binary operator.
-        :param idempotence: whether the binary operator satisfies the idempotence property (e.g. A & A === A)
+        :param idempotence: whether the binary operator satisfies
+                          | the idempotence property (e.g. A & A === A)
         """
         super().__init__(formulas)
         self.idempotence = idempotence
@@ -129,6 +161,7 @@ class CommutativeBinaryOperator(BinaryOperator, ABC):
     def simplify(self) -> Formula:
         """
         Simplify the formula.
+
         :return: the simplified formula.
         """
         if self.idempotence:
@@ -147,10 +180,16 @@ class CommutativeBinaryOperator(BinaryOperator, ABC):
             return super()._members()
 
     def find_labels(self):
+        """Return the set of symbols."""
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
     def __str__(self):
+        """Return the string representation."""
         if self.idempotence:
-            return "(" + (" "+self.operator_symbol+" ").join(map(str, self.members)) + ")"
+            return (
+                "("
+                + (" " + str(self.operator_symbol) + " ").join(map(str, self.members))
+                + ")"
+            )
         else:
             return super().__str__()

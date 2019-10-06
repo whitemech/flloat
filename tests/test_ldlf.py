@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flloat.parser.ldlf import LDLfParser
 from flloat.semantics.traces import FiniteTrace
 from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
@@ -23,10 +24,10 @@ def test_parser():
     assert ff == parser("ff")
     assert LDLfDiamond(r_true, tt) == parser("<true>tt")
     assert LDLfDiamond(r_false, tt) == parser("<false>tt")
-    assert parser("!tt & <!A&B>tt") == LDLfAnd(
+    assert parser("!!tt && <!A&B>tt") == LDLfAnd(
         [LDLfNot(tt), LDLfDiamond(RegExpPropositional(PLAnd([PLNot(a), b])), tt)])
 
-    assert parser("[true*](([true]ff) | (<!A>tt) | (<(true)*>(<B>tt)))") == \
+    assert parser("[true*]([true]ff || <!A>tt || <(true)*><B>tt)") == \
            LDLfBox(RegExpStar(r_true),
                    LDLfOr([
                        LDLfBox(r_true, ff),
@@ -35,7 +36,7 @@ def test_parser():
                    ])
                    )
 
-    assert parser("[A&B&A]ff <-> <A&B&A>tt") == LDLfEquivalence([
+    assert parser("[A&B&A]ff <--> <A&B&A>tt") == LDLfEquivalence([
         LDLfBox(RegExpPropositional(PLAnd([a, b, a])), ff),
         LDLfDiamond(RegExpPropositional(PLAnd([a, b, a])), tt),
     ])
@@ -47,7 +48,7 @@ def test_parser():
         LDLfEnd()
     )
 
-    assert parser("!(<!(A<->D)+(B;C)*+(!last)?>[(true)*]end)") == LDLfNot(
+    assert parser("!!(<!(A<->D)+(B;C)*+(!!last)?>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
             RegExpUnion([
                 RegExpPropositional(PLNot(PLEquivalence([PLAtomic("A"), PLAtomic("D")]))),
@@ -121,12 +122,12 @@ def test_truth():
 def test_nnf():
     parser = LDLfParser()
 
-    assert parser("!tt").to_nnf() == LDLfLogicalFalse()
-    assert parser("!!tt").to_nnf() == LDLfLogicalTrue()
+    assert parser("!!tt").to_nnf() == LDLfLogicalFalse()
+    assert parser("!!!!tt").to_nnf() == LDLfLogicalTrue()
 
-    assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
+    assert parser("!!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
 
-    f = parser("!(<!(A<->D)+(B;C)*+(!last)?>[(true)*]end)")
+    f = parser("!!(<!(A<->D)+(B;C)*+(!!last)?>[(true)*]end)")
     assert f.to_nnf() == parser("[(([true]<true>tt)? + ((B ; C))* + ((A | D) & (!(D) | !(A))))]<(true)*><true>tt")
     assert f.to_nnf() == f.to_nnf().to_nnf().to_nnf().to_nnf()
 
@@ -156,7 +157,7 @@ def test_delta():
     assert parser("[B]ff").delta(i_b) == PLAtomic(ff)
     assert parser("[B]ff").delta(i_ab) == PLAtomic(ff)
 
-    f = parser("!(<!(A<->B)+(B;A)*+(!last)?>[(true)*]end)")
+    f = parser("!!(<!(A<->B)+(B;A)*+(!!last)?>[(true)*]end)")
     assert f.delta(i_) == f.to_nnf().delta(i_)
     assert f.delta(i_ab) == f.to_nnf().delta(i_ab)
 
@@ -240,7 +241,7 @@ class TestToAutomaton:
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        dfa = parser("(<true>tt) & ([A]<B>tt)").to_automaton()
+        dfa = parser("(<true>tt) && ([A]<B>tt)").to_automaton()
 
         assert not dfa.accepts([])
         assert dfa.accepts([i_b])
@@ -254,7 +255,7 @@ class TestToAutomaton:
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
+        dfa = parser("[true*](<A>tt --> <true*><B>tt)").to_automaton()
 
         assert dfa.accepts([])
         assert dfa.accepts([i_b])

@@ -1,0 +1,11 @@
+site_name: FLLOAT
+nav:
+    - Home: index.md
+    - Credits: authors.md
+    - How to contribute: contributing.md
+    - References: references.md
+
+theme: readthedocs
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs

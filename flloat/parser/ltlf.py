@@ -1,78 +1,93 @@
+# -*- coding: utf-8 -*-
+"""Implementation of the LTLf parser."""
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbols
 from flloat.helpers import sym2regexp
-from flloat.ltlf import LTLfNext, LTLfNot, LTLfUntil, LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, \
-    LTLfEventually, LTLfAlways, LTLfAtomic, LTLfRelease, LTLfTrue, LTLfFalse, LTLfWeakNext, LTLfEnd
+from flloat.ltlf import (
+    LTLfNext,
+    LTLfNot,
+    LTLfUntil,
+    LTLfEquivalence,
+    LTLfImplies,
+    LTLfOr,
+    LTLfAnd,
+    LTLfEventually,
+    LTLfAlways,
+    LTLfAtomic,
+    LTLfRelease,
+    LTLfTrue,
+    LTLfFalse,
+    LTLfWeakNext,
+    LTLfEnd,
+)
 
 
 class LTLfLexer(Lexer):
-
-    def __init__(self):
-        super().__init__()
+    """Implementation of the lexer for the LTLf parser."""
 
     reserved = {
-        'true':                     'TRUE',
-        'false':                    'FALSE',
-        Symbols.NEXT.value:         'NEXT',
-        Symbols.WEAK_NEXT.value:    'WEAK_NEXT',
-        Symbols.UNTIL.value:        'UNTIL',
-        Symbols.EVENTUALLY.value:   'EVENTUALLY',
-        Symbols.ALWAYS.value:       'ALWAYS',
-        Symbols.RELEASE.value:      'RELEASE',
-        Symbols.END.value:          'END',
+        "true": "TRUE",
+        "false": "FALSE",
+        Symbols.NEXT.value: "NEXT",
+        Symbols.WEAK_NEXT.value: "WEAK_NEXT",
+        Symbols.UNTIL.value: "UNTIL",
+        Symbols.EVENTUALLY.value: "EVENTUALLY",
+        Symbols.ALWAYS.value: "ALWAYS",
+        Symbols.RELEASE.value: "RELEASE",
+        Symbols.END.value: "END",
     }
 
     # List of token names.   This is always required
     tokens = (
-        'ATOM',
-        'NOT',
-        'AND',
-        'OR',
-        'IMPLIES',
-        'EQUIVALENCE',
-        'LPAREN',
-        'RPAREN',
+        "ATOM",
+        "NOT",
+        "AND",
+        "OR",
+        "IMPLIES",
+        "EQUIVALENCE",
+        "LPAREN",
+        "RPAREN",
     ) + tuple(reserved.values())
 
     # Regular expression rules for simple tokens
-    t_NOT               = sym2regexp(Symbols.NOT)
-    t_AND               = sym2regexp(Symbols.AND)
-    t_OR                = sym2regexp(Symbols.OR)
-    t_IMPLIES           = sym2regexp(Symbols.IMPLIES)
-    t_EQUIVALENCE       = sym2regexp(Symbols.EQUIVALENCE)
-    t_LPAREN            = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
-    t_RPAREN            = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
-    t_NEXT              = sym2regexp(Symbols.NEXT)
-    t_UNTIL             = sym2regexp(Symbols.UNTIL)
-    t_EVENTUALLY        = sym2regexp(Symbols.EVENTUALLY)
-    t_ALWAYS            = sym2regexp(Symbols.ALWAYS)
-    t_RELEASE           = sym2regexp(Symbols.RELEASE)
-    t_END               = sym2regexp(Symbols.END)
+    t_NOT = sym2regexp(Symbols.NOT)
+    t_AND = sym2regexp(Symbols.AND)
+    t_OR = sym2regexp(Symbols.OR)
+    t_IMPLIES = sym2regexp(Symbols.IMPLIES)
+    t_EQUIVALENCE = sym2regexp(Symbols.EQUIVALENCE)
+    t_LPAREN = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
+    t_RPAREN = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
+    t_NEXT = sym2regexp(Symbols.NEXT)
+    t_UNTIL = sym2regexp(Symbols.UNTIL)
+    t_EVENTUALLY = sym2regexp(Symbols.EVENTUALLY)
+    t_ALWAYS = sym2regexp(Symbols.ALWAYS)
+    t_RELEASE = sym2regexp(Symbols.RELEASE)
+    t_END = sym2regexp(Symbols.END)
 
     def t_ATOM(self, t):
-        r'[a-zA-Z_][a-zA-Z_0-9]*'
-        t.type = LTLfLexer.reserved.get(t.value, 'ATOM')  # Check for reserved words
+        r"""[a-zA-Z_][a-zA-Z_0-9]*"""
+        t.type = LTLfLexer.reserved.get(t.value, "ATOM")  # Check for reserved words
         return t
 
 
-# Yacc example
 class LTLfParser(Parser):
+    """Implementation of the parser for the LTLf logic formalism."""
 
     def __init__(self):
+        """Initialize the LTLf parser."""
         lexer = LTLfLexer()
         precedence = (
-            ('left', 'UNTIL', 'EVENTUALLY', 'ALWAYS', 'RELEASE'),
-            ('left',  'EQUIVALENCE'),
-            ('left',  'IMPLIES'),
-            ('left',  'OR'),
-            ('left',  'AND'),
-            ('right', 'NEXT', 'WEAK_NEXT'),
-            ('right', 'NOT'),
-
+            ("left", "UNTIL", "EVENTUALLY", "ALWAYS", "RELEASE"),
+            ("left", "EQUIVALENCE"),
+            ("left", "IMPLIES"),
+            ("left", "OR"),
+            ("left", "AND"),
+            ("right", "NEXT", "WEAK_NEXT"),
+            ("right", "NOT"),
         )
         super().__init__("ltlf", lexer.tokens, lexer, precedence)
 
-    def p_formula(self, p):
+    def p_formula(self, p):  # NOQA
         """formula : formula EQUIVALENCE formula
                    | formula IMPLIES formula
                    | formula OR formula
@@ -87,7 +102,8 @@ class LTLfParser(Parser):
                    | TRUE
                    | FALSE
                    | END
-                   | ATOM"""
+                   | ATOM
+        """
         if len(p) == 2:
             if p[1] == Symbols.TRUE.value:
                 p[0] = LTLfTrue()
@@ -132,11 +148,11 @@ class LTLfParser(Parser):
         p[0] = p[2]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = LTLfParser()
     while True:
         try:
-            s = input('parser > ')
+            s = input("parser > ")
         except EOFError:
             break
         if not s:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Misc tests"""
 import os
 

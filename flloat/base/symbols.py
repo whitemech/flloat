@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""This module contains the definition to deal with symbols."""
 from enum import Enum
 from typing import Hashable, Union, FrozenSet, Set
 
@@ -6,12 +8,20 @@ Alphabet = Union[FrozenSet[Symbol], Set[Symbol]]
 
 
 class Symbols(Enum):
+    """A set of symbols that can be used in a logical formula."""
+
     NOT = "!"
     AND = "&"
     OR = "|"
     EQUAL = "="
     IMPLIES = "->"
     EQUIVALENCE = "<->"
+    ALT_NOT = "!!"
+    ALT_AND = "&&"
+    ALT_OR = "||"
+    ALT_EQUAL = "=="
+    ALT_IMPLIES = "-->"
+    ALT_EQUIVALENCE = "<-->"
     NEXT = "X"
     WEAK_NEXT = "WX"
     UNTIL = "U"

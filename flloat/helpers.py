@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 from copy import copy
 from itertools import chain, combinations
@@ -68,7 +69,7 @@ def _powerset(s: Set) -> Iterable:
 def sym2regexp(sym):
     s = sym.value
     if s in r"|()+?*.[]":
-        return r"\%s"%s
+        return r"\%s" % s
     else:
         return s
 
