@@ -16,7 +16,7 @@ A Python implementation of the [FLLOAT](https://github.com/RiccardoDeMasellis/FL
 
 
 * Free software: Apache 2.0 license
-* Documentation: https://marcofavorito.github.io/flloat/
+* Documentation: [https://marcofavorito.github.io/flloat/](https://marcofavorito.github.io/flloat/)
 
 ## Dependencies
 
@@ -26,65 +26,57 @@ to get all the needed dependencies.
 ## Install
 
 - from [PyPI](https://pypi.org/project/flloat/):
-
-      pip install flloat
-
+```
+pip install flloat
+```
 - or, from source (`master` branch):
-
-      pip install git+https://github.com/marcofavorito/flloat.git
-
+```
+pip install git+https://github.com/marcofavorito/flloat.git
+```
 
 - or, clone the repository and install:
-
-      git clone htts://github.com/marcofavorito/flloat.git
-      cd flloat
-      pip install .
-
-        pip install .
-
+```
+git clone htts://github.com/marcofavorito/flloat.git
+cd flloat
+pip install .
+```
 ## How to use
 
 * Parse a LDLf formula:
 
 ```python
+from flloat.parser.ldlf import LDLfParser
 
-    from flloat.parser.ldlf import LDLfParser
+parser = LDLfParser()
+formula_string = "<true*; A & B>tt"
+formula = parser(formula_string)        # returns a LDLfFormula
 
-    parser = LDLfParser()
-    formula_string = "<true*; A & B>tt"
-    formula = parser(formula_string)        # returns a LDLfFormula
-
-    print(formula)                          # prints "<((true)* ; (A & B))>(tt)"
-    print(formula.find_labels())            # prints {A, B}
-
+print(formula)                          # prints "<((true)* ; (A & B))>(tt)"
+print(formula.find_labels())            # prints {A, B}
 ```
 
 *  Evaluate it over finite traces:
 
 ```python
+from flloat.semantics.traces import FiniteTrace
 
-    from flloat.semantics.traces import FiniteTrace
-
-    t1 = FiniteTrace.from_symbol_sets([
-        {},
-        {"A"},
-        {"A"},
-        {"A", "B"},
-        {}
-    ])
-    formula.truth(t1, 0)  # True
-
+t1 = FiniteTrace.from_symbol_sets([
+    {},
+    {"A"},
+    {"A"},
+    {"A", "B"},
+    {}
+])
+formula.truth(t1, 0)  # True
 ```
 
 * Transform it into an automaton (``pythomata.DFA`` object):
 
 ```python
+dfa = formula.to_automaton()
 
-    dfa = formula.to_automaton()
-
-    # print the automaton
-    dfa.to_dot("./automaton.DFA")
-
+# print the automaton
+dfa.to_dot("./automaton.DFA")
 ```
 
 Notice: `to_dot` requires [Graphviz](https://graphviz.gitlab.io/download/).
@@ -93,27 +85,26 @@ For info about how to use a `pythomata.DFA` please look at the [Pythomata docs](
 * The same for a LTLf formula:
 
 ```python
+from flloat.parser.ltlf import LTLfParser
+from flloat.semantics.traces import FiniteTrace
 
-    from flloat.parser.ltlf import LTLfParser
-    from flloat.semantics.traces import FiniteTrace
+# parse the formula
+parser = LTLfParser()
+formula_string = "F (A & !B)"
+formula = parser(formula_string)
 
-    # parse the formula
-    parser = LTLfParser()
-    formula_string = "F (A & !B)"
-    formula = parser(formula_string)
+# evaluate over finite traces
+t1 = FiniteTrace.from_symbol_sets([
+    {},
+    {"A"},
+    {"A"},
+    {"A", "B"}
+])
+assert formula.truth(t1, 0)
 
-    # evaluate over finite traces
-    t1 = FiniteTrace.from_symbol_sets([
-        {},
-        {"A"},
-        {"A"},
-        {"A", "B"}
-    ])
-    assert formula.truth(t1, 0)
-
-    # from LTLf formula to DFA
-    dfa = formula.to_automaton()
-    assert dfa.accepts(t1.trace)
+# from LTLf formula to DFA
+dfa = formula.to_automaton()
+assert dfa.accepts(t1.trace)
 ```
 
 ## Features
