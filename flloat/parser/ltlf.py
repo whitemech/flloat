@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Implementation of the LTLf parser."""
 from flloat.base.parsing import Lexer, Parser
 from flloat.base.symbols import Symbols
 from flloat.helpers import sym2regexp
@@ -22,8 +23,7 @@ from flloat.ltlf import (
 
 
 class LTLfLexer(Lexer):
-    def __init__(self):
-        super().__init__()
+    """Implementation of the lexer for the LTLf parser."""
 
     reserved = {
         "true": "TRUE",
@@ -65,14 +65,16 @@ class LTLfLexer(Lexer):
     t_END = sym2regexp(Symbols.END)
 
     def t_ATOM(self, t):
-        r"[a-zA-Z_][a-zA-Z_0-9]*"
+        r"""[a-zA-Z_][a-zA-Z_0-9]*"""
         t.type = LTLfLexer.reserved.get(t.value, "ATOM")  # Check for reserved words
         return t
 
 
-# Yacc example
 class LTLfParser(Parser):
+    """Implementation of the parser for the LTLf logic formalism."""
+
     def __init__(self):
+        """Initialize the LTLf parser."""
         lexer = LTLfLexer()
         precedence = (
             ("left", "UNTIL", "EVENTUALLY", "ALWAYS", "RELEASE"),
@@ -100,7 +102,8 @@ class LTLfParser(Parser):
                    | TRUE
                    | FALSE
                    | END
-                   | ATOM"""
+                   | ATOM
+        """
         if len(p) == 2:
             if p[1] == Symbols.TRUE.value:
                 p[0] = LTLfTrue()

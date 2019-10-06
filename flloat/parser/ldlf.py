@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Implementation of the LDLf parser."""
 from flloat.base.symbols import Symbols
 from flloat.base.parsing import Lexer, Parser
 
@@ -34,8 +35,7 @@ from flloat.helpers import sym2regexp
 
 
 class LDLfLexer(Lexer):
-    def __init__(self):
-        super().__init__()
+    """The lexer for the LDLf parser."""
 
     reserved = {
         "true": "TRUE",
@@ -84,14 +84,16 @@ class LDLfLexer(Lexer):
     t_DIAMONDRSEPARATOR = sym2regexp(Symbols.EVENTUALLY_BRACKET_RIGHT)
 
     def t_ATOM(self, t):
-        r"[a-zA-Z_][a-zA-Z_0-9]*"
+        r"""[a-zA-Z_][a-zA-Z_0-9]*"""
         t.type = LDLfLexer.reserved.get(t.value, "ATOM")  # Check for reserved words
         return t
 
 
-# Yacc example
 class LDLfParser(Parser):
+    """The parser for the LDLf logic formalism."""
+
     def __init__(self):
+        """Initialize the LDLf parser."""
         lexer = LDLfLexer()
         precedence = (
             ("left", "EQUIVALENCE"),
@@ -121,7 +123,8 @@ class LDLfParser(Parser):
                         | TT
                         | FF
                         | END
-                        | LAST"""
+                        | LAST
+         """
         if len(p) == 2:
             if p[1] == Symbols.LOGICAL_TRUE.value:
                 p[0] = LDLfLogicalTrue()
@@ -166,8 +169,8 @@ class LDLfParser(Parser):
                 | path SEQ path
                 | path STAR
                 | temp_formula TEST
-                | propositional"""
-
+                | propositional
+        """
         if len(p) == 2:
             p[0] = RegExpPropositional(p[1])
         elif len(p) == 3:
@@ -195,7 +198,8 @@ class LDLfParser(Parser):
                          | NOT propositional
                          | FALSE
                          | TRUE
-                         | ATOM"""
+                         | ATOM
+        """
         if len(p) == 4:
             if p[2] == Symbols.EQUIVALENCE.value:
                 p[0] = PLEquivalence([p[1], p[3]])
@@ -233,7 +237,7 @@ if __name__ == "__main__":
     parser = LDLfParser()
     while True:
         try:
-            s = input("calc > ")
+            s = input("ldlf > ")
         except EOFError:
             break
         if not s:
