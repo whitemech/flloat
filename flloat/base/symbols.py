@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """This module contains the definition to deal with symbols."""
-import re
 from enum import Enum
 from typing import Hashable, Union, FrozenSet, Set
 
