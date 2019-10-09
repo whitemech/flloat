@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 from functools import lru_cache
 from typing import Set
 
-from flloat.base.convertible import ConvertibleFormula
+from flloat.base.convertible import ConvertibleFormula, BaseConvertibleFormula
 from flloat.base.delta import (
     Delta,
     DeltaConvertibleFormula,
@@ -220,12 +220,13 @@ class LDLfLogicalFalse(LDLfAtomic):
 
 
 class LDLfNot(NotTruth, LDLfFormula, NotNNF):
-    def _to_nnf(self):
-        neg = self.f.negate()
-        return neg.to_nnf()
 
-    def negate(self):
-        return self.f
+    def _to_nnf(self):
+        if isinstance(self.f, AtomicNNF) and not isinstance(self.f, BaseConvertibleFormula):
+            return self.f.negate()
+        else:
+            return self.f.negate().to_nnf()
+
 
     def _delta(self, i: PLInterpretation, epsilon=False):
         # should never called, since it is called from NNF formulas
@@ -346,6 +347,10 @@ class RegExpTest(UnaryOperator, RegExpFormula):
 
     def _to_nnf(self):
         return RegExpTest(self.f.to_nnf())
+
+    def negate(self):
+        return self.Dual(self.Not(self.f))
+
 
     def delta_diamond(self, f: LDLfFormula, i: PLInterpretation, epsilon=False):
         return PLAnd([self.f._delta(i, epsilon), f._delta(i, epsilon)])
@@ -483,7 +488,7 @@ class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
         return LDLfBox(RegExpPropositional(PLTrue()), LDLfLogicalFalse())
 
 
-class LDLfLast(DeltaConvertibleFormula, LDLfAtomic):
+class LDLfLast(DeltaConvertibleFormula, LDLfAtomic, ):
     def __init__(self):
         super().__init__(Symbols.LAST.value)
 
