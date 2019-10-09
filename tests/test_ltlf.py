@@ -91,7 +91,7 @@ class TestTruth:
         parser = self.parser
         t = self.trace
 
-        assert parser("F C & !A & !B").truth(t, 0)
+        assert not parser("F C & !A & !B").truth(t, 0)
         assert not parser("F A & B & C").truth(t, 0)
         assert parser("F G C").truth(t, 0)
         assert not parser("F G B").truth(t, 0)
@@ -100,7 +100,7 @@ class TestTruth:
         parser = self.parser
         t = self.trace
 
-        assert parser("G A | B | C").truth(t, 0)
+        assert not parser("G A | B | C").truth(t, 0)
         assert parser("G F (C & !A & !B)").truth(t, 0)
         assert not parser("G C").truth(t, 0)
         assert parser("G C").truth(t, 4)

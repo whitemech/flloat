@@ -121,16 +121,70 @@ class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF):
 
 
 class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula):
+
     def __str__(self):
         return AtomicFormula.__str__(self)
 
     def find_labels(self):
+        return AtomicFormula.find_labels(self)
+
+    def truth(self, i: FiniteTrace, pos: int):
+        return PLAtomic(self.s).truth(i.get(pos))
+
+    def _delta(self, i: PLInterpretation, epsilon=False):
+        if epsilon:
+            return PLFalse()
+        elif PLAtomic(self.s).truth(i):
+            return PLTrue()
+        else:
+            return PLFalse()
+
+
+class LDLfTrue(LDLfAtomic):
+    def __init__(self):
+        super().__init__(Symbols.TRUE.value)
+
+    def negate(self):
+        return LDLfFalse()
+
+    def _delta(self, i: PLInterpretation, epsilon: bool = False):
+        if epsilon:
+            return PLFalse()
+        else:
+            return PLTrue()
+
+    def truth(self, i: FiniteTrace, pos: int = 0):
+        return True
+
+    def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
+        return set()
+
+
+class LDLfFalse(LDLfAtomic):
+    def __init__(self):
+        super().__init__(Symbols.FALSE.value)
+
+    def negate(self):
+        return LDLfTrue()
+
+    def _delta(self, i: PLInterpretation, epsilon: bool = False):
+        return PLFalse()
+
+    def truth(self, i: FiniteTrace, pos: int = 0):
+        return False
+
+    def find_labels(self) -> Set[Symbol]:
+        """Return the set of symbols."""
         return set()
 
 
 class LDLfLogicalTrue(LDLfAtomic):
     def __init__(self):
         super().__init__(Symbols.LOGICAL_TRUE.value)
+
+    def find_labels(self):
+        return set()
 
     def truth(self, *args):
         return True
@@ -148,6 +202,9 @@ class LDLfLogicalTrue(LDLfAtomic):
 class LDLfLogicalFalse(LDLfAtomic):
     def __init__(self):
         super().__init__(Symbols.LOGICAL_FALSE.value)
+
+    def find_labels(self):
+        return set()
 
     def truth(self, *args):
         return False

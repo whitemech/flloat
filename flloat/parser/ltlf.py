@@ -1,161 +1,163 @@
 # -*- coding: utf-8 -*-
 """Implementation of the LTLf parser."""
-from flloat.base.parsing import Lexer, Parser
-from flloat.base.symbols import Symbols
-from flloat.helpers import sym2regexp
-from flloat.ltlf import (
-    LTLfNext,
-    LTLfNot,
-    LTLfUntil,
-    LTLfEquivalence,
-    LTLfImplies,
-    LTLfOr,
-    LTLfAnd,
-    LTLfEventually,
-    LTLfAlways,
-    LTLfAtomic,
-    LTLfRelease,
-    LTLfTrue,
-    LTLfFalse,
-    LTLfWeakNext,
-    LTLfEnd,
+import inspect
+import os
+
+from flloat.base.formulas import AtomicFormula
+
+from flloat.parser.pl import PLTransformer
+
+CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
+# -*- coding: utf-8 -*-
+"""Implementation of the PL parser."""
+import inspect
+import os
+from pathlib import Path
+
+from flloat.ltlf import LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, LTLfNot, LTLfUntil, LTLfRelease, LTLfAlways, \
+    LTLfEventually, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfAtomic, LTLfFalse
+from lark import Lark, Transformer
+
+from flloat.pl import (
+    PLAtomic,
+    PLTrue,
+    PLFalse,
 )
 
-
-class LTLfLexer(Lexer):
-    """Implementation of the lexer for the LTLf parser."""
-
-    reserved = {
-        "true": "TRUE",
-        "false": "FALSE",
-        Symbols.NEXT.value: "NEXT",
-        Symbols.WEAK_NEXT.value: "WEAK_NEXT",
-        Symbols.UNTIL.value: "UNTIL",
-        Symbols.EVENTUALLY.value: "EVENTUALLY",
-        Symbols.ALWAYS.value: "ALWAYS",
-        Symbols.RELEASE.value: "RELEASE",
-        Symbols.END.value: "END",
-    }
-
-    # List of token names.   This is always required
-    tokens = (
-        "ATOM",
-        "NOT",
-        "AND",
-        "OR",
-        "IMPLIES",
-        "EQUIVALENCE",
-        "LPAREN",
-        "RPAREN",
-    ) + tuple(reserved.values())
-
-    # Regular expression rules for simple tokens
-    t_NOT = sym2regexp(Symbols.NOT)
-    t_AND = sym2regexp(Symbols.AND)
-    t_OR = sym2regexp(Symbols.OR)
-    t_IMPLIES = sym2regexp(Symbols.IMPLIES)
-    t_EQUIVALENCE = sym2regexp(Symbols.EQUIVALENCE)
-    t_LPAREN = sym2regexp(Symbols.ROUND_BRACKET_LEFT)
-    t_RPAREN = sym2regexp(Symbols.ROUND_BRACKET_RIGHT)
-    t_NEXT = sym2regexp(Symbols.NEXT)
-    t_UNTIL = sym2regexp(Symbols.UNTIL)
-    t_EVENTUALLY = sym2regexp(Symbols.EVENTUALLY)
-    t_ALWAYS = sym2regexp(Symbols.ALWAYS)
-    t_RELEASE = sym2regexp(Symbols.RELEASE)
-    t_END = sym2regexp(Symbols.END)
-
-    def t_ATOM(self, t):
-        r"""[a-zA-Z_][a-zA-Z_0-9]*"""
-        t.type = LTLfLexer.reserved.get(t.value, "ATOM")  # Check for reserved words
-        return t
+CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
-class LTLfParser(Parser):
-    """Implementation of the parser for the LTLf logic formalism."""
+class LTLfTransformer(Transformer):
 
     def __init__(self):
-        """Initialize the LTLf parser."""
-        lexer = LTLfLexer()
-        precedence = (
-            ("left", "UNTIL", "EVENTUALLY", "ALWAYS", "RELEASE"),
-            ("left", "EQUIVALENCE"),
-            ("left", "IMPLIES"),
-            ("left", "OR"),
-            ("left", "AND"),
-            ("right", "NEXT", "WEAK_NEXT"),
-            ("right", "NOT"),
-        )
-        super().__init__("ltlf", lexer.tokens, lexer, precedence)
+        super().__init__()
+        self._pl_transformer = PLTransformer()
 
-    def p_formula(self, p):  # NOQA
-        """formula : formula EQUIVALENCE formula
-                   | formula IMPLIES formula
-                   | formula OR formula
-                   | formula AND formula
-                   | formula UNTIL formula
-                   | formula RELEASE formula
-                   | EVENTUALLY formula
-                   | ALWAYS formula
-                   | NEXT formula
-                   | WEAK_NEXT formula
-                   | NOT formula
-                   | TRUE
-                   | FALSE
-                   | END
-                   | ATOM
-        """
-        if len(p) == 2:
-            if p[1] == Symbols.TRUE.value:
-                p[0] = LTLfTrue()
-            elif p[1] == Symbols.FALSE.value:
-                p[0] = LTLfFalse()
-            elif p[1] == Symbols.END.value:
-                p[0] = LTLfEnd()
-            else:
-                p[0] = LTLfAtomic(p[1])
-        elif len(p) == 3:
-            if p[1] == Symbols.NEXT.value:
-                p[0] = LTLfNext(p[2])
-            elif p[1] == Symbols.WEAK_NEXT.value:
-                p[0] = LTLfWeakNext(p[2])
-            elif p[1] == Symbols.EVENTUALLY.value:
-                p[0] = LTLfEventually(p[2])
-            elif p[1] == Symbols.ALWAYS.value:
-                p[0] = LTLfAlways(p[2])
-            elif p[1] == Symbols.NOT.value:
-                p[0] = LTLfNot(p[2])
-        elif len(p) == 4:
-            l, o, r = p[1:]
-            if o == Symbols.EQUIVALENCE.value:
-                p[0] = LTLfEquivalence([l, r])
-            elif o == Symbols.IMPLIES.value:
-                p[0] = LTLfImplies([l, r])
-            elif o == Symbols.OR.value:
-                p[0] = LTLfOr([l, r])
-            elif o == Symbols.AND.value:
-                p[0] = LTLfAnd([l, r])
-            elif o == Symbols.UNTIL.value:
-                p[0] = LTLfUntil([l, r])
-            elif o == Symbols.RELEASE.value:
-                p[0] = LTLfRelease([l, r])
-            else:
-                raise ValueError
+    def start(self, args):
+        assert len(args) == 1
+        return args[0]
+
+    def ltlf_formula(self, args):
+        assert len(args) == 1
+        return args[0]
+
+    def ltlf_wrapped(self, args):
+        assert len(args) == 3
+        return args[1]
+
+    def ltlf_equivalence(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfEquivalence([l, r])
+
+    def ltlf_implication(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfImplies([l, r])
+
+    def ltlf_or(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfOr([l, r])
+
+    def ltlf_and(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfAnd([l, r])
+
+    def ltlf_until(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfUntil([l, r])
+
+    def ltlf_release(self, args):
+        assert len(args) == 3
+        l, _, r = args
+        return LTLfRelease([l, r])
+
+    def ltlf_always(self, args):
+        assert len(args) == 2
+        _, r = args
+        return LTLfAlways(r)
+
+    def ltlf_eventually(self, args):
+        assert len(args) == 2
+        _, r = args
+        return LTLfEventually(r)
+
+    def ltlf_next(self, args):
+        assert len(args) == 2
+        _, r = args
+        return LTLfNext(r)
+
+    def ltlf_weak_next(self, args):
+        assert len(args) == 2
+        _, r = args
+        return LTLfWeakNext(r)
+
+    def ltlf_not(self, args):
+        assert len(args) == 2
+        _, r = args
+        return LTLfNot(r)
+
+    def ltlf_atom(self, args):
+        assert len(args) == 1
+        formula = args[0]
+        if isinstance(formula, LTLfTrue) or isinstance(formula, LTLfFalse):
+            return formula
+        elif isinstance(formula, str):
+            return LTLfAtomic(formula)
         else:
-            raise ValueError
+            raise ValueError()
 
-    def p_expr_paren(self, p):
-        """formula : LPAREN formula RPAREN"""
-        p[0] = p[2]
+    def ltlf_true(self, args):
+        return LTLfTrue()
+
+    def ltlf_false(self, args):
+        return LTLfFalse()
+
+    def ltlf_symbol(self, args):
+        assert len(args) == 1
+        tree = args[0]
+        pl_transformer = PLTransformer()
+        symbol = pl_transformer.transform(tree)
+        return symbol
+
+class LTLfParser:
+
+    def __init__(self):
+        self._transformer = LTLfTransformer()
+        self._parser = Lark(open(str(Path(CUR_DIR, "ltlf.lark"))))
+
+    def __call__(self, text):
+        tree = self._parser.parse(text)
+        formula = self._transformer.transform(tree)
+        return formula
 
 
 if __name__ == "__main__":
     parser = LTLfParser()
     while True:
         try:
-            s = input("parser > ")
+            s = input("ltlf > ")
         except EOFError:
             break
         if not s:
             continue
         result = parser(s)
-        print(str(result))
+        print(result)
+
+if __name__ == "__main__":
+    parser = LTLfParser()
+    while True:
+        try:
+            s = input("ldlf> ")
+            if not s:
+                continue
+            result = parser(s)
+            print("result:", result, type(result))
+        except EOFError:
+            break
+        except Exception as e:
+            print(str(e))
