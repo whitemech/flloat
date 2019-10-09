@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
+import glob
 import os
 
 from setuptools import setup, find_packages
@@ -39,6 +40,9 @@ setup(
     install_requires=["lark-parser", "pythomata==0.2.0"],
     license=about["__license__"],
     include_package_data=True,
+    data_files=[
+        ("flloat/parser", glob.glob("flloat/parser/*.lark")),
+    ],
     keywords='flloat',
     packages=find_packages(include=['flloat*']),
     test_suite='tests',
