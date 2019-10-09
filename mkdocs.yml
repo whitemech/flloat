@@ -3,6 +3,7 @@ nav:
     - Home: index.md
     - Credits: authors.md
     - How to contribute: contributing.md
+    - Grammars: grammars.md
     - References: references.md
 
 theme: readthedocs

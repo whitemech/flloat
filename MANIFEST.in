@@ -3,8 +3,12 @@ include CONTRIBUTING.md
 include HISTORY.md
 include LICENSE
 include README.md
+include Pipfile
+include Pipfile.lock
 
+recursive-include flloat *
 recursive-include tests *
+
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
