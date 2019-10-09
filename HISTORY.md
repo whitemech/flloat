@@ -19,3 +19,7 @@
 ## 0.2.0 (2019-10-06)
 
 * Main refactoring of the package. No new features.
+
+## 0.2.1 (2019-10-09)
+
+* Replace parsing library PLY with [Lark](https://github.com/lark-parser/lark).
