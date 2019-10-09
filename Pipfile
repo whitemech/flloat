@@ -19,7 +19,6 @@ mkdocs = "*"
 markdown-include = "*"
 
 [packages]
-ply = "*"
 pythomata = "==0.2.0"
 lark-parser = "*"
 
