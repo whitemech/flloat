@@ -148,10 +148,7 @@ class LDLfTrue(LDLfAtomic):
         return LDLfFalse()
 
     def _delta(self, i: PLInterpretation, epsilon: bool = False):
-        if epsilon:
-            return PLFalse()
-        else:
-            return PLTrue()
+        return PLTrue()
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         return True
