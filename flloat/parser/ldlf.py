@@ -25,16 +25,6 @@ from flloat.ldlf import (
     LDLfLast,
     LDLfAtomic, LDLfTrue, LDLfFalse)
 from flloat.parser.pl import PLTransformer
-from flloat.pl import (
-    PLNot,
-    PLAtomic,
-    PLOr,
-    PLAnd,
-    PLImplies,
-    PLEquivalence,
-    PLTrue,
-    PLFalse,
-)
 
 CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
