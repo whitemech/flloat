@@ -158,8 +158,6 @@ def test_delta():
     assert parser("[B]ff").delta(i_ab) == PLAtomic(ff)
 
     f = parser("!(<(!last)?>end)")
-    a = f.delta(i_)
-    b = f.to_nnf().delta(i_)
     assert f.delta(i_) == f.to_nnf().delta(i_)
     assert f.delta(i_ab) == f.to_nnf().delta(i_ab)
 

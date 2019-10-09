@@ -23,3 +23,7 @@
 ## 0.2.1 (2019-10-09)
 
 * Replace parsing library PLY with [Lark](https://github.com/lark-parser/lark).
+
+## 0.2.2 (2019-10-09)
+
+* Fix several issues in the computation of the delta function for LDLf.
