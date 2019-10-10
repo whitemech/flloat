@@ -156,6 +156,7 @@ class DFAOTF(Simulator):
 
 def to_automaton(f, labels: Optional[Set[Symbol]] = None):
 
+    f = f.to_nnf()
     initial_state = frozenset({frozenset({PLAtomic(f)})})
     states = {initial_state}
     final_states = set()

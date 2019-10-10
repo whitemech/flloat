@@ -27,3 +27,8 @@
 ## 0.2.2 (2019-10-09)
 
 * Fix several issues in the computation of the delta function for LDLf.
+
+## 0.2.3 (2019-10-10)
+
+* Reverting some changes made on release `0.2.2`.
+* Updated live version: [http://flloat.herokuapp.com/](http://flloat.herokuapp.com/)
