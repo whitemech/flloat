@@ -135,7 +135,8 @@ class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula):
     def _delta(self, i: PLInterpretation, epsilon=False):
         if epsilon:
             return PLFalse()
-        elif PLAtomic(self.s).truth(i):
+
+        if PLAtomic(self.s).truth(i):
             return PLTrue()
         else:
             return PLFalse()
@@ -214,6 +215,9 @@ class LDLfNot(NotTruth, LDLfFormula, NotNNF):
             return self.f.negate().to_nnf()
 
     def _delta(self, i: PLInterpretation, epsilon=False):
+        if epsilon:
+            return PLFalse()
+
         result = self.f._delta(i, epsilon=epsilon)
         if result == PLTrue():
             return PLFalse()

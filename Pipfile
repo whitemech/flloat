@@ -5,7 +5,6 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-sphinx = "*"
 tox = "*"
 ipython = "*"
 codecov = "*"
@@ -17,6 +16,7 @@ flake8-docstrings = "*"
 pytest-cov = "*"
 mkdocs = "*"
 markdown-include = "*"
+tox-pipenv = "*"
 
 [packages]
 pythomata = "==0.2.0"
