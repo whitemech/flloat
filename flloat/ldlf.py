@@ -254,10 +254,7 @@ class LDLfDiamond(LDLfTemporalFormulaNNF, FiniteTraceTruth):
         )
 
     def _delta(self, i: PLInterpretation, epsilon=False):
-        if epsilon:
-            return PLFalse()
-        else:
-            return self.r.delta_diamond(self.f, i, epsilon)
+        return self.r.delta_diamond(self.f, i, epsilon)
 
 
 class LDLfBox(ConvertibleFormula, LDLfTemporalFormulaNNF):
@@ -270,10 +267,7 @@ class LDLfBox(ConvertibleFormula, LDLfTemporalFormulaNNF):
         return self.convert().truth(i, pos)
 
     def _delta(self, i: PLInterpretation, epsilon=False):
-        if epsilon:
-            return PLTrue()
-        else:
-            return self.r.delta_box(self.f, i, epsilon)
+        return self.r.delta_box(self.f, i, epsilon)
 
 
 class RegExpPropositional(RegExpFormula, PLFormula):
@@ -477,6 +471,9 @@ class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
     def __init__(self):
         super().__init__(Symbols.END.value)
 
+    def find_labels(self):
+        return set()
+
     def convert(self):
         return LDLfBox(RegExpPropositional(PLTrue()), LDLfLogicalFalse())
 
@@ -484,6 +481,9 @@ class LDLfEnd(DeltaConvertibleFormula, LDLfAtomic):
 class LDLfLast(DeltaConvertibleFormula, LDLfAtomic, ):
     def __init__(self):
         super().__init__(Symbols.LAST.value)
+
+    def find_labels(self):
+        return set()
 
     def convert(self):
         return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd().convert())
