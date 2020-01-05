@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """Base classes for truth evaluations of logical formulas."""
 from abc import ABC, abstractmethod
+from typing import Sequence
+
+from pythomata import PropInt
 
 from flloat.base.formulas import UnaryOperator, BinaryOperator
 from flloat.base.symbols import Symbols
+
+FiniteTrace = Sequence[PropInt]
 
 
 class Truth(ABC):
@@ -89,3 +94,17 @@ class EquivalenceTruth(BinaryOperator, Truth):
         t = [f.truth(*args) for f in fs]
         # either all true or all false
         return all(t) or not any(t)
+
+
+class FiniteTraceTruth(Truth):
+    """Interface for formulas that support the trace semantics."""
+
+    @abstractmethod
+    def truth(self, i: FiniteTrace, pos: int):
+        """
+        Return the truth evaluation of the formula wrt the trace.
+
+        :param i: the trace.
+        :param pos: the position from where to start the evaluation
+        :return: True if the formula is satisfied by the trace, False otherwise.
+        """

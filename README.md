@@ -20,8 +20,8 @@ A Python implementation of the [FLLOAT](https://github.com/RiccardoDeMasellis/FL
 
 ## Dependencies
 
-The package depends on [Pythomata](https://marcofavorito.github.io/pythomata). Please follow the install instruction 
-to get all the needed dependencies. 
+The package depends on [Pythomata](https://logics4ai-sapienza.github.io/pythomata). Please follow the install instruction
+to get all the needed dependencies.
 
 ## Install
 
@@ -58,25 +58,25 @@ print(formula.find_labels())            # prints {A, B}
 *  Evaluate it over finite traces:
 
 ```python
-from flloat.semantics.traces import FiniteTrace
-
-t1 = FiniteTrace.from_symbol_sets([
-    {},
-    {"A"},
-    {"A"},
-    {"A", "B"},
-    {}
-])
+t1 = [
+    {"A": False, "B": False},
+    {"A": True, "B": False},
+    {"A": True, "B": False},
+    {"A": True, "B": True},
+    {"A": False, "B": False},
+]
 formula.truth(t1, 0)  # True
 ```
 
-* Transform it into an automaton (``pythomata.DFA`` object):
+* Transform it into an automaton (``pythomata.SymbolicAutomaton`` object):
 
 ```python
 dfa = formula.to_automaton()
+assert dfa.accepts(t1)
 
 # print the automaton
-dfa.to_dot("./automaton.DFA")
+graph = dfa.to_graphviz()
+graph.render("./my-automaton")  # requires Graphviz installed on your system.
 ```
 
 Notice: `to_dot` requires [Graphviz](https://graphviz.gitlab.io/download/).
@@ -86,25 +86,32 @@ For info about how to use a `pythomata.DFA` please look at the [Pythomata docs](
 
 ```python
 from flloat.parser.ltlf import LTLfParser
-from flloat.semantics.traces import FiniteTrace
 
 # parse the formula
 parser = LTLfParser()
-formula_string = "F (A & !B)"
-formula = parser(formula_string)
+formula = "F (A & !B)"
+parsed_formula = parser(formula)
 
 # evaluate over finite traces
-t1 = FiniteTrace.from_symbol_sets([
-    {},
-    {"A"},
-    {"A"},
-    {"A", "B"}
-])
-assert formula.truth(t1, 0)
+t1 = [
+    {"A": False, "B": False},
+    {"A": True, "B": False},
+    {"A": True, "B": False},
+    {"A": True, "B": True},
+    {"A": False, "B": False},
+]
+assert parsed_formula.truth(t1, 0)
+t2 = [
+    {"A": False, "B": False},
+    {"A": True, "B": True},
+    {"A": False, "B": True},
+]
+assert not parsed_formula.truth(t2, 0)
 
 # from LTLf formula to DFA
-dfa = formula.to_automaton()
-assert dfa.accepts(t1.trace)
+dfa = parsed_formula.to_automaton()
+assert dfa.accepts(t1)
+assert not dfa.accepts(t2)
 ```
 
 ## Features
@@ -149,5 +156,4 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
-Copyright 2018-2019 Marco Favorito
-
+Copyright 2018-2020 Marco Favorito

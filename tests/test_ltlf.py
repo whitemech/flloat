@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from flloat.parser.ltlf import LTLfParser
-from flloat.semantics.traces import FiniteTrace
-from flloat.semantics.pl import PLFalseInterpretation, PLInterpretation
 from flloat.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
     LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfFalse
+from flloat.parser.ltlf import LTLfParser
 from flloat.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
 
 
@@ -39,14 +37,14 @@ class TestTruth:
     def setup_class(cls):
         cls.parser = LTLfParser()
 
-        cls.trace = FiniteTrace.from_symbol_sets([
-            {"A"},
-            {"A"},
-            {"B"},
-            {"B"},
-            {"C"},
-            {"C"},
-        ])
+        cls.trace = [
+            {"A": True},
+            {"A": True},
+            {"B": True},
+            {"B": True},
+            {"C": True},
+            {"C": True},
+        ]
 
     def test_truth_next(self):
         parser = self.parser
@@ -153,7 +151,7 @@ class TestDelta:
     def setup_class(cls):
         cls.parser = LTLfParser()
         cls.i_, cls.i_a, cls.i_b, cls.i_ab = \
-            PLFalseInterpretation(), PLInterpretation({"A"}), PLInterpretation({"B"}), PLInterpretation({"A", "B"})
+            {}, {"A": True}, {"B": True}, {"A":True, "B": True}
         cls.true = PLTrue()
         cls.false = PLFalse()
 
@@ -296,17 +294,17 @@ class TestToAutomaton:
         cls.a, cls.b, cls.c = "A", "B", "C"
         cls.alphabet_abc = {cls.a, cls.b, cls.c}
 
-        cls.i_ = PLInterpretation(set())
-        cls.i_a = PLInterpretation({cls.a})
-        cls.i_b = PLInterpretation({cls.b})
-        cls.i_ab = PLInterpretation({cls.a, cls.b})
+        cls.i_ = {}
+        cls.i_a = {cls.a: True}
+        cls.i_b = {cls.b: True}
+        cls.i_ab = {cls.a: True, cls.b: True}
 
     def test_atomic(self):
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("A")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
@@ -338,7 +336,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("X A")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
@@ -370,7 +368,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("WX A")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert dfa.accepts([])
         assert dfa.accepts([i_])
@@ -403,7 +401,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("A U B")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
@@ -432,7 +430,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("!A R !B")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert dfa.accepts([])
         assert dfa.accepts([i_])
@@ -461,7 +459,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("F A")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_])
@@ -493,7 +491,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("G A")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert dfa.accepts([])
         assert not dfa.accepts([i_])
@@ -528,7 +526,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("G (A -> X(B) )")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert dfa.accepts([])
         assert dfa.accepts([i_])
@@ -568,7 +566,7 @@ class TestToAutomaton:
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
         ltlf = parser("G (A -> X(B))")
-        dfa = ltlf.to_automaton(labels={"A", "B"})
+        dfa = ltlf.to_automaton()
 
         assert dfa.accepts([])
         assert dfa.accepts([i_])

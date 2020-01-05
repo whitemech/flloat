@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-from flloat.parser.ldlf import LDLfParser
-from flloat.semantics.traces import FiniteTrace
-from flloat.semantics.pl import PLInterpretation, PLFalseInterpretation
 from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
     RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
     LDLfEnd, RegExpTest, LDLfLast
-from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLFalse, PLTrue
+from flloat.parser.ldlf import LDLfParser
+from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
 
 
 def test_parser():
     parser = LDLfParser()
-    sa, sb = "A", "B"
-    a, b = PLAtomic(sa), PLAtomic(sb)
+    a, b = PLAtomic("A"), PLAtomic("B")
 
     tt = LDLfLogicalTrue()
     ff = LDLfLogicalFalse()
@@ -26,7 +23,6 @@ def test_parser():
     assert LDLfDiamond(r_false, tt) == parser("<false>tt")
     assert parser("!tt & <!A&B>tt") == LDLfAnd(
         [LDLfNot(tt), LDLfDiamond(RegExpPropositional(PLAnd([PLNot(a), b])), tt)])
-
     assert parser("[true*]([true]ff | <!A>tt | <(true)*><B>tt)") == \
            LDLfBox(RegExpStar(r_true),
                    LDLfOr([
@@ -51,7 +47,7 @@ def test_parser():
     assert parser("!(<(!(A<->D))+((B;C)*)+((!last)?)>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
             RegExpUnion([
-                RegExpPropositional(PLNot(PLEquivalence([PLAtomic("A"), PLAtomic("D")]))),
+                RegExpPropositional(PLNot(PLEquivalence([a, PLAtomic("D")]))),
                 RegExpStar(RegExpSequence([
                     RegExpPropositional(PLAtomic("B")),
                     RegExpPropositional(PLAtomic("C")),
@@ -67,21 +63,21 @@ def test_parser():
 
 
 def test_truth():
-    sa, sb = "a", "b"
+    sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
 
-    i_ = PLFalseInterpretation()
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
+    i_ = {}
+    i_a = {"A": True}
+    i_b = {"B": True}
+    i_ab = {"A": True, "B": True}
 
-    tr_false_a_b_ab = FiniteTrace([
+    tr_false_a_b_ab = [
         i_,
         i_a,
         i_b,
         i_ab,
         i_
-    ])
+    ]
 
     tt = LDLfLogicalTrue()
     ff = LDLfLogicalFalse()
@@ -94,13 +90,13 @@ def test_truth():
     assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
 
     parser = LDLfParser()
-    trace = FiniteTrace.from_symbol_sets([
+    trace = [
         {},
-        {"A"},
-        {"A"},
-        {"A", "B"},
+        {"A": True},
+        {"A": True},
+        {"A": True, "B": True},
         {}
-    ])
+    ]
 
     formula = "<true*;A&B>tt"
     parsed_formula = parser(formula)
@@ -134,28 +130,25 @@ def test_nnf():
 
 def test_delta():
     parser = LDLfParser()
-    sa, sb, sc = "A", "B", "C"
-    a, b, c = PLAtomic(sa), PLAtomic(sb), PLAtomic(sc)
-
-    i_ = PLFalseInterpretation()
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
+    i_ = {}
+    i_a = {"A": True}
+    i_b = {"B": True}
+    i_ab = {"A": True, "B": True}
 
     true = PLTrue()
     false = PLFalse()
-    tt = LDLfLogicalTrue()
-    ff = LDLfLogicalFalse()
+    tt = PLAtomic(LDLfLogicalTrue())
+    ff = PLAtomic(LDLfLogicalFalse())
 
     assert parser("<A>tt").delta(i_) == false
-    assert parser("<A>tt").delta(i_a) == PLAtomic(tt)
+    assert parser("<A>tt").delta(i_a) == tt
     assert parser("<A>tt").delta(i_b) == false
-    assert parser("<A>tt").delta(i_ab) == PLAtomic(tt)
+    assert parser("<A>tt").delta(i_ab) == tt
 
     assert parser("[B]ff").delta(i_) == true
     assert parser("[B]ff").delta(i_a) == true
-    assert parser("[B]ff").delta(i_b) == PLAtomic(ff)
-    assert parser("[B]ff").delta(i_ab) == PLAtomic(ff)
+    assert parser("[B]ff").delta(i_b) == ff
+    assert parser("[B]ff").delta(i_ab) == ff
 
     f = parser("!(<(!last)?>end)")
     assert f.delta(i_) == f.to_nnf().delta(i_)
@@ -184,10 +177,10 @@ class TestToAutomaton:
     @classmethod
     def setup_class(cls):
         cls.parser = LDLfParser()
-        cls.i_ = PLInterpretation(set())
-        cls.i_a = PLInterpretation({"A"})
-        cls.i_b = PLInterpretation({"B"})
-        cls.i_ab = PLInterpretation({"A", "B"})
+        cls.i_ = {}
+        cls.i_a = {"A": True}
+        cls.i_b = {"B": True}
+        cls.i_ab = {"A": True, "B": True}
 
     def test_diamond(self):
         parser = self.parser
@@ -206,7 +199,7 @@ class TestToAutomaton:
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        dfa = parser("<true*;B>tt").to_automaton(labels={"A", "B"})
+        dfa = parser("<true*;B>tt").to_automaton()
 
         assert not dfa.accepts([])
         assert dfa.accepts([i_, i_b])
