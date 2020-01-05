@@ -19,8 +19,9 @@ markdown-include = "*"
 tox-pipenv = "*"
 
 [packages]
-pythomata = "==0.2.0"
+pythomata = {git = "https://github.com/logics4ai-sapienza/pythomata.git",ref = "develop"}
 lark-parser = "*"
+sympy = "*"
 
 [requires]
 python_version = "3.7"

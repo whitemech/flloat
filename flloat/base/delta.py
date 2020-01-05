@@ -3,12 +3,13 @@
 
 from abc import ABC, abstractmethod
 
+from pythomata import PropInt
+
 from flloat.base.convertible import (
     BaseConvertibleFormula,
     EquivalenceConvertible,
-    ImpliesConvertible,
+    ImpliesConvertible
 )
-from flloat.semantics.pl import PLInterpretation
 from flloat.pl import PLFormula
 
 
@@ -16,7 +17,7 @@ class Delta(ABC):
     """Interface for formulas where the delta function is defined."""
 
     @abstractmethod
-    def delta(self, i: PLInterpretation, epsilon: bool = False) -> PLFormula:
+    def delta(self, i: PropInt, epsilon: bool = False) -> PLFormula:
         """
         Apply the delta function.
 
@@ -29,7 +30,7 @@ class Delta(ABC):
 class DeltaConvertibleFormula(BaseConvertibleFormula, Delta, ABC):
     """Interface for 'equivalence' formulas delta-convertible."""
 
-    def _delta(self, i: PLInterpretation, epsilon=False) -> PLFormula:
+    def _delta(self, i: PropInt, epsilon=False) -> PLFormula:
         return self.convert().delta(i, epsilon)
 
 

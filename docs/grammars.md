@@ -1,6 +1,6 @@
 # Grammars
 
-Here are reported the grammars used by the [Lark](https://github.com/lark-parser/lark) parser 
+Here are reported the grammars used by the [Lark](https://github.com/lark-parser/lark) parser
 to parse Propositional Logic, LTLf and LDLf.
 
 ## Propositional Logic

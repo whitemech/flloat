@@ -2,28 +2,13 @@
 """Implementation of the LTLf parser."""
 import inspect
 import os
-
-from flloat.base.formulas import AtomicFormula
-
-from flloat.parser.pl import PLTransformer
-
-CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
-
-# -*- coding: utf-8 -*-
-"""Implementation of the PL parser."""
-import inspect
-import os
 from pathlib import Path
+
+from lark import Lark, Transformer
 
 from flloat.ltlf import LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, LTLfNot, LTLfUntil, LTLfRelease, LTLfAlways, \
     LTLfEventually, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfAtomic, LTLfFalse
-from lark import Lark, Transformer
-
-from flloat.pl import (
-    PLAtomic,
-    PLTrue,
-    PLFalse,
-)
+from flloat.parser.pl import PLTransformer
 
 CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
@@ -123,6 +108,7 @@ class LTLfTransformer(Transformer):
         pl_transformer = PLTransformer()
         symbol = pl_transformer.transform(tree)
         return symbol
+
 
 class LTLfParser:
 

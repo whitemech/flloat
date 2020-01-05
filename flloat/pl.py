@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod, ABC
-from functools import lru_cache
-from typing import Set
+from typing import Set, Any, Dict, Optional
+
+import sympy
+from pythomata import PropInt
+from sympy.logic.boolalg import Boolean, Not, Or, And, Implies, Equivalent, BooleanTrue, BooleanFalse
 
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
 from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula, UnaryOperator
 from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF, AtomicNNF
-from flloat.base.symbols import Alphabet, Symbol, Symbols
+from flloat.base.symbols import Symbols, Symbol
 from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
-from flloat.helpers import MAX_CACHE_SIZE, _powerset
-from flloat.semantics.pl import PLInterpretation
 
 
 class PLTruth(Truth, ABC):
     @abstractmethod
-    def truth(self, i: PLInterpretation, *args) -> bool:
+    def truth(self, i: PropInt, *args) -> bool:
         """
         Tell if the formula is true under a propositional interpretation.
 
@@ -28,49 +29,12 @@ class PLFormula(Formula, PLTruth, NNF):
 
     def __init__(self):
         Formula.__init__(self)
-
-        self._all_models = None
-        self._minimal_models = None
-        self._atoms = None
-
-    def all_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
-        """Find all the possible interpretations given a set of symbols"""
-
-        all_possible_interpretations = _powerset(alphabet)
-        all_models = set()
-        for i in all_possible_interpretations:
-            # compute current Interpretation, considering False
-            # all propositional symbols not present in current interpretation
-            current_interpretation = PLInterpretation(i)
-            if self.truth(current_interpretation):
-                all_models.add(current_interpretation)
-
-        self._all_models = all_models
-        return all_models
-
-    @lru_cache(maxsize=MAX_CACHE_SIZE)
-    def minimal_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
-        """
-        Find models of min size (i.e. the less number of proposition to True).
-
-        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
-        """
-        models = self.all_models(alphabet)
-
-        minimal_models = set()
-        for m in models:
-            min_m = m
-            for m1 in models:
-                if min_m.true_propositions.issuperset(m1.true_propositions):
-                    min_m = m1
-            minimal_models.add(min_m)
-
-        return minimal_models
+        self._atoms = None  # type: Optional[Set[PLAtomic]]
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
-    def find_atomics(self) -> Set[AtomicFormula]:
+    def find_atomics(self) -> Set['PLAtomic']:
         """
         Find all the atomic formulas in the propositional formulas.
 
@@ -83,17 +47,52 @@ class PLFormula(Formula, PLTruth, NNF):
         return self._atoms
 
     @abstractmethod
-    def _find_atomics(self) -> Set[AtomicFormula]:
+    def _find_atomics(self) -> Set['PLAtomic']:
         """Find all the atomic formulas in the propositional formulas."""
+
+
+def to_sympy(formula: PLFormula, replace: Optional[Dict[Symbol, Symbol]] = None) -> Boolean:
+    """
+    Translate a PLFormula object into a SymPy expression.
+
+    :param formula: the formula to translate.
+    :param replace: an optional mapping from symbols to replace to other replacement symbols.
+    :return: the SymPy formula object equivalent to the formula.
+    """
+    if replace is None:
+        replace = {}
+
+    if isinstance(formula, PLTrue):
+        return BooleanTrue()
+    elif isinstance(formula, PLFalse):
+        return BooleanFalse()
+    elif isinstance(formula, PLAtomic):
+        symbol = replace.get(formula.s, formula.s)
+        return sympy.Symbol(symbol)
+    elif isinstance(formula, PLNot):
+        return sympy.Not(to_sympy(formula.f), replace=replace)
+    elif isinstance(formula, PLOr):
+        return sympy.simplify(sympy.Or(*map(to_sympy, formula.formulas)), replace=replace)
+    elif isinstance(formula, PLAnd):
+        return sympy.simplify(sympy.And(*map(to_sympy, formula.formulas)), replace=replace)
+    elif isinstance(formula, PLImplies):
+        if len(formula.formulas) == 2:
+            return sympy.simplify(sympy.Implies(*formula.formulas), replace=replace)
+        else:
+            return sympy.simplify(sympy.Implies(formula.formulas[0], to_sympy(PLImplies(formula.formulas[1:]))), replace=replace)
+    elif isinstance(formula, PLEquivalence):
+        return sympy.simplify(sympy.Equivalent(*formula.formulas), replace=replace)
+    else:
+        raise ValueError("Formula is not valid.")
 
 
 class PLAtomic(AtomicFormula, AtomicNNF, PLFormula):
     """A class to represent propositional atomic formulas."""
 
-    def truth(self, i: PLInterpretation, *args) -> bool:
-        return self.s in i
+    def truth(self, i: PropInt, *args) -> bool:
+        return i.get(self.s, False)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return {self.s}
 
@@ -134,7 +133,7 @@ class PLTrue(PLAtomic):
     def negate(self) -> "PLFalse":
         return PLFalse()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return set()
 
@@ -151,7 +150,7 @@ class PLFalse(PLAtomic):
     def negate(self) -> "PLTrue":
         return PLTrue()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return set()
 

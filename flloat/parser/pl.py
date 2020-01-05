@@ -91,7 +91,6 @@ class PLParser:
         return formula
 
 
-
 if __name__ == "__main__":
     parser = PLParser()
     while True:

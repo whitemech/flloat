@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from flloat.parser.pl import PLParser
-from flloat.semantics.pl import PLInterpretation
 from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
 
 
@@ -34,10 +33,10 @@ class TestTruth:
     def setup_class(cls):
         cls.sa, cls.sb = "a", "b"
 
-        cls.i_ = PLInterpretation(set())
-        cls.i_a = PLInterpretation({cls.sa})
-        cls.i_b = PLInterpretation({cls.sb})
-        cls.i_ab = PLInterpretation({cls.sa, cls.sb})
+        cls.i_ = {}
+        cls.i_a = {cls.sa: True}
+        cls.i_b = {cls.sb: True}
+        cls.i_ab = {cls.sa: True, cls.sb: True}
 
         cls.a, cls.b = PLAtomic(cls.sa), PLAtomic(cls.sb)
 
@@ -104,10 +103,10 @@ def test_nnf():
     parser = PLParser()
     sa, sb = "A", "B"
     a, b = PLAtomic(sa), PLAtomic(sb)
-    i_ = PLInterpretation(set())
-    i_a = PLInterpretation({sa})
-    i_b = PLInterpretation({sb})
-    i_ab = PLInterpretation({sa, sb})
+    i_ = {}
+    i_a = {sa: True}
+    i_b = {sb: True}
+    i_ab = {sa: True, sb: True}
 
     not_a_and_b = parser("!(A&B)")
     nnf_not_a_and_b = parser("!A | !B")
