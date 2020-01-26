@@ -117,51 +117,13 @@ class LDLfTemporalFormulaNNF(LDLfTemporalFormula, DualNNF, ABC):
         return self.Dual(self.r, LDLfNot(self.f))
 
 
-class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula):
+class LDLfAtomic(AtomicFormula, AtomicNNF, LDLfFormula, ABC):
 
     def __str__(self):
         return AtomicFormula.__str__(self)
 
     def find_labels(self):
         return AtomicFormula.find_labels(self)
-
-    def truth(self, i: FiniteTrace, pos: int):
-        return PLAtomic(self.s).truth(i[pos])
-
-    def _delta(self, i: PropInt, epsilon=False):
-        if epsilon:
-            return PLFalse()
-
-        if PLAtomic(self.s).truth(i):
-            return PLTrue()
-        else:
-            return PLFalse()
-
-
-class LDLfTrue(DeltaConvertibleFormula, LDLfFormula):
-
-    def convert(self):
-        return LDLfOr([LDLfAtomic("_"), LDLfNot(LDLfAtomic("_"))])
-
-    def _members(self):
-        return Symbols.TRUE.value
-
-    def find_labels(self) -> Set[str]:
-        """Return the set of symbols."""
-        return set()
-
-
-class LDLfFalse(DeltaConvertibleFormula, LDLfFormula):
-
-    def convert(self):
-        return LDLfAnd([LDLfAtomic("_"), LDLfNot(LDLfAtomic("_"))])
-
-    def _members(self):
-        return Symbols.FALSE.value
-
-    def find_labels(self) -> Set[str]:
-        """Return the set of symbols."""
-        return set()
 
 
 class LDLfLogicalTrue(LDLfAtomic):

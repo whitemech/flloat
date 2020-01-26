@@ -44,7 +44,7 @@ def test_parser():
         LDLfEnd()
     )
 
-    assert parser("!(<(!(A<->D))+((B;C)*)+((!last)?)>[(true)*]end)") == LDLfNot(
+    assert parser("!(<(!(A<->D))+((B;C)*)+(!last?)>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
             RegExpUnion([
                 RegExpPropositional(PLNot(PLEquivalence([a, PLAtomic("D")]))),

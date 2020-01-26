@@ -91,8 +91,8 @@ class TestTruth:
 
         assert not parser("F C & !A & !B").truth(t, 0)
         assert not parser("F A & B & C").truth(t, 0)
-        assert parser("F G C").truth(t, 0)
-        assert not parser("F G B").truth(t, 0)
+        assert parser("F(G(C))").truth(t, 0)
+        assert not parser("F(G(B))").truth(t, 0)
 
     def test_always(self):
         parser = self.parser
@@ -600,3 +600,18 @@ class TestToAutomaton:
         assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
         assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
         assert dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])
+
+    def test_conditional_response(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+
+        dfa = parser("G (A -> F(B))").to_automaton()
+
+        assert dfa.accepts([])
+        assert dfa.accepts([i_b])
+        assert dfa.accepts([i_])
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab])
+        assert dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_a, i_b])
+        assert not dfa.accepts([i_a, i_a])

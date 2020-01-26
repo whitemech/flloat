@@ -9,6 +9,9 @@ from sympy import Symbol
 from sympy.logic.boolalg import Boolean, BooleanFalse, BooleanTrue
 
 
+ParsingError = ValueError("Parsing error.")
+
+
 class Hashable(ABC):
     """A base class to represent hashable objects."""
 

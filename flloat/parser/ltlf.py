@@ -6,6 +6,7 @@ from pathlib import Path
 
 from lark import Lark, Transformer
 
+from flloat.helpers import ParsingError
 from flloat.ltlf import LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, LTLfNot, LTLfUntil, LTLfRelease, LTLfAlways, \
     LTLfEventually, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfAtomic, LTLfFalse
 from flloat.parser.pl import PLTransformer
@@ -27,74 +28,117 @@ class LTLfTransformer(Transformer):
         assert len(args) == 1
         return args[0]
 
-    def ltlf_wrapped(self, args):
-        assert len(args) == 3
-        return args[1]
-
     def ltlf_equivalence(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfEquivalence([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfEquivalence(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_implication(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfImplies([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfImplies(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_or(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfOr([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfOr(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_and(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfAnd([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfAnd(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_until(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfUntil([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfUntil(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_release(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LTLfRelease([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfRelease(subformulas)
+        else:
+            raise ParsingError
 
     def ltlf_always(self, args):
-        assert len(args) == 2
-        _, r = args
-        return LTLfAlways(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfAlways(f)
+            return f
 
     def ltlf_eventually(self, args):
-        assert len(args) == 2
-        _, r = args
-        return LTLfEventually(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfEventually(f)
+            return f
 
     def ltlf_next(self, args):
-        assert len(args) == 2
-        _, r = args
-        return LTLfNext(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfNext(f)
+            return f
 
     def ltlf_weak_next(self, args):
-        assert len(args) == 2
-        _, r = args
-        return LTLfWeakNext(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfWeakNext(f)
+            return f
 
     def ltlf_not(self, args):
-        assert len(args) == 2
-        _, r = args
-        return LTLfNot(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfNot(f)
+            return f
+
+    def ltlf_wrapped(self, args):
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 3:
+            _, formula, _ = args
+            return formula
+        else:
+            raise ParsingError
 
     def ltlf_atom(self, args):
         assert len(args) == 1
-        formula = args[0]
-        if isinstance(formula, LTLfTrue) or isinstance(formula, LTLfFalse):
-            return formula
-        elif isinstance(formula, str):
-            return LTLfAtomic(formula)
-        else:
-            raise ValueError()
+        return args[0]
 
     def ltlf_true(self, args):
         return LTLfTrue()
@@ -107,14 +151,14 @@ class LTLfTransformer(Transformer):
         tree = args[0]
         pl_transformer = PLTransformer()
         symbol = pl_transformer.transform(tree)
-        return symbol
+        return LTLfAtomic(symbol)
 
 
 class LTLfParser:
 
     def __init__(self):
         self._transformer = LTLfTransformer()
-        self._parser = Lark(open(str(Path(CUR_DIR, "ltlf.lark"))))
+        self._parser = Lark(open(str(Path(CUR_DIR, "ltlf.lark"))), parser="lalr")
 
     def __call__(self, text):
         tree = self._parser.parse(text)

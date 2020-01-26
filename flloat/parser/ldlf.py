@@ -6,6 +6,7 @@ from pathlib import Path
 
 from lark import Lark, Transformer, Token, Tree
 
+from flloat.helpers import ParsingError
 from flloat.ldlf import (
     LDLfLogicalTrue,
     LDLfLogicalFalse,
@@ -23,7 +24,7 @@ from flloat.ldlf import (
     RegExpPropositional,
     LDLfEnd,
     LDLfLast,
-    LDLfAtomic, LDLfTrue, LDLfFalse)
+    LDLfAtomic)
 from flloat.parser.pl import PLTransformer
 
 CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -42,54 +43,82 @@ class LDLfTransformer(Transformer):
         assert len(args) == 1
         return args[0]
 
-    def ldlf_wrapped(self, args):
-        assert len(args) == 3
-        return args[1]
-
     def ldlf_equivalence(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LDLfEquivalence([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LDLfEquivalence(subformulas)
+        else:
+            raise ParsingError
 
     def ldlf_implication(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LDLfImplies([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LDLfImplies(subformulas)
+        else:
+            raise ParsingError
 
     def ldlf_or(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LDLfOr([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LDLfOr(subformulas)
+        else:
+            raise ParsingError
 
     def ldlf_and(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return LDLfAnd([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LDLfAnd(subformulas)
+        else:
+            raise ParsingError
 
     def ldlf_box(self, args):
-        assert len(args) == 4
-        regexpr, expr = args[1], args[3]
-        return LDLfBox(regexpr, expr)
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 4:
+            _, regex, _, formula = args
+            return LDLfBox(regex, formula)
+        else:
+            raise ParsingError
 
     def ldlf_diamond(self, args):
-        assert len(args) == 4
-        regexpr, expr = args[1], args[3]
-        return LDLfDiamond(regexpr, expr)
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 4:
+            _, regex, _, formula = args
+            return LDLfDiamond(regex, formula)
+        else:
+            raise ParsingError
 
     def ldlf_not(self, args):
-        assert len(args) == 2
-        l, r = args
-        return LDLfNot(r)
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LDLfNot(f)
+            return f
+
+    def ldlf_wrapped(self, args):
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 3:
+            _, formula, _ = args
+            return formula
+        else:
+            raise ParsingError
 
     def ldlf_atom(self, args):
         assert len(args) == 1
         formula = args[0]
-        if isinstance(formula, (LDLfTrue, LDLfFalse, LDLfLogicalTrue, LDLfLogicalFalse, LDLfEnd, LDLfLast)):
-            return formula
-        elif isinstance(formula, str):
-            return LDLfAtomic(formula)
-        else:
-            raise ValueError()
+        return formula
 
     def ldlf_tt(self, args):
         return LDLfLogicalTrue()
@@ -103,46 +132,64 @@ class LDLfTransformer(Transformer):
     def ldlf_end(self, args):
         return LDLfEnd()
 
-    def ldlf_true(self, args):
-        return LDLfTrue()
-
-    def ldlf_false(self, args):
-        return LDLfFalse()
-
     def ldlf_symbol(self, args):
         assert len(args) == 1
         tree = args[0]
         pl_transformer = PLTransformer()
         symbol = pl_transformer.transform(tree)
-        return symbol
+        return LDLfAtomic(symbol)
 
     def regular_expression(self, args):
         assert len(args) == 1
         return args[0]
 
-    def wrapped_regular_expression(self, args):
-        assert len(args) == 3
-        return args[1]
-
     def regular_expression_union(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return RegExpUnion([l, r])
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return RegExpUnion(subformulas)
+        else:
+            raise ParsingError
 
     def regular_expression_sequence(self, args):
-        assert len(args) == 3
-        l, _, r = args
-        return RegExpSequence([l, r])
-
-    def regular_expression_test(self, args):
-        assert len(args) == 2
-        l, r = args
-        return RegExpTest(l)
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return RegExpSequence(subformulas)
+        else:
+            raise ParsingError
 
     def regular_expression_star(self, args):
-        assert len(args) == 2
-        l, r = args
-        return RegExpStar(l)
+        if len(args) == 1:
+            return args[0]
+        if len(args) == 2:
+            l, _ = args
+            return RegExpStar(l)
+        elif len(args) == 3:
+            _, formula, _ = args
+            return formula
+        elif len(args) == 4:
+            _, formula, _, _ = args
+            return RegExpStar(formula)
+        else:
+            raise ParsingError
+
+    def regular_expression_test(self, args):
+        if len(args) == 1:
+            return args[0]
+        elif len(args) == 2:
+            formula, _ = args
+            return RegExpTest(formula)
+        elif len(args) == 3:
+            _, formula, _ = args
+            return formula
+        elif len(args) == 4:
+            _, formula, _, _ = args
+            return RegExpTest(formula)
+        else:
+            raise ParsingError
 
     def regular_expression_propositional(self, args):
         assert len(args) == 1
@@ -163,10 +210,11 @@ class LDLfTransformer(Transformer):
         formula = self._pl_transformer.transform(tree)
         return formula
 
+
 class LDLfParser:
 
     def __init__(self):
-        self._parser = Lark(open(str(Path(CUR_DIR, "ldlf.lark"))))
+        self._parser = Lark(open(str(Path(CUR_DIR, "ldlf.lark"))), parser="lalr")
         self._transformer = LDLfTransformer()
 
     def __call__(self, text):
