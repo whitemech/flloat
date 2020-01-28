@@ -17,6 +17,7 @@ pytest-cov = "*"
 mkdocs = "*"
 markdown-include = "*"
 tox-pipenv = "*"
+hypothesis = {extras = ["lark"],version = "*"}
 
 [packages]
 pythomata = {git = "https://github.com/logics4ai-sapienza/pythomata.git",ref = "develop"}

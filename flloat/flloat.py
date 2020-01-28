@@ -4,11 +4,11 @@ from typing import Set, FrozenSet, Dict
 import sympy
 from pythomata import PropInt, SymbolicAutomaton, SimpleDFA
 from pythomata.alphabets import MapAlphabet
-from sympy.logic.boolalg import BooleanFalse
+from sympy.logic.boolalg import BooleanFalse, BooleanTrue
 
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
-from flloat.helpers import powerset
+from flloat.helpers import powerset, iter_powerset
 from flloat.pl import PLFormula, PLAtomic, PLNot, PLAnd, PLOr, PLImplies, PLEquivalence, PLTrue, PLFalse, to_sympy
 
 
@@ -157,6 +157,15 @@ def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropInt):
 #         self.cur_state = _make_transition(self.cur_state, i)
 #
 
+def get_labels_from_macrostate(macrostate):
+    """Get labels from macrostate."""
+    labels = set()
+    for states in macrostate:
+        for state in states:
+            labels = labels.union(state.s.find_labels())
+    return labels
+
+
 def to_automaton(f):
     f = f.to_nnf()
     initial_state = frozenset({frozenset({PLAtomic(f)})})
@@ -164,9 +173,8 @@ def to_automaton(f):
     final_states = set()
     transition_function = {}
 
-    # the alphabet is the powerset of the set of fluents
-    labels = f.find_labels()
-    alphabet = powerset(labels)
+    all_labels = f.find_labels()
+    alphabet = powerset(all_labels)
 
     if f.delta({}, epsilon=True) == PLTrue():
         final_states.add(initial_state)
@@ -208,7 +216,7 @@ def to_automaton(f):
             source_idx = state2idx[source]
             dest_idx = state2idx[destination]
             pos_expr = sympy.And(*map(sympy.Symbol, symbol))
-            neg_expr = sympy.And(*map(lambda x: sympy.Not(sympy.Symbol(x)), labels.difference(symbol)))
+            neg_expr = sympy.And(*map(lambda x: sympy.Not(sympy.Symbol(x)), all_labels.difference(symbol)))
             automaton.add_transition(source_idx, sympy.And(pos_expr, neg_expr), dest_idx)
 
     dfa = automaton.determinize().minimize()

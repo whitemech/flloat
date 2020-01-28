@@ -208,10 +208,10 @@ class LDLfEquivalence(EquivalenceDeltaConvertible, LDLfCommBinaryOperator):
 class LDLfDiamond(LDLfTemporalFormulaNNF, FiniteTraceTruth):
     temporal_brackets = "<>"
 
-    def truth(self, i: FiniteTrace, pos: int = 0):
+    def truth(self, tr: FiniteTrace, pos: int = 0):
         # last + 1 in order to include the last step
         return any(
-            self.r.truth(i, pos, j) and self.f.truth(i, j) for j in range(pos, len(i))
+            self.r.truth(tr, pos, j) and self.f.truth(tr, j) for j in range(pos, len(tr) + 1)
         )
 
     def _delta(self, i: PropInt, epsilon=False):
@@ -224,8 +224,8 @@ class LDLfBox(ConvertibleFormula, LDLfTemporalFormulaNNF):
     def convert(self):
         return LDLfNot(LDLfDiamond(self.r, LDLfNot(self.f)))
 
-    def truth(self, i: FiniteTrace, pos: int = 0):
-        return self.convert().truth(i, pos)
+    def truth(self, tr: FiniteTrace, pos: int = 0):
+        return self.convert().truth(tr, pos)
 
     def _delta(self, i: PropInt, epsilon=False):
         return self.r.delta_box(self.f, i, epsilon)
@@ -240,7 +240,7 @@ class RegExpPropositional(RegExpFormula):
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
         return (
             end == start + 1
-            and end <= len(tr) - 1
+            and start < len(tr)
             and self.pl_formula.truth(tr[start])
         )
 
@@ -477,7 +477,7 @@ class _F(LDLfFormula):
     def find_labels(self):
         return super().find_labels()
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, tr: FiniteTrace, pos: int):
         raise NotImplementedError
 
 
@@ -508,7 +508,7 @@ class _T(LDLfFormula):
     def find_labels(self):
         return super().find_labels()
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, tr: FiniteTrace, pos: int):
         raise NotImplementedError
 
 

@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import pytest
+from hypothesis import given
+
 from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
     RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
     LDLfEnd, RegExpTest, LDLfLast
 from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
+from .conftest import ldlf_formulas
+from .strategies import propositional_words
+
+
+parser = LDLfParser()
 
 
 def test_parser():
@@ -258,3 +266,17 @@ class TestToAutomaton:
         assert dfa.accepts([i_ab, i_ab])
         assert dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_a])
+
+
+@pytest.fixture(scope="session", params=ldlf_formulas)
+def formula_automa_pair(request):
+    formula_obj = parser(request.param)
+    automaton = formula_obj.to_automaton()
+    return formula_obj, automaton
+
+
+@given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
+def test_hypothesis(formula_automa_pair, word):
+    formula_obj, automaton = formula_automa_pair
+    print(formula_obj, word)
+    assert formula_obj.truth(word, 0) == automaton.accepts(word)
