@@ -15,7 +15,7 @@ class Formula(Hashable, ABC):
     def find_labels(self) -> Set[Symbol]:
         """Return the set of symbols."""
 
-    def simplify(self) -> 'Formula':
+    def simplify(self) -> "Formula":
         """Simplify the formula."""
         return self
 
@@ -111,7 +111,9 @@ class BinaryOperator(Operator, ABC):
     def __str__(self):
         """Return the string representation."""
         return (
-            "(" + (" " + str(self.operator_symbol) + " ").join(map(str, self.formulas)) + ")"
+            "("
+            + (" " + str(self.operator_symbol) + " ").join(map(str, self.formulas))
+            + ")"
         )
 
     def _members(self) -> Tuple[Symbol, OperatorChildren]:

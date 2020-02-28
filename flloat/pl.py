@@ -34,7 +34,7 @@ class PLFormula(Formula, PLTruth, NNF):
     def __repr__(self):
         return str(self)
 
-    def find_atomics(self) -> Set['PLAtomic']:
+    def find_atomics(self) -> Set["PLAtomic"]:
         """
         Find all the atomic formulas in the propositional formulas.
 
@@ -47,11 +47,13 @@ class PLFormula(Formula, PLTruth, NNF):
         return self._atoms
 
     @abstractmethod
-    def _find_atomics(self) -> Set['PLAtomic']:
+    def _find_atomics(self) -> Set["PLAtomic"]:
         """Find all the atomic formulas in the propositional formulas."""
 
 
-def to_sympy(formula: PLFormula, replace: Optional[Dict[Symbol, Symbol]] = None) -> Boolean:
+def to_sympy(
+    formula: PLFormula, replace: Optional[Dict[Symbol, Symbol]] = None
+) -> Boolean:
     """
     Translate a PLFormula object into a SymPy expression.
 
@@ -72,14 +74,23 @@ def to_sympy(formula: PLFormula, replace: Optional[Dict[Symbol, Symbol]] = None)
     elif isinstance(formula, PLNot):
         return sympy.Not(to_sympy(formula.f), replace=replace)
     elif isinstance(formula, PLOr):
-        return sympy.simplify(sympy.Or(*map(to_sympy, formula.formulas)), replace=replace)
+        return sympy.simplify(
+            sympy.Or(*map(to_sympy, formula.formulas)), replace=replace
+        )
     elif isinstance(formula, PLAnd):
-        return sympy.simplify(sympy.And(*map(to_sympy, formula.formulas)), replace=replace)
+        return sympy.simplify(
+            sympy.And(*map(to_sympy, formula.formulas)), replace=replace
+        )
     elif isinstance(formula, PLImplies):
         if len(formula.formulas) == 2:
             return sympy.simplify(sympy.Implies(*formula.formulas), replace=replace)
         else:
-            return sympy.simplify(sympy.Implies(formula.formulas[0], to_sympy(PLImplies(formula.formulas[1:]))), replace=replace)
+            return sympy.simplify(
+                sympy.Implies(
+                    formula.formulas[0], to_sympy(PLImplies(formula.formulas[1:]))
+                ),
+                replace=replace,
+            )
     elif isinstance(formula, PLEquivalence):
         return sympy.simplify(sympy.Equivalent(*formula.formulas), replace=replace)
     else:

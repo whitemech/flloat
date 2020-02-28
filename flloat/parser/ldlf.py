@@ -24,14 +24,14 @@ from flloat.ldlf import (
     RegExpPropositional,
     LDLfEnd,
     LDLfLast,
-    LDLfAtomic)
+    LDLfAtomic,
+)
 from flloat.parser.pl import PLTransformer
 
 CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class LDLfTransformer(Transformer):
-
     def __init__(self):
         super().__init__()
         self._pl_transformer = PLTransformer()
@@ -212,7 +212,6 @@ class LDLfTransformer(Transformer):
 
 
 class LDLfParser:
-
     def __init__(self):
         self._parser = Lark(open(str(Path(CUR_DIR, "ldlf.lark"))), parser="lalr")
         self._transformer = LDLfTransformer()

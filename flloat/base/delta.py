@@ -8,7 +8,7 @@ from pythomata import PropositionalInterpretation
 from flloat.base.convertible import (
     BaseConvertibleFormula,
     EquivalenceConvertible,
-    ImpliesConvertible
+    ImpliesConvertible,
 )
 from flloat.pl import PLFormula
 

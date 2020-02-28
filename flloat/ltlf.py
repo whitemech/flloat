@@ -35,7 +35,14 @@ from flloat.base.nnf import (
     AtomicNNF,
 )
 from flloat.base.symbols import Symbol, Symbols
-from flloat.base.truths import Truth, NotTruth, OrTruth, AndTruth, FiniteTrace, FiniteTraceTruth
+from flloat.base.truths import (
+    Truth,
+    NotTruth,
+    OrTruth,
+    AndTruth,
+    FiniteTrace,
+    FiniteTraceTruth,
+)
 from flloat.flloat import to_automaton
 from flloat.ldlf import (
     LDLfNot,
@@ -391,7 +398,6 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
             return True
         else:
             return BaseConvertibleFormula.truth(self, i, pos)
-
 
     def to_LDLf(self):
         return self.convert().to_LDLf()

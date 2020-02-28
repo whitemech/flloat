@@ -6,7 +6,6 @@ from typing import List, Tuple, Optional
 
 
 class ParsingCheck:
-
     def __init__(self, lark):
         """\
         Args:
@@ -14,9 +13,9 @@ class ParsingCheck:
         """
         self.parser = Lark(open(lark), parser="lalr")
 
-
-    def precedence_check(self, formula: str, tokens: List[str],
-            print_tree: bool = False) -> Tuple[bool, Optional[str]]:
+    def precedence_check(
+        self, formula: str, tokens: List[str], print_tree: bool = False
+    ) -> Tuple[bool, Optional[str]]:
         """\
         Parse the formula and check that operators have the expected
         precedence. 
@@ -47,7 +46,8 @@ class ParsingCheck:
 
                     if child != tokens[token_i]:
                         err = "Next expected '{}', got '{}'".format(
-                            tokens[token_i], str(child))
+                            tokens[token_i], str(child)
+                        )
                         return False, err
                     token_i += 1
 

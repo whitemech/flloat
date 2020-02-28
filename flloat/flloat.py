@@ -8,7 +8,18 @@ from sympy.logic.boolalg import BooleanFalse
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
 from flloat.helpers import powerset
-from flloat.pl import PLFormula, PLAtomic, PLNot, PLAnd, PLOr, PLImplies, PLEquivalence, PLTrue, PLFalse, to_sympy
+from flloat.pl import (
+    PLFormula,
+    PLAtomic,
+    PLNot,
+    PLAnd,
+    PLOr,
+    PLImplies,
+    PLEquivalence,
+    PLTrue,
+    PLFalse,
+    to_sympy,
+)
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
@@ -72,7 +83,9 @@ def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropositionalInterpreta
         # (i.e. propositional atoms) or LDLf formulas
         atomics = [s for subf in delta_formulas for s in find_atomics(subf)]
 
-        atom2id = {v: str(k) for k, v in enumerate(atomics)}  # type: Dict[str, PLAtomic]
+        atom2id = {
+            v: str(k) for k, v in enumerate(atomics)
+        }  # type: Dict[str, PLAtomic]
         id2atom = {v: k for k, v in atom2id.items()}  # type: Dict[PLAtomic, str]
 
         # "freeze" the found atoms as symbols and build a mapping from symbols to formulas
@@ -156,6 +169,7 @@ def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropositionalInterpreta
 #         self.cur_state = _make_transition(self.cur_state, i)
 #
 
+
 def get_labels_from_macrostate(macrostate):
     """Get labels from macrostate."""
     labels = set()
@@ -191,9 +205,7 @@ def to_automaton(f):
                     states.add(new_state)
                     to_be_visited.add(new_state)
 
-                transition_function.setdefault(q, {})[
-                    actions_set
-                ] = new_state
+                transition_function.setdefault(q, {})[actions_set] = new_state
 
                 if new_state not in visited:
                     visited.add(new_state)
@@ -215,8 +227,14 @@ def to_automaton(f):
             source_idx = state2idx[source]
             dest_idx = state2idx[destination]
             pos_expr = sympy.And(*map(sympy.Symbol, symbol))
-            neg_expr = sympy.And(*map(lambda x: sympy.Not(sympy.Symbol(x)), all_labels.difference(symbol)))
-            automaton.add_transition(source_idx, sympy.And(pos_expr, neg_expr), dest_idx)
+            neg_expr = sympy.And(
+                *map(
+                    lambda x: sympy.Not(sympy.Symbol(x)), all_labels.difference(symbol)
+                )
+            )
+            automaton.add_transition(
+                source_idx, sympy.And(pos_expr, neg_expr), dest_idx
+            )
 
     dfa = automaton.determinize().minimize()
     return dfa

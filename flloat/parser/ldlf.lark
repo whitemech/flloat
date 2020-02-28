@@ -48,7 +48,7 @@ TEST: "?"
 STAR: "*"
 %ignore WHITESPACE
 %import .pl.start -> propositional_formula
-%import .pl.string -> string
+%import .pl.STRING -> STRING
 %import .pl.prop_true -> prop_true
 %import .pl.prop_false -> prop_false
 %import .pl.EQUIVALENCE -> EQUIVALENCE
