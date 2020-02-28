@@ -635,3 +635,11 @@ def formula_automa_pair(request):
 def test_hypothesis(formula_automa_pair, word):
     formula_obj, automaton = formula_automa_pair
     assert formula_obj.truth(word, 0) == automaton.accepts(word)
+
+
+@given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
+def test_hypothesis(word):
+    print(word)
+    formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("A")))
+    formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("A")))
+    assert formula_1.truth(word, 0) == formula_2.truth(word, 0)

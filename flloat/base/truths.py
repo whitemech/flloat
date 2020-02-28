@@ -3,12 +3,12 @@
 from abc import ABC, abstractmethod
 from typing import Sequence
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation
 
 from flloat.base.formulas import UnaryOperator, BinaryOperator
 from flloat.base.symbols import Symbols
 
-FiniteTrace = Sequence[PropInt]
+FiniteTrace = Sequence[PropositionalInterpretation]
 
 
 class Truth(ABC):

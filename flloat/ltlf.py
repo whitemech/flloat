@@ -5,14 +5,14 @@ This module contains the implementation of Linear Temporal Logic on finite trace
 References:
     - Linear Temporal Logic and Linear Dynamic Logic on Finite Traces:
       https://www.cs.rice.edu/~vardi/papers/ijcai13.pdf
-    - LTLfand LDLfSynthesis Under Partial Observability:
+    - LTLf and LDLfSynthesis Under Partial Observability:
       http://www.diag.uniroma1.it/~degiacom/papers/2016/IJCAI16dv.pdf
 
 """
 from abc import abstractmethod, ABC
 from typing import Set
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation
 
 from flloat.base.convertible import ConvertibleFormula, BaseConvertibleFormula
 from flloat.base.delta import (
@@ -49,8 +49,6 @@ from flloat.ldlf import (
     LDLfPropositional,
     LDLfEnd,
 )
-from flloat.pl import PLTrue, PLFalse, PLAnd, PLOr, PLAtomic, PLFormula
-
 
 class LTLfTruth(Truth):
     """Interface for"""
@@ -62,18 +60,18 @@ class LTLfTruth(Truth):
 
 class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
 
-    def delta(self, i: PropInt, epsilon=False) -> PLFormula:
-        f = self.to_nnf()
-        d = f._delta(i, epsilon)
-        if epsilon:
-            # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
-            # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
-            # Hence, we just evaluate the formula with a dummy PropInt
-            d = PLTrue() if d.truth(None) else PLFalse()
-        return d
+    # def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
+    #     f = self.to_nnf()
+    #     d = f._delta(i, epsilon)
+    #     if epsilon:
+    #         # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
+    #         # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
+    #         # Hence, we just evaluate the formula with a dummy PropositionalInterpretation
+    #         d = PLTrue() if d.truth(None) else PLFalse()
+    #     return d
 
     @abstractmethod
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         """apply delta function, assuming that 'self' is a LTLf formula in Negative Normal Form"""
 
     @abstractmethod
@@ -115,7 +113,7 @@ class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
     def negate(self):
         return LTLfNot(LTLfAtomic(self.s))
 
-    def _delta(self, i: PropInt, epsilon: bool = False):
+    def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         if epsilon:
             return PLFalse()
         return PLTrue() if PLAtomic(self.s).truth(i) else PLFalse()
@@ -140,7 +138,7 @@ class LTLfTrue(LTLfAtomic):
     def negate(self):
         return LTLfFalse()
 
-    def _delta(self, i: PropInt, epsilon: bool = False):
+    def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         if epsilon:
             return PLFalse()
         else:
@@ -161,7 +159,7 @@ class LTLfFalse(LTLfAtomic):
     def negate(self):
         return LTLfTrue()
 
-    def _delta(self, i: PropInt, epsilon: bool = False):
+    def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         return PLFalse()
 
     def truth(self, i: FiniteTrace, pos: int = 0):
@@ -173,7 +171,7 @@ class LTLfFalse(LTLfAtomic):
 
 
 class LTLfNot(NotTruth, LTLfFormula, NotNNF):
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if isinstance(self.f, LTLfAtomic) or isinstance(self.f, LTLfEnd):
             if epsilon:
                 return PLFalse()
@@ -194,7 +192,7 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
 
 
 class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         return PLAnd([f._delta(i, epsilon) for f in self.formulas])
 
     def to_LDLf(self):
@@ -202,7 +200,7 @@ class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
 
 
 class LTLfOr(LTLfCommBinaryOperator, OrTruth, DualBinaryOperatorNNF):
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         return PLOr([f._delta(i, epsilon) for f in self.formulas])
 
     def to_LDLf(self):
@@ -249,7 +247,7 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
         else:
             return False
 
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
             return PLFalse()
         else:
@@ -275,7 +273,7 @@ class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula
         else:
             return True
 
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
             return PLTrue()
         else:
@@ -305,7 +303,7 @@ class LTLfUntil(DualBinaryOperatorNNF, LTLfTemporalFormula):
             for j in range(pos, len(i))
         )
 
-    def _delta(self, i: PropInt, epsilon: bool = False):
+    def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         if epsilon:
             return PLFalse()
         f1 = self.formulas[0]
@@ -356,7 +354,7 @@ class LTLfAlways(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
     def to_LDLf(self):
         return self.convert().to_LDLf()
 
-    def truth(self, i: PropInt, pos: int) -> bool:
+    def truth(self, i: PropositionalInterpretation, pos: int) -> bool:
         if len(i) == 0:
             return True
         else:
@@ -370,7 +368,7 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
     def convert(self):
         return LTLfNot(LTLfUntil([LTLfNot(f) for f in self.formulas]))
 
-    def _delta(self, i: PropInt, epsilon=False):
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
             return PLTrue()
         f1 = self.formulas[0]

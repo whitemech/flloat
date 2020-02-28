@@ -107,3 +107,5 @@ ENV/
 flloat/parser/parser.out
 flloat/parser/parsetab.py
 tests/automata/*
+
+Pipfile.lock
