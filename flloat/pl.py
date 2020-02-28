@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 from typing import Set, Any, Dict, Optional
 
 import sympy
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation as PropInt
 from sympy.logic.boolalg import Boolean, Not, Or, And, Implies, Equivalent, BooleanTrue, BooleanFalse
 
 from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible

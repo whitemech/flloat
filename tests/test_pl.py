@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
+
+import os
+import pytest
+import lark
+
 from flloat.parser.pl import PLParser
 from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
+from .parsing import ParsingCheck
 
 
 def test_parser():
@@ -140,3 +146,73 @@ def test_find_labels():
     f = "!A & (!AB & !A0)"
     formula = parser(f)
     assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}
+
+
+def test_precedence():
+
+    # Path to grammar
+    this_path = os.path.dirname(os.path.abspath(__file__))
+    grammar_path = "../flloat/parser/pl.lark"
+    grammar_path = os.path.join(this_path, *grammar_path.split("/"))
+
+    checker = ParsingCheck(grammar_path)
+
+    ok, err = checker.precedence_check(
+        "!a & b",
+        [c for c in "&!ab"]
+    )
+    assert ok, err
+
+    ok, err = checker.precedence_check(
+        "a & !b",
+        [c for c in "&a!b"]
+    )
+    assert ok, err
+
+    ok, err = checker.precedence_check(
+        "a & b & c",
+        [c for c in "&&abc"]
+    )
+
+    ok, err = checker.precedence_check(
+        "a & b | c",
+        [c for c in "|&abc"]
+    )
+
+    ok, err = checker.precedence_check(
+        "a | b & c",
+        [c for c in "|a&bc"]
+    )
+    assert ok, err
+
+    ok, err = checker.precedence_check(
+        "a <-> b -> c",
+        "<->,a,->,b,c".split(",")
+    )
+    assert ok, err
+
+    ok, err = checker.precedence_check(
+        "(a <-> b) -> c",
+        "->,(,),<->,a,b,c".split(",")
+    )
+    assert ok, err
+
+    ok, err = checker.precedence_check(
+        "!a&(b->c)",
+        "&,!,a,(,),->,b,c".split(",")
+    )
+    assert ok, err
+
+    # Bad examples
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check(
+            "!a&", None
+        )
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check(
+            "!&b", None
+        )
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check(
+            "a|b|", None
+        )

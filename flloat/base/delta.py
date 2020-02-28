@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation as PropInt
 
 from flloat.base.convertible import (
     BaseConvertibleFormula,

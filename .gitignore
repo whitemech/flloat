@@ -107,3 +107,8 @@ ENV/
 flloat/parser/parser.out
 flloat/parser/parsetab.py
 tests/automata/*
+
+# Vim
+*.sw[po]
+vimsession
+/.ycm_extra_conf.py

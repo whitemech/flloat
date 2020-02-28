@@ -1,17 +1,18 @@
 start: propositional_formula
-propositional_formula: prop_equivalence
 
-prop_equivalence: prop_implication (EQUIVALENCE prop_implication)*
-prop_implication: prop_or (IMPLY prop_or)*
-prop_or: prop_and (OR prop_and)*
-prop_and: prop_not (AND prop_not)*
-prop_not: NOT? prop_wrapped
-prop_wrapped: prop_atom
+?propositional_formula: prop_equivalence
+?prop_equivalence: prop_implication (EQUIVALENCE prop_implication)*
+?prop_implication: prop_or (IMPLY prop_or)*
+?prop_or: prop_and (OR prop_and)*
+?prop_and: prop_not (AND prop_not)*
+?prop_not: NOT? prop_wrapped
+?prop_wrapped: prop_atom
             | LSEPARATOR propositional_formula RSEPARATOR
-prop_atom: atom
+?prop_atom: atom
 	     | prop_true
 	     | prop_false
-atom: string*
+
+atom: STRING
 prop_true.2: TRUE
 prop_false.2: FALSE
 
@@ -22,10 +23,8 @@ IMPLY : "->"
 OR: "||"|"|"
 AND: "&&"|"&"
 NOT: "!"
-string: /\w/+
+STRING: /\w+/
 TRUE.2: "True" | "TRUE" | "true"
 FALSE.2: "False" | "FALSE" | "false"
 
-
-WHITESPACE: (" " | "\n")+
-%ignore WHITESPACE
+%ignore /\s+/

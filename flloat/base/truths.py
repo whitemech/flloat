@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Sequence
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation as PropInt
 
 from flloat.base.formulas import UnaryOperator, BinaryOperator
 from flloat.base.symbols import Symbols
