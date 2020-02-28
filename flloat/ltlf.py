@@ -49,6 +49,8 @@ from flloat.ldlf import (
     LDLfPropositional,
     LDLfEnd,
 )
+from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd
+
 
 class LTLfTruth(Truth):
     """Interface for"""

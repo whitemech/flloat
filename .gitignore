@@ -109,3 +109,9 @@ flloat/parser/parsetab.py
 tests/automata/*
 
 Pipfile.lock
+
+# Vim
+*.sw[po]
+vimsession
+/.ycm_extra_conf.py
+

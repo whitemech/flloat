@@ -2,6 +2,7 @@
 from abc import abstractmethod, ABC
 from typing import Set
 
+
 from pythomata import PropositionalInterpretation
 
 from flloat.base.convertible import ConvertibleFormula, BaseConvertibleFormula

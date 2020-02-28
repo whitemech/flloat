@@ -2,13 +2,12 @@
 from typing import Set, FrozenSet, Dict
 
 import sympy
-from pythomata import PropositionalInterpretation, SymbolicAutomaton, SimpleDFA
-from pythomata.alphabets import MapAlphabet
-from sympy.logic.boolalg import BooleanFalse, BooleanTrue
+from pythomata import SymbolicAutomaton, PropositionalInterpretation
+from sympy.logic.boolalg import BooleanFalse
 
 from flloat.base.formulas import Formula
 from flloat.base.symbols import Symbol
-from flloat.helpers import powerset, iter_powerset
+from flloat.helpers import powerset
 from flloat.pl import PLFormula, PLAtomic, PLNot, PLAnd, PLOr, PLImplies, PLEquivalence, PLTrue, PLFalse, to_sympy
 
 
@@ -57,7 +56,7 @@ def _is_true(Q: FrozenSet[FrozenSet]):
     return result
 
 
-def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropInt):
+def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropositionalInterpretation):
     actions_set = set(i.keys())
     new_macrostate = set()
 
