@@ -4,7 +4,7 @@ from copy import copy
 from itertools import chain, combinations
 from typing import Iterable, Set, FrozenSet
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation as PropInt
 from sympy import Symbol
 from sympy.logic.boolalg import Boolean, BooleanFalse, BooleanTrue
 

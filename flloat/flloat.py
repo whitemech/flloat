@@ -2,7 +2,8 @@
 from typing import Set, FrozenSet, Dict
 
 import sympy
-from pythomata import PropInt, SymbolicAutomaton, SimpleDFA
+from pythomata import SymbolicAutomaton, SimpleDFA
+from pythomata import PropositionalInterpretation as PropInt
 from pythomata.alphabets import MapAlphabet
 from sympy.logic.boolalg import BooleanFalse, BooleanTrue
 
