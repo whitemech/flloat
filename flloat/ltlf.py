@@ -56,7 +56,7 @@ from flloat.ldlf import (
     LDLfPropositional,
     LDLfEnd,
 )
-from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd
+from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd, PLFormula
 
 
 class LTLfTruth(Truth):
@@ -69,15 +69,15 @@ class LTLfTruth(Truth):
 
 class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
 
-    # def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
-    #     f = self.to_nnf()
-    #     d = f._delta(i, epsilon)
-    #     if epsilon:
-    #         # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
-    #         # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
-    #         # Hence, we just evaluate the formula with a dummy PropositionalInterpretation
-    #         d = PLTrue() if d.truth(None) else PLFalse()
-    #     return d
+    def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
+        f = self.to_nnf()
+        d = f._delta(i, epsilon)
+        if epsilon:
+            # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
+            # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
+            # Hence, we just evaluate the formula with a dummy PropositionalInterpretation
+            d = PLTrue() if d.truth(None) else PLFalse()
+        return d
 
     @abstractmethod
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
@@ -194,10 +194,13 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
         return LDLfNot(self.f.to_LDLf())
 
     def truth(self, i: FiniteTrace, pos: int = 0):
-        if len(i) > 0:
-            return NotTruth.truth(self, i, pos)
+        if len(i) == 0:
+            if isinstance(self.f, LTLfAtomic):
+                return False
+            else:
+                return self.to_nnf().truth(i, pos)
         else:
-            return False
+            return NotTruth.truth(self, i, pos)
 
 
 class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
@@ -225,10 +228,7 @@ class LTLfImplies(ImpliesDeltaConvertible, LTLfFormula):
         return self.convert().to_LDLf()
 
     def truth(self, i: FiniteTrace, pos: int):
-        if len(i) > 0:
-            return ImpliesDeltaConvertible.truth(self, i, pos)
-        else:
-            return False
+        return self.convert().truth(i, pos)
 
 
 class LTLfEquivalence(EquivalenceDeltaConvertible, LTLfCommBinaryOperator):
@@ -240,10 +240,7 @@ class LTLfEquivalence(EquivalenceDeltaConvertible, LTLfCommBinaryOperator):
         return self.convert().to_LDLf()
 
     def truth(self, i: FiniteTrace, pos: int):
-        if len(i) > 0:
-            return EquivalenceDeltaConvertible.truth(self, i, pos)
-        else:
-            return False
+        return self.convert().truth(i, pos)
 
 
 class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
@@ -251,10 +248,7 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
     Not = LTLfNot
 
     def truth(self, i: FiniteTrace, pos: int = 0):
-        if len(i) > 0:
-            return pos < len(i) - 1 and self.f.truth(i, pos + 1)
-        else:
-            return False
+        return pos < len(i) - 1 and self.f.truth(i, pos + 1)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
@@ -277,10 +271,7 @@ class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula
         return LTLfNot(LTLfNext(LTLfNot(self.f)))
 
     def truth(self, i: FiniteTrace, pos: int = 0):
-        if len(i) > 0:
-            return self.convert().truth(i, pos)
-        else:
-            return True
+        return not (pos < len(i) - 1) or self.f.truth(i, pos + 1)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
@@ -363,18 +354,12 @@ class LTLfAlways(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
     def to_LDLf(self):
         return self.convert().to_LDLf()
 
-    def truth(self, i: PropositionalInterpretation, pos: int) -> bool:
-        if len(i) == 0:
-            return True
-        else:
-            return BaseConvertibleFormula.truth(self, i, pos)
-
 
 class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFormula):
     operator_symbol = "R"
     Dual = LTLfUntil
 
-    def convert(self):
+    def convert(self) -> LTLfFormula:
         return LTLfNot(LTLfUntil([LTLfNot(f) for f in self.formulas]))
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
@@ -394,10 +379,14 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
         )
 
     def truth(self, i: FiniteTrace, pos: int = 0):
-        if len(i) == 0:
-            return True
-        else:
-            return BaseConvertibleFormula.truth(self, i, pos)
+        f1 = self.formulas[0]
+        f2 = (
+            LTLfRelease(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
+        )
+        return all(
+            f2.truth(i, j) or any(f1.truth(i, k) for k in range(pos, j))
+            for j in range(pos, len(i))
+        )
 
     def to_LDLf(self):
         return self.convert().to_LDLf()

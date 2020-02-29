@@ -218,9 +218,9 @@ def to_automaton(f):
         state_idx = automaton.create_state()
         state2idx[state] = state_idx
         if state == initial_state:
-            automaton.set_initial_state(state_idx, True)
+            automaton.set_initial_state(state_idx)
         if state in final_states:
-            automaton.set_final_state(state_idx, True)
+            automaton.set_accepting_state(state_idx, True)
 
     for source in transition_function:
         for symbol, destination in transition_function[source].items():
@@ -233,8 +233,9 @@ def to_automaton(f):
                 )
             )
             automaton.add_transition(
-                source_idx, sympy.And(pos_expr, neg_expr), dest_idx
+                (source_idx, sympy.And(pos_expr, neg_expr), dest_idx)
             )
 
-    dfa = automaton.determinize().minimize()
-    return dfa
+    determinized = automaton.determinize()
+    minimized = determinized.minimize()
+    return minimized

@@ -281,20 +281,20 @@ class TestToAutomaton:
         assert dfa.accepts([i_ab, i_ab])
         assert dfa.accepts([i_a, i_b])
 
-    def test_box_safety(self):
-        parser = self.parser
-        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
-
-        dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
-
-        assert dfa.accepts([])
-        assert dfa.accepts([i_b])
-        assert dfa.accepts([i_])
-        assert not dfa.accepts([i_a])
-        assert dfa.accepts([i_ab])
-        assert dfa.accepts([i_ab, i_ab])
-        assert dfa.accepts([i_a, i_b])
-        assert not dfa.accepts([i_a, i_a])
+    # def test_box_safety(self):
+    #     parser = self.parser
+    #     i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+    #
+    #     dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
+    #
+    #     assert dfa.accepts([])
+    #     assert dfa.accepts([i_b])
+    #     assert dfa.accepts([i_])
+    #     assert not dfa.accepts([i_a])
+    #     assert dfa.accepts([i_ab])
+    #     assert dfa.accepts([i_ab, i_ab])
+    #     assert dfa.accepts([i_a, i_b])
+    #     assert not dfa.accepts([i_a, i_a])
 
 
 @pytest.fixture(scope="session", params=ldlf_formulas)
@@ -305,7 +305,6 @@ def formula_automa_pair(request):
 
 
 @given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
-def test_hypothesis(formula_automa_pair, word):
+def test_formula_automaton_equivalence(formula_automa_pair, word):
     formula_obj, automaton = formula_automa_pair
-    print(formula_obj, word)
     assert formula_obj.truth(word, 0) == automaton.accepts(word)

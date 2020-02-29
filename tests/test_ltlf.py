@@ -691,14 +691,22 @@ def formula_automa_pair(request):
 
 
 @given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
-def test_hypothesis(formula_automa_pair, word):
+def test_formula_automaton_equivalence(formula_automa_pair, word):
     formula_obj, automaton = formula_automa_pair
     assert formula_obj.truth(word, 0) == automaton.accepts(word)
 
 
-@given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
-def test_hypothesis(word):
-    print(word)
+@given(propositional_words(["A", "B", "C"], min_size=1, max_size=5))
+def test_persistence_is_equivalent_to_response_on_nonempty_words(word):
     formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("A")))
     formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("A")))
     assert formula_1.truth(word, 0) == formula_2.truth(word, 0)
+
+
+def test_persistence_and_response_on_empty_words():
+    formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("A")))
+    formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("A")))
+    recurrence_truth = formula_1.truth([], 0)
+    persistence_truth = formula_2.truth([], 0)
+    assert recurrence_truth
+    assert not persistence_truth

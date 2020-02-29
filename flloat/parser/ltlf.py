@@ -161,9 +161,8 @@ class LTLfTransformer(Transformer):
 
     def ltlf_symbol(self, args):
         assert len(args) == 1
-        tree = args[0]
-        pl_transformer = PLTransformer()
-        symbol = pl_transformer.transform(tree)
+        token = args[0]
+        symbol = str(token)
         return LTLfAtomic(symbol)
 
 
