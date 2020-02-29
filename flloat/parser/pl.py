@@ -22,7 +22,6 @@ CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class PLTransformer(Transformer):
-
     def start(self, args):
         return args[0]
 
@@ -106,7 +105,6 @@ class PLTransformer(Transformer):
 
 
 class PLParser:
-
     def __init__(self):
         self._transformer = PLTransformer()
         self._parser = Lark(open(str(Path(CUR_DIR, "pl.lark"))), parser="lalr")

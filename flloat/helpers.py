@@ -104,4 +104,5 @@ def evaluate(formula: Boolean, i: PropInt) -> bool:
     """
     return formula.subs(i).replace(Symbol, BooleanFalse) == BooleanTrue()
 
+
 MAX_CACHE_SIZE = 1024

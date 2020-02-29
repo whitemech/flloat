@@ -20,7 +20,7 @@ ltlf_atom:        ltlf_symbol
 
 ltlf_true: prop_true
 ltlf_false: prop_false
-ltlf_symbol: string
+ltlf_symbol: STRING
 UNTIL.2: "U"
 RELEASE.2: "R"
 ALWAYS.2: "G"
@@ -32,7 +32,7 @@ LAST.2: "LAST"|"last"|"Last"
 
 WHITESPACE: (" " | "\n")+
 %ignore WHITESPACE
-%import .pl.string -> string
+%import .pl.STRING -> STRING
 %import .pl.prop_true -> prop_true
 %import .pl.prop_false -> prop_false
 %import .pl.NOT -> NOT

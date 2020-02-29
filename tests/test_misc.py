@@ -10,7 +10,10 @@ def test_ldlf_example_readme():
     formula = "<true*; A & B>tt"
     parsed_formula = parser(formula)
 
-    assert str(parsed_formula) == "<((true)* ; (B & A))>(tt)" or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
+    assert (
+        str(parsed_formula) == "<((true)* ; (B & A))>(tt)"
+        or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
+    )
     assert parsed_formula.find_labels() == {c for c in "AB"}
 
     t1 = [
@@ -21,11 +24,7 @@ def test_ldlf_example_readme():
         {"A": False, "B": False},
     ]
     assert parsed_formula.truth(t1, 0)
-    t2 = [
-        {"A": False, "B": False},
-        {"A": True, "B": False},
-        {"A": False, "B": True},
-    ]
+    t2 = [{"A": False, "B": False}, {"A": True, "B": False}, {"A": False, "B": True}]
     assert not parsed_formula.truth(t2, 0)
 
     dfa = parsed_formula.to_automaton()
@@ -48,11 +47,7 @@ def test_ltlf_example_readme():
         {"A": False, "B": False},
     ]
     assert parsed_formula.truth(t1, 0)
-    t2 = [
-        {"A": False, "B": False},
-        {"A": True, "B": True},
-        {"A": False, "B": True},
-    ]
+    t2 = [{"A": False, "B": False}, {"A": True, "B": True}, {"A": False, "B": True}]
     assert not parsed_formula.truth(t2, 0)
     dfa = parsed_formula.to_automaton()
     assert dfa.accepts(t1)
