@@ -68,7 +68,6 @@ class LTLfTruth(Truth):
 
 
 class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
-
     def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
         f = self.to_nnf()
         d = f._delta(i, epsilon)
@@ -381,7 +380,9 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
     def truth(self, i: FiniteTrace, pos: int = 0):
         f1 = self.formulas[0]
         f2 = (
-            LTLfRelease(self.formulas[1:]) if len(self.formulas) > 2 else self.formulas[1]
+            LTLfRelease(self.formulas[1:])
+            if len(self.formulas) > 2
+            else self.formulas[1]
         )
         return all(
             f2.truth(i, j) or any(f1.truth(i, k) for k in range(pos, j))
