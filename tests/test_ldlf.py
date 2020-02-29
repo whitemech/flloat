@@ -1,9 +1,32 @@
 # -*- coding: utf-8 -*-
-from flloat.ldlf import LDLfLogicalTrue, LDLfLogicalFalse, LDLfNot, LDLfAnd, LDLfPropositional, \
-    RegExpPropositional, LDLfDiamond, LDLfEquivalence, LDLfBox, RegExpStar, LDLfOr, RegExpUnion, RegExpSequence, \
-    LDLfEnd, RegExpTest, LDLfLast
+import pytest
+from hypothesis import given
+
+from flloat.ldlf import (
+    LDLfLogicalTrue,
+    LDLfLogicalFalse,
+    LDLfNot,
+    LDLfAnd,
+    LDLfPropositional,
+    RegExpPropositional,
+    LDLfDiamond,
+    LDLfEquivalence,
+    LDLfBox,
+    RegExpStar,
+    LDLfOr,
+    RegExpUnion,
+    RegExpSequence,
+    LDLfEnd,
+    RegExpTest,
+    LDLfLast,
+)
 from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
+from .conftest import ldlf_formulas
+from .strategies import propositional_words
+
+
+parser = LDLfParser()
 
 
 def test_parser():
@@ -22,42 +45,61 @@ def test_parser():
     assert LDLfDiamond(r_true, tt) == parser("<true>tt")
     assert LDLfDiamond(r_false, tt) == parser("<false>tt")
     assert parser("!tt & <!A&B>tt") == LDLfAnd(
-        [LDLfNot(tt), LDLfDiamond(RegExpPropositional(PLAnd([PLNot(a), b])), tt)])
-    assert parser("[true*]([true]ff | <!A>tt | <(true)*><B>tt)") == \
-           LDLfBox(RegExpStar(r_true),
-                   LDLfOr([
-                       LDLfBox(r_true, ff),
-                       LDLfDiamond(RegExpPropositional(PLNot(a)), tt),
-                       LDLfDiamond(RegExpStar(r_true), (LDLfDiamond(RegExpPropositional(b), tt)))
-                   ])
-                   )
-
-    assert parser("[A&B&A]ff <-> <A&B&A>tt") == LDLfEquivalence([
-        LDLfBox(RegExpPropositional(PLAnd([a, b, a])), ff),
-        LDLfDiamond(RegExpPropositional(PLAnd([a, b, a])), tt),
-    ])
-
-    assert parser("<A+B>tt") == LDLfDiamond(RegExpUnion([RegExpPropositional(a), RegExpPropositional(b)]), tt)
-    assert parser("<A;B>tt") == LDLfDiamond(RegExpSequence([RegExpPropositional(a), RegExpPropositional(b)]), tt)
-    assert parser("<A+(B;A)>end") == LDLfDiamond(
-        RegExpUnion([RegExpPropositional(a), RegExpSequence([RegExpPropositional(b), RegExpPropositional(a)])]),
-        LDLfEnd()
+        [LDLfNot(tt), LDLfDiamond(RegExpPropositional(PLAnd([PLNot(a), b])), tt)]
+    )
+    assert parser("[true*]([true]ff | <!A>tt | <(true)*><B>tt)") == LDLfBox(
+        RegExpStar(r_true),
+        LDLfOr(
+            [
+                LDLfBox(r_true, ff),
+                LDLfDiamond(RegExpPropositional(PLNot(a)), tt),
+                LDLfDiamond(
+                    RegExpStar(r_true), (LDLfDiamond(RegExpPropositional(b), tt))
+                ),
+            ]
+        ),
     )
 
-    assert parser("!(<(!(A<->D))+((B;C)*)+((!last)?)>[(true)*]end)") == LDLfNot(
+    assert parser("[A&B&A]ff <-> <A&B&A>tt") == LDLfEquivalence(
+        [
+            LDLfBox(RegExpPropositional(PLAnd([a, b, a])), ff),
+            LDLfDiamond(RegExpPropositional(PLAnd([a, b, a])), tt),
+        ]
+    )
+
+    assert parser("<A+B>tt") == LDLfDiamond(
+        RegExpUnion([RegExpPropositional(a), RegExpPropositional(b)]), tt
+    )
+    assert parser("<A;B>tt") == LDLfDiamond(
+        RegExpSequence([RegExpPropositional(a), RegExpPropositional(b)]), tt
+    )
+    assert parser("<A+(B;A)>end") == LDLfDiamond(
+        RegExpUnion(
+            [
+                RegExpPropositional(a),
+                RegExpSequence([RegExpPropositional(b), RegExpPropositional(a)]),
+            ]
+        ),
+        LDLfEnd(),
+    )
+
+    assert parser("!(<(!(A<->D))+((B;C)*)+(!last?)>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
-            RegExpUnion([
-                RegExpPropositional(PLNot(PLEquivalence([a, PLAtomic("D")]))),
-                RegExpStar(RegExpSequence([
-                    RegExpPropositional(PLAtomic("B")),
-                    RegExpPropositional(PLAtomic("C")),
-                ])),
-                RegExpTest(LDLfNot(LDLfLast()))
-            ]),
-            LDLfBox(
-                RegExpStar(RegExpPropositional(PLTrue())),
-                LDLfEnd()
-            )
+            RegExpUnion(
+                [
+                    RegExpPropositional(PLNot(PLEquivalence([a, PLAtomic("D")]))),
+                    RegExpStar(
+                        RegExpSequence(
+                            [
+                                RegExpPropositional(PLAtomic("B")),
+                                RegExpPropositional(PLAtomic("C")),
+                            ]
+                        )
+                    ),
+                    RegExpTest(LDLfNot(LDLfLast())),
+                ]
+            ),
+            LDLfBox(RegExpStar(RegExpPropositional(PLTrue())), LDLfEnd()),
         )
     )
 
@@ -71,13 +113,7 @@ def test_truth():
     i_b = {"B": True}
     i_ab = {"A": True, "B": True}
 
-    tr_false_a_b_ab = [
-        i_,
-        i_a,
-        i_b,
-        i_ab,
-        i_
-    ]
+    tr_false_a_b_ab = [i_, i_a, i_b, i_ab, i_]
 
     tt = LDLfLogicalTrue()
     ff = LDLfLogicalFalse()
@@ -86,17 +122,15 @@ def test_truth():
     assert not ff.truth(tr_false_a_b_ab, 0)
     assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
     assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(tr_false_a_b_ab, 3)
-    assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(tr_false_a_b_ab, 0)
+    assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
+        tr_false_a_b_ab, 3
+    )
+    assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
+        tr_false_a_b_ab, 0
+    )
 
     parser = LDLfParser()
-    trace = [
-        {},
-        {"A": True},
-        {"A": True},
-        {"A": True, "B": True},
-        {}
-    ]
+    trace = [{}, {"A": True}, {"A": True}, {"A": True, "B": True}, {}]
 
     formula = "<true*;A&B>tt"
     parsed_formula = parser(formula)
@@ -124,7 +158,9 @@ def test_nnf():
     assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
 
     f = parser("!(<((!(A<->D))+((B;C)*)+((!last)?))>[(true)*]end)")
-    assert f.to_nnf() == parser("[(([true]<true>tt)? + ((B ; C)*) + ((A | D) & (!(D) | !(A))))]<(true)*><true>tt")
+    assert f.to_nnf() == parser(
+        "[(([true]<true>tt)? + ((B ; C)*) + ((A | D) & (!(D) | !(A))))]<(true)*><true>tt"
+    )
     assert f.to_nnf() == f.to_nnf().to_nnf().to_nnf().to_nnf()
 
 
@@ -173,7 +209,6 @@ def test_find_labels():
 
 
 class TestToAutomaton:
-
     @classmethod
     def setup_class(cls):
         cls.parser = LDLfParser()
@@ -212,7 +247,9 @@ class TestToAutomaton:
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        dfa = parser("< ((!(A | B | C ))*) ; (A | C) ; ((!(A | B | C))*) ; (B | C) ><true>tt").to_automaton()
+        dfa = parser(
+            "< ((!(A | B | C ))*) ; (A | C) ; ((!(A | B | C))*) ; (B | C) ><true>tt"
+        ).to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_, i_b])
@@ -244,17 +281,30 @@ class TestToAutomaton:
         assert dfa.accepts([i_ab, i_ab])
         assert dfa.accepts([i_a, i_b])
 
-    def test_box_safety(self):
-        parser = self.parser
-        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+    # def test_box_safety(self):
+    #     parser = self.parser
+    #     i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+    #
+    #     dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
+    #
+    #     assert dfa.accepts([])
+    #     assert dfa.accepts([i_b])
+    #     assert dfa.accepts([i_])
+    #     assert not dfa.accepts([i_a])
+    #     assert dfa.accepts([i_ab])
+    #     assert dfa.accepts([i_ab, i_ab])
+    #     assert dfa.accepts([i_a, i_b])
+    #     assert not dfa.accepts([i_a, i_a])
 
-        dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
 
-        assert dfa.accepts([])
-        assert dfa.accepts([i_b])
-        assert dfa.accepts([i_])
-        assert not dfa.accepts([i_a])
-        assert dfa.accepts([i_ab])
-        assert dfa.accepts([i_ab, i_ab])
-        assert dfa.accepts([i_a, i_b])
-        assert not dfa.accepts([i_a, i_a])
+@pytest.fixture(scope="session", params=ldlf_formulas)
+def formula_automa_pair(request):
+    formula_obj = parser(request.param)
+    automaton = formula_obj.to_automaton()
+    return formula_obj, automaton
+
+
+@given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
+def test_formula_automaton_equivalence(formula_automa_pair, word):
+    formula_obj, automaton = formula_automa_pair
+    assert formula_obj.truth(word, 0) == automaton.accepts(word)

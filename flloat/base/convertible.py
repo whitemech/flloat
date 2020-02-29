@@ -65,12 +65,13 @@ class ImpliesConvertible(ImpliesTruth, BaseConvertibleFormula, BinaryOperator):
     def convert(self):
         """Convert the formula."""
         fs = self.formulas
-        if len(fs) > 2:
-            a, b = self.And(fs[:-1]), fs[-1]
-        else:
-            a, b = fs
-        res = self.Or([self.Not(a), b])
-        return res
+
+        a, b = fs[0], fs[1]
+        result = self.Or([self.Not(a), b])
+        for idx in range(2, len(fs)):
+            result = self.Or([self.Not(result), fs[idx]])
+
+        return result
 
 
 class EquivalenceConvertible(

@@ -1,52 +1,37 @@
 start: ldlf_formula
-ldlf_formula:  ldlf_wrapped
-             | ldlf_equivalence
-             | ldlf_implication
-             | ldlf_or
-             | ldlf_and
-             | ldlf_box
-             | ldlf_diamond
-             | ldlf_not
-             | ldlf_atom
+ldlf_formula:  ldlf_equivalence
 
-
-ldlf_wrapped: LSEPARATOR ldlf_formula RSEPARATOR
-ldlf_equivalence.6: ldlf_formula EQUIVALENCE ldlf_formula
-ldlf_implication.5: ldlf_formula IMPLY ldlf_formula
-ldlf_or.4: ldlf_formula OR ldlf_formula
-ldlf_and.3: ldlf_formula AND ldlf_formula
-ldlf_box.2: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_formula
-ldlf_diamond.2: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_formula
-ldlf_not.1: NOT ldlf_formula
+ldlf_equivalence: ldlf_implication (EQUIVALENCE ldlf_implication)*
+ldlf_implication: ldlf_or (IMPLY ldlf_or)*
+ldlf_or: ldlf_and (OR ldlf_and)*
+ldlf_and: ldlf_box (AND ldlf_box)*
+ldlf_box: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_box
+        | ldlf_diamond
+ldlf_diamond: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_box
+            | ldlf_not
+ldlf_not: NOT* ldlf_atom
 ldlf_atom:   ldlf_tt
            | ldlf_ff
            | ldlf_last
            | ldlf_end
-           | ldlf_true
-           | ldlf_false
-           | ldlf_symbol
+           | ldlf_wrapped
+ldlf_wrapped: LSEPARATOR ldlf_formula RSEPARATOR
 
-ldlf_tt: TT
-ldlf_ff: FF
-ldlf_last: LAST
-ldlf_end: END
-ldlf_true: true_prop
-ldlf_false: false_prop
-ldlf_symbol: string
+ldlf_tt.2: TT
+ldlf_ff.2: FF
+ldlf_last.2: LAST
+ldlf_end.2: END
 
-regular_expression: wrapped_regular_expression
-                  | regular_expression_union
-                  | regular_expression_sequence
-                  | regular_expression_test
-                  | regular_expression_star
-                  | regular_expression_propositional
+regular_expression: regular_expression_union
 
-wrapped_regular_expression: LSEPARATOR regular_expression RSEPARATOR
-regular_expression_union.3: regular_expression UNION regular_expression
-regular_expression_sequence.3: regular_expression SEQ regular_expression
-regular_expression_test.2: ldlf_formula TEST
-regular_expression_star.2: regular_expression STAR
-regular_expression_propositional.1: propositional_formula
+regular_expression_union: regular_expression_sequence (UNION regular_expression_sequence)*
+regular_expression_sequence: regular_expression_star (SEQ regular_expression_star)*
+regular_expression_star: regular_expression_test STAR?
+                       | LSEPARATOR regular_expression RSEPARATOR STAR?
+regular_expression_test: regular_expression_propositional
+                       | ldlf_formula TEST
+                       | LSEPARATOR ldlf_formula RSEPARATOR TEST
+regular_expression_propositional: propositional_formula
 
 
 %import common.ESCAPED_STRING
@@ -57,17 +42,15 @@ DIAMONDLSEPARATOR: "<"
 DIAMONDRSEPARATOR: ">"
 TT: "tt"
 FF: "ff"
-LAST: "last"
-END: "end"
 UNION: "+"
 SEQ: ";"
 TEST: "?"
 STAR: "*"
 %ignore WHITESPACE
 %import .pl.start -> propositional_formula
-%import .pl.string -> string
-%import .pl.true_prop -> true_prop
-%import .pl.false_prop -> false_prop
+%import .pl.STRING -> STRING
+%import .pl.prop_true -> prop_true
+%import .pl.prop_false -> prop_false
 %import .pl.EQUIVALENCE -> EQUIVALENCE
 %import .pl.IMPLY -> IMPLY
 %import .pl.OR -> OR
@@ -75,4 +58,6 @@ STAR: "*"
 %import .pl.NOT -> NOT
 %import .pl.LSEPARATOR -> LSEPARATOR
 %import .pl.RSEPARATOR -> RSEPARATOR
+%import .ltlf.LAST -> LAST
+%import .ltlf.END -> END
 

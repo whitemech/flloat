@@ -1,38 +1,61 @@
 # -*- coding: utf-8 -*-
-from flloat.ltlf import LTLfAtomic, LTLfAnd, LTLfEquivalence, LTLfOr, LTLfNot, LTLfImplies, LTLfEventually, \
-    LTLfAlways, LTLfUntil, LTLfRelease, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfFalse
+import pytest
+from hypothesis import given
+
+from flloat.ltlf import (
+    LTLfAtomic,
+    LTLfAnd,
+    LTLfEquivalence,
+    LTLfOr,
+    LTLfNot,
+    LTLfImplies,
+    LTLfEventually,
+    LTLfAlways,
+    LTLfUntil,
+    LTLfRelease,
+    LTLfNext,
+    LTLfWeakNext,
+    LTLfTrue,
+    LTLfFalse,
+)
 from flloat.parser.ltlf import LTLfParser
 from flloat.pl import PLAtomic, PLTrue, PLFalse, PLAnd, PLOr
+from tests.conftest import ltlf_formulas
+from tests.strategies import propositional_words
+
+parser = LTLfParser()
 
 
 def test_parser():
     parser = LTLfParser()
     a, b, c = [LTLfAtomic(c) for c in "ABC"]
 
-    assert parser("!A | B <-> !(A & !B) <-> A->B") == LTLfEquivalence([
-        LTLfOr([LTLfNot(a), b]),
-        LTLfNot(LTLfAnd([a, LTLfNot(b)])),
-        LTLfImplies([a, b])
-    ])
+    assert parser("!A | B <-> !(A & !B) <-> A->B") == LTLfEquivalence(
+        [
+            LTLfOr([LTLfNot(a), b]),
+            LTLfNot(LTLfAnd([a, LTLfNot(b)])),
+            LTLfImplies([a, b]),
+        ]
+    )
 
-    assert parser("(X A) & (WX !B)") == LTLfAnd([
-        LTLfNext(a),
-        LTLfWeakNext(LTLfNot(b))
-    ])
+    assert parser("(X A) & (WX !B)") == LTLfAnd([LTLfNext(a), LTLfWeakNext(LTLfNot(b))])
 
-    assert parser("(F (A&B)) <-> !(G (!A | !B) )") == LTLfEquivalence([
-        LTLfEventually(LTLfAnd([a, b])),
-        LTLfNot(LTLfAlways(LTLfOr([LTLfNot(a), LTLfNot(b)])))
-    ])
+    assert parser("(F (A&B)) <-> !(G (!A | !B) )") == LTLfEquivalence(
+        [
+            LTLfEventually(LTLfAnd([a, b])),
+            LTLfNot(LTLfAlways(LTLfOr([LTLfNot(a), LTLfNot(b)]))),
+        ]
+    )
 
-    assert parser("(A U B U C) <-> !(!A R !B R !C)") == LTLfEquivalence([
-        LTLfUntil([a, b, c]),
-        LTLfNot(LTLfRelease([LTLfNot(a), LTLfNot(b), LTLfNot(c)]))
-    ])
+    assert parser("(A U B U C) <-> !(!A R !B R !C)") == LTLfEquivalence(
+        [
+            LTLfUntil([a, b, c]),
+            LTLfNot(LTLfRelease([LTLfNot(a), LTLfNot(b), LTLfNot(c)])),
+        ]
+    )
 
 
 class TestTruth:
-
     @classmethod
     def setup_class(cls):
         cls.parser = LTLfParser()
@@ -91,8 +114,8 @@ class TestTruth:
 
         assert not parser("F C & !A & !B").truth(t, 0)
         assert not parser("F A & B & C").truth(t, 0)
-        assert parser("F G C").truth(t, 0)
-        assert not parser("F G B").truth(t, 0)
+        assert parser("F(G(C))").truth(t, 0)
+        assert not parser("F(G(B))").truth(t, 0)
 
     def test_always(self):
         parser = self.parser
@@ -117,10 +140,7 @@ def test_nnf():
     assert f.to_nnf() == LTLfAnd([a, LTLfNot(b)])
 
     f = parser("!( (A->B) <-> (!A | B))")
-    assert f.to_nnf() == LTLfAnd([
-        LTLfAnd([a, LTLfNot(b)]),
-        LTLfOr([LTLfNot(a), b]),
-    ])
+    assert f.to_nnf() == LTLfAnd([LTLfAnd([a, LTLfNot(b)]), LTLfOr([LTLfNot(a), b])])
 
     # Next and Weak Next
     f = parser("!(X (A & B))")
@@ -146,12 +166,15 @@ def test_nnf():
 
 
 class TestDelta:
-
     @classmethod
     def setup_class(cls):
         cls.parser = LTLfParser()
-        cls.i_, cls.i_a, cls.i_b, cls.i_ab = \
-            {}, {"A": True}, {"B": True}, {"A":True, "B": True}
+        cls.i_, cls.i_a, cls.i_b, cls.i_ab = (
+            {},
+            {"A": True},
+            {"B": True},
+            {"A": True, "B": True},
+        )
         cls.true = PLTrue()
         cls.false = PLFalse()
 
@@ -210,13 +233,17 @@ class TestDelta:
         false = self.false
 
         assert parser("X A").delta(i_) == PLAnd(
-            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())]
+        )
         assert parser("X A").delta(i_a) == PLAnd(
-            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())]
+        )
         assert parser("X A").delta(i_b) == PLAnd(
-            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())]
+        )
         assert parser("X A").delta(i_ab) == PLAnd(
-            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())])
+            [PLAtomic(LTLfAtomic("A")), PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())]
+        )
         assert parser("X A").delta(i_, epsilon=True) == false
 
     def test_until(self):
@@ -225,14 +252,18 @@ class TestDelta:
         true = self.true
         false = self.false
 
-        assert parser("A U B").delta(i_a) == PLOr([
-            false,
-            PLAnd([
-                true,
-                PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
-                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf())
-            ])
-        ])
+        assert parser("A U B").delta(i_a) == PLOr(
+            [
+                false,
+                PLAnd(
+                    [
+                        true,
+                        PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
+                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                    ]
+                ),
+            ]
+        )
         assert parser("A U B").delta(i_ab, epsilon=True) == false
 
     def test_release(self):
@@ -241,14 +272,18 @@ class TestDelta:
         true = self.true
         false = self.false
 
-        assert parser("A R B").delta(i_a) == PLAnd([
-            false,
-            PLOr([
-                true,
-                PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
-                PLAtomic(LTLfAlways(LTLfFalse()).to_nnf())
-            ])
-        ])
+        assert parser("A R B").delta(i_a) == PLAnd(
+            [
+                false,
+                PLOr(
+                    [
+                        true,
+                        PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
+                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                    ]
+                ),
+            ]
+        )
         assert parser("A R B").delta(i_ab, epsilon=True) == true
 
     def test_eventually(self):
@@ -258,17 +293,29 @@ class TestDelta:
         false = self.false
 
         assert parser("F A").delta(i_a) == PLOr(
-            [true, PLAnd([
-                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+            [
                 true,
-                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")]))
-            ])])
+                PLAnd(
+                    [
+                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                        true,
+                        PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                    ]
+                ),
+            ]
+        )
         assert parser("F A").delta(i_) == PLOr(
-            [false, PLAnd([
-                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
-                true,
-                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")]))
-            ])])
+            [
+                false,
+                PLAnd(
+                    [
+                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                        true,
+                        PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                    ]
+                ),
+            ]
+        )
         assert parser("F A").delta(i_a, epsilon=True) == false
         assert parser("F A").delta(i_, epsilon=True) == false
 
@@ -279,15 +326,34 @@ class TestDelta:
         false = self.false
 
         assert parser("G A").delta(i_a) == PLAnd(
-            [true, PLOr([false, PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()), PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")]))])])
+            [
+                true,
+                PLOr(
+                    [
+                        false,
+                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                        PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                    ]
+                ),
+            ]
+        )
         assert parser("G A").delta(i_a) == PLAnd(
-            [true, PLOr([false, PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()), PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")]))])])
+            [
+                true,
+                PLOr(
+                    [
+                        false,
+                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                        PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                    ]
+                ),
+            ]
+        )
         assert parser("G A").delta(i_a, epsilon=True) == true
         assert parser("G A").delta(i_, epsilon=True) == true
 
 
 class TestToAutomaton:
-
     @classmethod
     def setup_class(cls):
         cls.parser = LTLfParser()
@@ -600,3 +666,47 @@ class TestToAutomaton:
         assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_])
         assert dfa.accepts([i_a, i_ab, i_ab, i_b, i_b])
         assert dfa.accepts([i_a, i_ab, i_b, i_ab, i_b])
+
+    def test_conditional_response(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+
+        dfa = parser("G (A -> F(B))").to_automaton()
+
+        assert dfa.accepts([])
+        assert dfa.accepts([i_b])
+        assert dfa.accepts([i_])
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab])
+        assert dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_a, i_b])
+        assert not dfa.accepts([i_a, i_a])
+
+
+@pytest.fixture(scope="session", params=ltlf_formulas)
+def formula_automa_pair(request):
+    formula_obj = parser(request.param)
+    automaton = formula_obj.to_automaton()
+    return formula_obj, automaton
+
+
+@given(propositional_words(["A", "B", "C"], min_size=0, max_size=5))
+def test_formula_automaton_equivalence(formula_automa_pair, word):
+    formula_obj, automaton = formula_automa_pair
+    assert formula_obj.truth(word, 0) == automaton.accepts(word)
+
+
+@given(propositional_words(["A", "B", "C"], min_size=1, max_size=5))
+def test_persistence_is_equivalent_to_response_on_nonempty_words(word):
+    formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("A")))
+    formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("A")))
+    assert formula_1.truth(word, 0) == formula_2.truth(word, 0)
+
+
+def test_persistence_and_response_on_empty_words():
+    formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("A")))
+    formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("A")))
+    recurrence_truth = formula_1.truth([], 0)
+    persistence_truth = formula_2.truth([], 0)
+    assert recurrence_truth
+    assert not persistence_truth

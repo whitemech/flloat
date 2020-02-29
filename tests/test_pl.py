@@ -1,6 +1,21 @@
 # -*- coding: utf-8 -*-
+
+import os
+import pytest
+import lark
+
 from flloat.parser.pl import PLParser
-from flloat.pl import PLAnd, PLAtomic, PLNot, PLEquivalence, PLOr, PLImplies, PLFalse, PLTrue
+from flloat.pl import (
+    PLAnd,
+    PLAtomic,
+    PLNot,
+    PLEquivalence,
+    PLOr,
+    PLImplies,
+    PLFalse,
+    PLTrue,
+)
+from .parsing import ParsingCheck
 
 
 def test_parser():
@@ -13,11 +28,9 @@ def test_parser():
     assert a_and_b == true_a_and_b
 
     material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
-    true_material_implication = PLEquivalence([
-        PLOr([PLNot(a), b]),
-        PLNot(PLAnd([a, PLNot(b)])),
-        PLImplies([a, b])
-    ])
+    true_material_implication = PLEquivalence(
+        [PLOr([PLNot(a), b]), PLNot(PLAnd([a, PLNot(b)])), PLImplies([a, b])]
+    )
 
     assert material_implication == true_material_implication
 
@@ -28,7 +41,6 @@ def test_parser():
 
 
 class TestTruth:
-
     @classmethod
     def setup_class(cls):
         cls.sa, cls.sb = "a", "b"
@@ -74,11 +86,9 @@ class TestTruth:
         a, b = self.a, self.b
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        material_implication = PLEquivalence([
-            PLOr([PLNot(a), b]),
-            PLNot(PLAnd([a, PLNot(b)])),
-            PLImplies([a, b])
-        ])
+        material_implication = PLEquivalence(
+            [PLOr([PLNot(a), b]), PLNot(PLAnd([a, PLNot(b)])), PLImplies([a, b])]
+        )
 
         # the equivalence is valid (i.e. satisfied for every interpretation)
         assert material_implication.truth(i_)
@@ -118,14 +128,36 @@ def test_nnf():
     assert nnf_dup == PLNot(a)
 
     material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
-    nnf_material_implication = parser("((!A | B) & (!A | B) & (!A | B)) | ((A & !B) & (A & !B) & (A & !B))")
+    nnf_material_implication = parser(
+        "((!A | B) & (!A | B) & (!A | B)) | ((A & !B) & (A & !B) & (A & !B))"
+    )
     nnf_m = material_implication.to_nnf()
     assert nnf_m == nnf_material_implication.to_nnf()
 
-    assert nnf_m.truth(i_) == material_implication.truth(i_) == nnf_material_implication.truth(i_) == True
-    assert nnf_m.truth(i_a) == material_implication.truth(i_a) == nnf_material_implication.truth(i_a) == True
-    assert nnf_m.truth(i_b) == material_implication.truth(i_b) == nnf_material_implication.truth(i_b) == True
-    assert nnf_m.truth(i_ab) == material_implication.truth(i_ab) == nnf_material_implication.truth(i_ab) == True
+    assert (
+        nnf_m.truth(i_)
+        == material_implication.truth(i_)
+        == nnf_material_implication.truth(i_)
+        == True
+    )
+    assert (
+        nnf_m.truth(i_a)
+        == material_implication.truth(i_a)
+        == nnf_material_implication.truth(i_a)
+        == True
+    )
+    assert (
+        nnf_m.truth(i_b)
+        == material_implication.truth(i_b)
+        == nnf_material_implication.truth(i_b)
+        == True
+    )
+    assert (
+        nnf_m.truth(i_ab)
+        == material_implication.truth(i_ab)
+        == nnf_material_implication.truth(i_ab)
+        == True
+    )
 
 
 def test_find_labels():
@@ -140,3 +172,43 @@ def test_find_labels():
     f = "!A & (!AB & !A0)"
     formula = parser(f)
     assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}
+
+
+def test_precedence():
+
+    # Path to grammar
+    this_path = os.path.dirname(os.path.abspath(__file__))
+    grammar_path = "../flloat/parser/pl.lark"
+    grammar_path = os.path.join(this_path, *grammar_path.split("/"))
+
+    checker = ParsingCheck(grammar_path)
+
+    ok, err = checker.precedence_check("!a & b", [c for c in "&!ab"])
+    assert ok, err
+
+    ok, err = checker.precedence_check("a & !b", [c for c in "&a!b"])
+    assert ok, err
+
+    ok, err = checker.precedence_check("a & b & c", [c for c in "&&abc"])
+
+    ok, err = checker.precedence_check("a & b | c", [c for c in "|&abc"])
+
+    ok, err = checker.precedence_check("a | b & c", [c for c in "|a&bc"])
+    assert ok, err
+
+    ok, err = checker.precedence_check("a <-> b -> c", "<->,a,->,b,c".split(","))
+    assert ok, err
+
+    ok, err = checker.precedence_check("(a <-> b) -> c", "->,(,),<->,a,b,c".split(","))
+    assert ok, err
+
+    ok, err = checker.precedence_check("!a&(b->c)", "&,!,a,(,),->,b,c".split(","))
+    assert ok, err
+
+    # Bad examples
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check("!a&", None)
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check("!&b", None)
+    with pytest.raises(lark.UnexpectedInput):
+        ok, err = checker.precedence_check("a|b|", None)

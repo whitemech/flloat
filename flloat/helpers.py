@@ -4,9 +4,12 @@ from copy import copy
 from itertools import chain, combinations
 from typing import Iterable, Set, FrozenSet
 
-from pythomata import PropInt
+from pythomata import PropositionalInterpretation as PropInt
 from sympy import Symbol
 from sympy.logic.boolalg import Boolean, BooleanFalse, BooleanTrue
+
+
+ParsingError = ValueError("Parsing error.")
 
 
 class Hashable(ABC):
@@ -100,5 +103,6 @@ def evaluate(formula: Boolean, i: PropInt) -> bool:
     :return: True if the formula is true in the interpretation, False o/w.
     """
     return formula.subs(i).replace(Symbol, BooleanFalse) == BooleanTrue()
+
 
 MAX_CACHE_SIZE = 1024
