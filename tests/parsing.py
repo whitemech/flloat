@@ -9,8 +9,9 @@ class ParsingCheck:
 
     def __init__(self, lark):
         """\
-        Args:
-            lark: path of a lark grammar file.
+        Constructor
+
+        :param lark: path of a lark grammar file.
         """
         self.parser = Lark(open(lark), parser="lalr")
 
@@ -21,13 +22,13 @@ class ParsingCheck:
         Parse the formula and check that operators have the expected
         precedence. 
 
-        Args:
-            formula: expression to parse
-            tokens: a list of symbols (top-down, left-right) order in the
-                parsing tree
-            print_tree: verbose parsing tree
-        Returns:
-            false, if parsing did not respect the order; and a string of error
+        :param formula: expression to parse.
+        :param tokens: a list of symbols (top-down, left-right) order in the
+            parsing tree.
+        :param print_tree: verbose parsing tree.
+
+        :returns: false boolean, if parsing did not respect the order;
+            and a string of error
         """
 
         # Parse
