@@ -736,7 +736,6 @@ class LDLfLast(LDLfFormula):
 
 
 class _FreezedFalse(LDLfFormula):
-
     def __init__(self, f: LDLfFormula):
         """Initialize the formula."""
         super().__init__()

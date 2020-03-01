@@ -47,7 +47,9 @@ def _transform_delta(f: Formula, formula2AtomicFormula):
         return PLNot(_transform_delta(f, formula2AtomicFormula))
     # elif isinstance(f, PLBinaryOperator): #PLAnd, PLOr, PLImplies, PLEquivalence
     elif isinstance(f, (PLAnd, PLOr, PLImplies, PLEquivalence)):
-        return type(f)([_transform_delta(subf, formula2AtomicFormula) for subf in f.formulas])
+        return type(f)(
+            [_transform_delta(subf, formula2AtomicFormula) for subf in f.formulas]
+        )
     elif type(f) == PLTrue or type(f) == PLFalse:
         return f
     else:
@@ -73,7 +75,9 @@ def _is_true(Q: FrozenSet[FrozenSet]):
         return result
 
 
-def _make_transition(marco_q: FrozenSet[FrozenSet[PLAtomic]], i: PropositionalInterpretation):
+def _make_transition(
+    marco_q: FrozenSet[FrozenSet[PLAtomic]], i: PropositionalInterpretation
+):
     new_macrostate = set()
 
     for q in marco_q:
@@ -127,7 +131,9 @@ def _make_transition(marco_q: FrozenSet[FrozenSet[PLAtomic]], i: PropositionalIn
         elif len(all_models) == 1 and all_models[0] == {True: True}:
             models = {set()}
         else:
-            models = set(map(lambda x: {k for k, v in x.items() if v is True}, all_models))
+            models = set(
+                map(lambda x: {k for k, v in x.items() if v is True}, all_models)
+            )
 
         for min_model in models:
             q_prime = frozenset({id2atom[s] for s in map(str, min_model)})
