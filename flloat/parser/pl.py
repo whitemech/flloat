@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Implementation of the PL parser."""
-import inspect
-import os
+
 from pathlib import Path
 
 from lark import Lark, Transformer
 
 from flloat.helpers import ParsingError
+from flloat.parser import CUR_DIR
 from flloat.pl import (
     PLNot,
     PLAtomic,
@@ -17,8 +17,6 @@ from flloat.pl import (
     PLTrue,
     PLFalse,
 )
-
-CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class PLTransformer(Transformer):

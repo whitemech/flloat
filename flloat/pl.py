@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
 import functools
 from abc import abstractmethod, ABC
-from typing import Set, Any, Dict, Optional, Sequence, cast
+from typing import Set, Any, Dict, Optional
 
 import sympy
-from pythomata import PropositionalInterpretation as PropInt, PropositionalInterpretation
+from pythomata import (
+    PropositionalInterpretation as PropInt,
+    PropositionalInterpretation,
+)
 from sympy.logic.boolalg import Boolean, BooleanTrue, BooleanFalse
 
-from flloat.base import Formula, PropositionalTruth, AtomicFormula, BinaryOperator, UnaryOperator
+from flloat.base import (
+    Formula,
+    PropositionalTruth,
+    AtomicFormula,
+    BinaryOperator,
+    UnaryOperator,
+)
 from flloat.symbols import Symbol, Symbols
 
 
@@ -43,7 +52,7 @@ class PLFormula(Formula, PropositionalTruth):
 
 
 def to_sympy(
-    formula: PLFormula, replace: Optional[Dict[Symbol, sympy.Symbol]] = None
+    formula: Formula, replace: Optional[Dict[Symbol, sympy.Symbol]] = None
 ) -> Boolean:
     """
     Translate a PLFormula object into a SymPy expression.
@@ -63,27 +72,23 @@ def to_sympy(
         symbol = replace.get(formula.s, formula.s)
         return sympy.Symbol(symbol)
     elif isinstance(formula, PLNot):
-        return sympy.Not(to_sympy(formula.f), replace=replace)
+        return sympy.Not(to_sympy(formula.f, replace=replace))
     elif isinstance(formula, PLOr):
         return sympy.simplify(
-            sympy.Or(*map(to_sympy, formula.formulas)), replace=replace
+            sympy.Or(*[to_sympy(f, replace=replace) for f in formula.formulas])
         )
     elif isinstance(formula, PLAnd):
         return sympy.simplify(
-            sympy.And(*map(to_sympy, formula.formulas)), replace=replace
+            sympy.And(*[to_sympy(f, replace=replace) for f in formula.formulas])
         )
     elif isinstance(formula, PLImplies):
-        if len(formula.formulas) == 2:
-            return sympy.simplify(sympy.Implies(*formula.formulas), replace=replace)
-        else:
-            return sympy.simplify(
-                sympy.Implies(
-                    formula.formulas[0], to_sympy(PLImplies(formula.formulas[1:]))
-                ),
-                replace=replace,
-            )
+        return sympy.simplify(
+            sympy.Implies(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
     elif isinstance(formula, PLEquivalence):
-        return sympy.simplify(sympy.Equivalent(*formula.formulas), replace=replace)
+        return sympy.simplify(
+            sympy.Equivalent(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
     else:
         raise ValueError("Formula is not valid.")
 
@@ -105,18 +110,16 @@ class PLAtomic(AtomicFormula, PLFormula):
         return PLNot(self)
 
 
-class PLBinaryOperator(BinaryOperator, PLFormula, ABC):
+class PLBinaryOperator(BinaryOperator[PLFormula], PLFormula, ABC):
     """An operator for Propositional Logic."""
-
-    def __init__(self, formulas: Sequence[PLFormula]):
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[PLFormula], self.formulas)
 
     def to_nnf(self):
         return type(self)([f.to_nnf() for f in self.formulas])
 
-    def _find_atomics(self) -> Set["PLAtomic"]:
-        return functools.reduce(set.union, [f.find_atomics() for f in self.formulas])
+    def _find_atomics(self) -> Set[PLAtomic]:
+        return functools.reduce(
+            set.union, [f.find_atomics() for f in self.formulas] # type: ignore
+        )
 
 
 class PLTrue(PLAtomic):
@@ -160,12 +163,8 @@ class PLFalse(PLAtomic):
         return self
 
 
-class PLNot(UnaryOperator, PLFormula):
+class PLNot(UnaryOperator[PLFormula], PLFormula):
     """Propositional Not."""
-
-    def __init__(self, f: PLFormula):
-        super().__init__(f)
-        self.f = cast(PLFormula, self.f)
 
     @property
     def operator_symbol(self) -> Symbol:
@@ -208,10 +207,6 @@ class PLOr(PLBinaryOperator):
 class PLAnd(PLBinaryOperator):
     """Propositional And"""
 
-    def __init__(self, formulas: Sequence[PLFormula]):
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[PLFormula], self.formulas)
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.AND.value
@@ -240,7 +235,7 @@ class PLImplies(PLBinaryOperator):
         return self.to_nnf().negate()
 
     def to_nnf(self):
-        first, second = self.formulas[0: 2]
+        first, second = self.formulas[0:2]
         final_formula = PLOr([PLNot(first).to_nnf(), second.to_nnf()])
         for subformula in self.formulas[2:]:
             final_formula = PLOr([PLNot(final_formula).to_nnf(), subformula.to_nnf()])

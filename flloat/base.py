@@ -2,7 +2,7 @@
 
 """Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
-from typing import Sequence, Set, Tuple
+from typing import Sequence, Set, Tuple, TypeVar, Generic, cast
 
 from pythomata import PropositionalInterpretation
 
@@ -19,11 +19,7 @@ class Formula(Hashable, ABC):
     def find_labels(self) -> Set[Symbol]:
         """Return the set of symbols."""
 
-    def simplify(self) -> "Formula":
-        """Simplify the formula."""
-        return self
-
-    def to_nnf(self):
+    def to_nnf(self) -> "Formula":
         """Transform the formula in NNF."""
         return self
 
@@ -69,17 +65,21 @@ class Operator(Formula, ABC):
         """Get the symbol of the operator."""
 
 
-class UnaryOperator(Operator, ABC):
+T = TypeVar("T")
+OperatorChildren = Sequence[T]
+
+
+class UnaryOperator(Generic[T], Operator, ABC):
     """A class to represent unary operator."""
 
-    def __init__(self, f: Formula):
+    def __init__(self, f: T):
         """
         Instantiate the unary operator over a formula.
 
         :param f: the formula on which the operator is applied.
         """
         super().__init__()
-        self.f = f.simplify()
+        self.f = f
 
     def __str__(self):
         """Get the string representation."""
@@ -99,13 +99,10 @@ class UnaryOperator(Operator, ABC):
 
     def find_labels(self) -> Set[Symbol]:
         """Return the set of symbols."""
-        return self.f.find_labels()
+        return cast(Formula, self.f).find_labels()
 
 
-OperatorChildren = Sequence[Formula]
-
-
-class BinaryOperator(Operator, ABC):
+class BinaryOperator(Generic[T], Operator, ABC):
     """A generic binary formula."""
 
     def __init__(self, formulas: OperatorChildren):

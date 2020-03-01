@@ -258,10 +258,12 @@ class TestDelta:
                 PLAnd(
                     [
                         true,
-                        PLAnd([
-                            PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
-                            PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
-                        ])
+                        PLAnd(
+                            [
+                                PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
+                                PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -280,10 +282,14 @@ class TestDelta:
                 PLOr(
                     [
                         true,
-                        PLOr([
-                            PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
-                            PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
-                        ])
+                        PLOr(
+                            [
+                                PLAtomic(
+                                    LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])
+                                ),
+                                PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -302,10 +308,12 @@ class TestDelta:
                 PLAnd(
                     [
                         true,
-                        PLAnd([
-                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
-                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
-                        ])
+                        PLAnd(
+                            [
+                                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                                PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -316,10 +324,12 @@ class TestDelta:
                 PLAnd(
                     [
                         true,
-                        PLAnd([
-                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
-                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
-                        ])
+                        PLAnd(
+                            [
+                                PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                                PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -339,10 +349,12 @@ class TestDelta:
                 PLOr(
                     [
                         false,
-                        PLOr([
-                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
-                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
-                        ])
+                        PLOr(
+                            [
+                                PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                                PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -353,10 +365,12 @@ class TestDelta:
                 PLOr(
                     [
                         false,
-                        PLOr([
-                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
-                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
-                        ])
+                        PLOr(
+                            [
+                                PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                                PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
+                            ]
+                        ),
                     ]
                 ),
             ]

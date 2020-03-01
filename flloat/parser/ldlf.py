@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Implementation of the LDLf parser."""
-import inspect
-import os
 from pathlib import Path
 
 from lark import Lark, Transformer, Token, Tree
@@ -24,10 +22,9 @@ from flloat.ldlf import (
     RegExpPropositional,
     LDLfEnd,
     LDLfLast,
-    LDLfPropositionalAtom)
+    LDLfPropositionalAtom,
+)
 from flloat.parser.pl import PLTransformer
-
-CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class LDLfTransformer(Transformer):

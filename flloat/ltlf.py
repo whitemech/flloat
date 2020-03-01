@@ -10,17 +10,22 @@ References:
 
 """
 from abc import abstractmethod, ABC
-from typing import Set, Sequence, cast
+from typing import Set
 
 from pythomata import PropositionalInterpretation
 
-from flloat.base import FiniteTraceTruth, Formula, AtomicFormula, FiniteTrace, UnaryOperator, BinaryOperator
+from flloat.base import (
+    FiniteTraceTruth,
+    Formula,
+    AtomicFormula,
+    FiniteTrace,
+    UnaryOperator,
+    BinaryOperator,
+)
 from flloat.delta import Delta
-from flloat.symbols import Symbol, Symbols
-
 from flloat.flloat import to_automaton
-
 from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd, PLFormula
+from flloat.symbols import Symbol, Symbols
 
 
 class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
@@ -47,6 +52,13 @@ class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
         :return: an LDLf formula.
         """
 
+    def to_nnf(self) -> "LTLfFormula":
+        """Convert an LTLf formula in NNF."""
+
+    @abstractmethod
+    def negate(self) -> "LTLfFormula":
+        """Negate the formula. Used by 'to_nnf'."""
+
     def __repr__(self):
         return self.__str__()
 
@@ -54,23 +66,15 @@ class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
         return to_automaton(self)
 
 
-class LTLfUnaryOperator(UnaryOperator, LTLfFormula, ABC):
-
-    def __init__(self, f: LTLfFormula):
-        super().__init__(f)
-        self.f = cast(LTLfFormula, self.f)
+class LTLfUnaryOperator(UnaryOperator[LTLfFormula], LTLfFormula, ABC):
+    """A unary operator for LTLf."""
 
 
-class LTLfBinaryOperator(BinaryOperator, LTLfFormula, ABC):
+class LTLfBinaryOperator(BinaryOperator[LTLfFormula], LTLfFormula, ABC):
     """A binary operator for LTLf."""
-
-    def __init__(self, formulas: Sequence[LTLfFormula]):
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[LTLfFormula], self.formulas)
 
 
 class LTLfAtomic(AtomicFormula, LTLfFormula):
-
     def negate(self):
         return LTLfNot(self)
 
@@ -133,14 +137,11 @@ class LTLfFalse(LTLfAtomic):
 
 class LTLfNot(LTLfUnaryOperator):
 
-    def __init__(self, f: LTLfFormula):
-        super().__init__(f)
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.NOT.value
 
-    def to_nnf(self):
+    def to_nnf(self) -> LTLfFormula:
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
         else:
@@ -173,7 +174,6 @@ class LTLfNot(LTLfUnaryOperator):
 
 
 class LTLfAnd(LTLfBinaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.AND.value
@@ -195,7 +195,6 @@ class LTLfAnd(LTLfBinaryOperator):
 
 
 class LTLfOr(LTLfBinaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.OR.value
@@ -230,15 +229,16 @@ class LTLfImplies(LTLfBinaryOperator):
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
     def to_nnf(self) -> LTLfFormula:
-        first, second = self.formulas[0: 2]
+        first, second = self.formulas[0:2]
         final_formula = LTLfOr([LTLfNot(first).to_nnf(), second.to_nnf()])
         for subformula in self.formulas[2:]:
-            final_formula = LTLfOr([LTLfNot(final_formula).to_nnf(), subformula.to_nnf()])
+            final_formula = LTLfOr(
+                [LTLfNot(final_formula).to_nnf(), subformula.to_nnf()]
+            )
         return final_formula
 
 
 class LTLfEquivalence(LTLfBinaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.EQUIVALENCE.value
@@ -261,7 +261,6 @@ class LTLfEquivalence(LTLfBinaryOperator):
 
 
 class LTLfNext(LTLfUnaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.NEXT.value
@@ -289,7 +288,6 @@ class LTLfNext(LTLfUnaryOperator):
 
 
 class LTLfWeakNext(LTLfUnaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.WEAK_NEXT.value
@@ -314,7 +312,6 @@ class LTLfWeakNext(LTLfUnaryOperator):
 
 
 class LTLfUntil(LTLfBinaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.UNTIL.value
@@ -364,7 +361,6 @@ class LTLfUntil(LTLfBinaryOperator):
 
 
 class LTLfRelease(LTLfBinaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.RELEASE.value
@@ -405,7 +401,6 @@ class LTLfRelease(LTLfBinaryOperator):
 
 
 class LTLfEventually(LTLfUnaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.EVENTUALLY.value
@@ -430,7 +425,6 @@ class LTLfEventually(LTLfUnaryOperator):
 
 
 class LTLfAlways(LTLfUnaryOperator):
-
     @property
     def operator_symbol(self) -> Symbol:
         return Symbols.EVENTUALLY.value
@@ -449,7 +443,6 @@ class LTLfAlways(LTLfUnaryOperator):
 
 
 class LTLfEnd(LTLfFormula):
-
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
@@ -460,7 +453,7 @@ class LTLfEnd(LTLfFormula):
         return self.to_nnf().truth(i, pos)
 
     def _members(self):
-        return Symbols.END.value,
+        return (Symbols.END.value,)
 
     def to_nnf(self) -> LTLfFormula:
         return LTLfAlways(LTLfFalse()).to_nnf()
