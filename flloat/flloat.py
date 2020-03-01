@@ -2,7 +2,7 @@
 
 """Main module of the pakage."""
 
-from typing import Set, FrozenSet, Dict, cast
+from typing import Set, FrozenSet, Dict, cast, List
 
 import sympy
 from pythomata import SymbolicAutomaton, PropositionalInterpretation
@@ -127,11 +127,11 @@ def _make_transition(
         formula = to_sympy(conjunctions, replace=atom2id)  # type: ignore
         all_models = list(sympy.satisfiable(formula, all_models=True))
         if len(all_models) == 1 and all_models[0] == BooleanFalse():
-            models = set()  # type: Set[Set[str]]
+            models = []  # type: List[Set[str]]
         elif len(all_models) == 1 and all_models[0] == {True: True}:
-            models = {set()}
+            models = [set()]
         else:
-            models = set(
+            models = list(
                 map(lambda x: {k for k, v in x.items() if v is True}, all_models)
             )
 
@@ -157,7 +157,7 @@ def to_automaton(f) -> SymbolicDFA:  # noqa: C901
     initial_state = frozenset({frozenset({PLAtomic(f)})})
     states = {initial_state}
     final_states = set()
-    transition_function = {}
+    transition_function = {}  # type: Dict
 
     all_labels = f.find_labels()
     alphabet = powerset(all_labels)
@@ -165,7 +165,7 @@ def to_automaton(f) -> SymbolicDFA:  # noqa: C901
     if f.delta({}, epsilon=True) == PLTrue():
         final_states.add(initial_state)
 
-    visited = set()
+    visited = set()  # type: Set
     to_be_visited = {initial_state}
 
     while len(to_be_visited) != 0:

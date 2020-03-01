@@ -24,6 +24,7 @@ from flloat.ldlf import (
     LDLfLast,
     LDLfPropositionalAtom,
 )
+from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
 
 

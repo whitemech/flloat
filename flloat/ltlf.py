@@ -57,6 +57,7 @@ class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
 
     def to_nnf(self) -> "LTLfFormula":
         """Convert an LTLf formula in NNF."""
+        return self
 
     @abstractmethod
     def negate(self) -> "LTLfFormula":
@@ -83,7 +84,6 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
     """Class for LTLf atomic formulas."""
 
     def negate(self):
-        """Negate the formula."""
         """Negate the formula."""
         return LTLfNot(self)
 
