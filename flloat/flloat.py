@@ -3,6 +3,7 @@ from typing import Set, FrozenSet, Dict, cast
 
 import sympy
 from pythomata import SymbolicAutomaton, PropositionalInterpretation
+from pythomata.impl.symbolic import SymbolicDFA
 from sympy.logic.boolalg import BooleanFalse
 
 from flloat.base import Formula
@@ -138,7 +139,7 @@ def get_labels_from_macrostate(macrostate):
     return labels
 
 
-def to_automaton(f):
+def to_automaton(f) -> SymbolicDFA:
     f = f.to_nnf()
     initial_state = frozenset({frozenset({PLAtomic(f)})})
     states = {initial_state}
