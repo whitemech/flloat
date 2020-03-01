@@ -5,8 +5,8 @@ import sympy
 from pythomata import SymbolicAutomaton, PropositionalInterpretation
 from sympy.logic.boolalg import BooleanFalse
 
-from flloat.base.formulas import Formula
-from flloat.base.symbols import Symbol
+from flloat.base import Formula
+from flloat.symbols import Symbol
 from flloat.helpers import powerset
 from flloat.pl import (
     PLFormula,

@@ -9,7 +9,6 @@ ldlf_formulas = [
     "tt & ff",
     "ff & ff",
     "tt | ff",
-    "tt | ff",
     "<true>tt",
     "<true>ff",
     "[true]tt",

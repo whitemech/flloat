@@ -10,80 +10,37 @@ References:
 
 """
 from abc import abstractmethod, ABC
-from typing import Set
+from typing import Set, Sequence, cast
 
 from pythomata import PropositionalInterpretation
 
-from flloat.base.convertible import ConvertibleFormula, BaseConvertibleFormula
-from flloat.base.delta import (
-    Delta,
-    DeltaConvertibleFormula,
-    EquivalenceDeltaConvertible,
-    ImpliesDeltaConvertible,
-)
-from flloat.base.formulas import (
-    Formula,
-    CommutativeBinaryOperator,
-    AtomicFormula,
-    UnaryOperator,
-)
-from flloat.base.nnf import (
-    NNF,
-    NotNNF,
-    DualBinaryOperatorNNF,
-    DualUnaryOperatorNNF,
-    AtomicNNF,
-)
-from flloat.base.symbols import Symbol, Symbols
-from flloat.base.truths import (
-    Truth,
-    NotTruth,
-    OrTruth,
-    AndTruth,
-    FiniteTrace,
-    FiniteTraceTruth,
-)
+from flloat.base import FiniteTraceTruth, Formula, AtomicFormula, FiniteTrace, UnaryOperator, BinaryOperator
+from flloat.delta import Delta
+from flloat.symbols import Symbol, Symbols
+
 from flloat.flloat import to_automaton
-from flloat.ldlf import (
-    LDLfNot,
-    LDLfAnd,
-    LDLfOr,
-    LDLfDiamond,
-    RegExpPropositional,
-    RegExpStar,
-    RegExpSequence,
-    RegExpTest,
-    LDLfPropositional,
-    LDLfEnd,
-)
+
 from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd, PLFormula
 
 
-class LTLfTruth(Truth):
-    """Interface for"""
+class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
 
-    @abstractmethod
-    def truth(self, i: FiniteTrace, pos: int = 0):
-        raise NotImplementedError
-
-
-class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
     def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
         f = self.to_nnf()
-        d = f._delta(i, epsilon)
+        d = f._delta(i, epsilon=epsilon)
         if epsilon:
             # By definition, if epsilon=True, then the result must be either PLTrue or PLFalse
             # Now, the output is a Propositional Formula with only PLTrue or PLFalse as atomics
             # Hence, we just evaluate the formula with a dummy PropositionalInterpretation
-            d = PLTrue() if d.truth(None) else PLFalse()
+            d = PLTrue() if d.truth({}) else PLFalse()
         return d
 
     @abstractmethod
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         """apply delta function, assuming that 'self' is a LTLf formula in Negative Normal Form"""
 
-    @abstractmethod
-    def to_LDLf(self):
+    # @abstractmethod
+    def to_ldlf(self):
         """
         Tranform the formula into an equivalent LDLf formula.
 
@@ -97,29 +54,25 @@ class LTLfFormula(Formula, LTLfTruth, NNF, Delta):
         return to_automaton(self)
 
 
-class LTLfCommBinaryOperator(CommutativeBinaryOperator, LTLfFormula, ABC):
-    pass
+class LTLfUnaryOperator(UnaryOperator, LTLfFormula, ABC):
+
+    def __init__(self, f: LTLfFormula):
+        super().__init__(f)
+        self.f = cast(LTLfFormula, self.f)
 
 
-class LTLfTemporalFormula(LTLfFormula, FiniteTraceTruth, ABC):
-    pass
+class LTLfBinaryOperator(BinaryOperator, LTLfFormula, ABC):
+    """A binary operator for LTLf."""
+
+    def __init__(self, formulas: Sequence[LTLfFormula]):
+        super().__init__(formulas)
+        self.formulas = cast(Sequence[LTLfFormula], self.formulas)
 
 
-class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
-    def __init__(self, s: Symbol):
-        AtomicFormula.__init__(self, s)
-
-    def __str__(self):
-        return AtomicFormula.__str__(self)
-
-    def _members(self):
-        return LTLfAtomic, self.s
-
-    def _to_nnf(self):
-        return self
+class LTLfAtomic(AtomicFormula, LTLfFormula):
 
     def negate(self):
-        return LTLfNot(LTLfAtomic(self.s))
+        return LTLfNot(self)
 
     def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         if epsilon:
@@ -135,16 +88,13 @@ class LTLfAtomic(AtomicFormula, AtomicNNF, LTLfFormula):
     def find_labels(self) -> Set[Symbol]:
         return PLAtomic(self.s).find_labels()
 
-    def to_LDLf(self):
-        return LDLfPropositional(PLAtomic(self.s)).convert()
+    # def to_ldlf(self):
+    #     return LDLfPropositional(PLAtomic(self.s)).convert()
 
 
 class LTLfTrue(LTLfAtomic):
     def __init__(self):
         super().__init__(Symbols.TRUE.value)
-
-    def negate(self):
-        return LTLfFalse()
 
     def _delta(self, i: PropositionalInterpretation, epsilon: bool = False):
         if epsilon:
@@ -154,6 +104,9 @@ class LTLfTrue(LTLfAtomic):
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         return len(i) > 0
+
+    def negate(self):
+        return LTLfFalse()
 
     def find_labels(self) -> Set[Symbol]:
         """Return the set of symbols."""
@@ -178,7 +131,24 @@ class LTLfFalse(LTLfAtomic):
         return set()
 
 
-class LTLfNot(NotTruth, LTLfFormula, NotNNF):
+class LTLfNot(LTLfUnaryOperator):
+
+    def __init__(self, f: LTLfFormula):
+        super().__init__(f)
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.NOT.value
+
+    def to_nnf(self):
+        if not isinstance(self.f, AtomicFormula):
+            return self.f.negate().to_nnf()
+        else:
+            return self
+
+    def negate(self) -> LTLfFormula:
+        return self.f
+
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if isinstance(self.f, LTLfAtomic) or isinstance(self.f, LTLfEnd):
             if epsilon:
@@ -189,9 +159,6 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
             # the formula must be in NNF form!!!
             raise Exception
 
-    def to_LDLf(self):
-        return LDLfNot(self.f.to_LDLf())
-
     def truth(self, i: FiniteTrace, pos: int = 0):
         if len(i) == 0:
             if isinstance(self.f, LTLfAtomic):
@@ -199,52 +166,111 @@ class LTLfNot(NotTruth, LTLfFormula, NotNNF):
             else:
                 return self.to_nnf().truth(i, pos)
         else:
-            return NotTruth.truth(self, i, pos)
+            return not self.f.truth(i, pos)
+
+    # def to_ldlf(self):
+    #     return LDLfNot(self.f.to_ldlf())
 
 
-class LTLfAnd(LTLfCommBinaryOperator, AndTruth, DualBinaryOperatorNNF):
+class LTLfAnd(LTLfBinaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.AND.value
+
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         return PLAnd([f._delta(i, epsilon) for f in self.formulas])
 
-    def to_LDLf(self):
-        return LDLfAnd([f.to_LDLf() for f in self.formulas])
+    def truth(self, i: FiniteTrace, pos: int):
+        return all(f.truth(i, pos) for f in self.formulas)
+
+    def to_nnf(self):
+        return LTLfAnd([f.to_nnf() for f in self.formulas])
+
+    def negate(self) -> LTLfFormula:
+        return LTLfOr([f.negate() for f in self.formulas])
+
+    # def to_ldlf(self):
+    #     return LDLfAnd([f.to_ldlf() for f in self.formulas])
 
 
-class LTLfOr(LTLfCommBinaryOperator, OrTruth, DualBinaryOperatorNNF):
+class LTLfOr(LTLfBinaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.OR.value
+
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         return PLOr([f._delta(i, epsilon) for f in self.formulas])
 
-    def to_LDLf(self):
-        return LDLfOr([f.to_LDLf() for f in self.formulas])
+    def truth(self, i: FiniteTrace, pos: int):
+        return any(f.truth(i, pos) for f in self.formulas)
+
+    def to_nnf(self):
+        return LTLfOr([f.to_nnf() for f in self.formulas])
+
+    def negate(self) -> LTLfFormula:
+        return LTLfAnd([f.negate() for f in self.formulas])
 
 
-class LTLfImplies(ImpliesDeltaConvertible, LTLfFormula):
-    And = LTLfAnd
-    Or = LTLfOr
-    Not = LTLfNot
+class LTLfImplies(LTLfBinaryOperator):
+    """LTLf Implication"""
 
-    def to_LDLf(self):
-        return self.convert().to_LDLf()
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.IMPLIES.value
 
     def truth(self, i: FiniteTrace, pos: int):
-        return self.convert().truth(i, pos)
+        return self.to_nnf().truth(i, pos)
+
+    def negate(self) -> LTLfFormula:
+        return self.to_nnf().negate()
+
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        return self.to_nnf()._delta(i, epsilon=epsilon)
+
+    def to_nnf(self) -> LTLfFormula:
+        first, second = self.formulas[0: 2]
+        final_formula = LTLfOr([LTLfNot(first).to_nnf(), second.to_nnf()])
+        for subformula in self.formulas[2:]:
+            final_formula = LTLfOr([LTLfNot(final_formula).to_nnf(), subformula.to_nnf()])
+        return final_formula
 
 
-class LTLfEquivalence(EquivalenceDeltaConvertible, LTLfCommBinaryOperator):
-    And = LTLfAnd
-    Or = LTLfOr
-    Not = LTLfNot
+class LTLfEquivalence(LTLfBinaryOperator):
 
-    def to_LDLf(self):
-        return self.convert().to_LDLf()
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.EQUIVALENCE.value
 
     def truth(self, i: FiniteTrace, pos: int):
-        return self.convert().truth(i, pos)
+        return self.to_nnf().truth(i, pos)
+
+    def to_nnf(self) -> LTLfFormula:
+        fs = self.formulas
+        pos = LTLfAnd(fs)
+        neg = LTLfAnd([LTLfNot(f) for f in fs])
+        res = LTLfOr([pos, neg]).to_nnf()
+        return res
+
+    def negate(self) -> LTLfFormula:
+        return self.to_nnf().negate()
+
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        return self.to_nnf()._delta(i, epsilon=epsilon)
 
 
-class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
-    operator_symbol = "X"
-    Not = LTLfNot
+class LTLfNext(LTLfUnaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.NEXT.value
+
+    def to_nnf(self) -> LTLfFormula:
+        return LTLfNext(self.f.to_nnf())
+
+    def negate(self) -> LTLfFormula:
+        return LTLfWeakNext(self.f.negate())
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         return pos < len(i) - 1 and self.f.truth(i, pos + 1)
@@ -255,19 +281,24 @@ class LTLfNext(DualUnaryOperatorNNF, LTLfTemporalFormula):
         else:
             return PLAnd([PLAtomic(self.f), PLAtomic(LTLfNot(LTLfEnd()).to_nnf())])
 
-    def to_LDLf(self):
-        return LDLfDiamond(
-            RegExpPropositional(PLTrue()),
-            LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]),
-        )
+    # def to_ldlf(self):
+    #     return LDLfDiamond(
+    #         RegExpPropositional(PLTrue()),
+    #         LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
+    #     )
 
 
-class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula):
-    operator_symbol = Symbols.WEAK_NEXT.value
-    Not = LTLfNot
+class LTLfWeakNext(LTLfUnaryOperator):
 
-    def convert(self):
-        return LTLfNot(LTLfNext(LTLfNot(self.f)))
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.WEAK_NEXT.value
+
+    def to_nnf(self) -> LTLfFormula:
+        return LTLfWeakNext(self.f.to_nnf())
+
+    def negate(self) -> LTLfFormula:
+        return LTLfNext(self.f.negate())
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         return not (pos < len(i) - 1) or self.f.truth(i, pos + 1)
@@ -278,18 +309,21 @@ class LTLfWeakNext(DualUnaryOperatorNNF, ConvertibleFormula, LTLfTemporalFormula
         else:
             return PLOr([PLAtomic(self.f), PLAtomic(LTLfEnd().to_nnf())])
 
-    def to_LDLf(self):
-        return self.convert().to_LDLf()
+    # def to_ldlf(self):
+    #     return self.convert().to_ldlf()
 
 
-class LTLfUntil(DualBinaryOperatorNNF, LTLfTemporalFormula):
-    operator_symbol = "U"
+class LTLfUntil(LTLfBinaryOperator):
 
-    def _to_nnf(self):
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.UNTIL.value
+
+    def to_nnf(self):
         return LTLfUntil([f.to_nnf() for f in self.formulas])
 
     def negate(self):
-        return LTLfRelease([LTLfNot(f) for f in self.formulas])
+        return LTLfRelease([f.negate() for f in self.formulas])
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         f1 = self.formulas[0]
@@ -316,50 +350,42 @@ class LTLfUntil(DualBinaryOperatorNNF, LTLfTemporalFormula):
             ]
         )
 
-    def to_LDLf(self):
-        f1 = self.formulas[0].to_LDLf()
+    # def to_ldlf(self):
+    #     f1 = self.formulas[0].to_ldlf()
+    #     f2 = (
+    #         LTLfUntil(self.formulas[1:]).to_ldlf()
+    #         if len(self.formulas) > 2
+    #         else self.formulas[1].to_ldlf()
+    #     )
+    #     return LDLfDiamond(
+    #         RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
+    #         LDLfAnd([f2, LDLfNot(LDLfEnd())]),
+    #     )
+
+
+class LTLfRelease(LTLfBinaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.RELEASE.value
+
+    def to_nnf(self):
+        return LTLfRelease([f.to_nnf() for f in self.formulas])
+
+    def negate(self):
+        return LTLfUntil([f.negate() for f in self.formulas])
+
+    def truth(self, i: FiniteTrace, pos: int = 0):
+        f1 = self.formulas[0]
         f2 = (
-            LTLfUntil(self.formulas[1:]).to_LDLf()
+            LTLfRelease(self.formulas[1:])
             if len(self.formulas) > 2
-            else self.formulas[1].to_LDLf()
+            else self.formulas[1]
         )
-        return LDLfDiamond(
-            RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
-            LDLfAnd([f2, LDLfNot(LDLfEnd())]),
+        return all(
+            f2.truth(i, j) or any(f1.truth(i, k) for k in range(pos, j))
+            for j in range(pos, len(i))
         )
-
-
-class LTLfEventually(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
-    operator_symbol = "F"
-    Not = LTLfNot
-
-    def convert(self):
-        return LTLfUntil([LTLfTrue(), self.f])
-
-    def to_LDLf(self):
-        return LDLfDiamond(
-            RegExpStar(RegExpPropositional(PLTrue())),
-            LDLfAnd([self.f.to_LDLf(), LDLfNot(LDLfEnd())]),
-        )
-
-
-class LTLfAlways(UnaryOperator, DeltaConvertibleFormula, LTLfTemporalFormula):
-    operator_symbol = "G"
-    Not = LTLfNot
-
-    def convert(self):
-        return LTLfNot(LTLfEventually(LTLfNot(self.f)).convert())
-
-    def to_LDLf(self):
-        return self.convert().to_LDLf()
-
-
-class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFormula):
-    operator_symbol = "R"
-    Dual = LTLfUntil
-
-    def convert(self) -> LTLfFormula:
-        return LTLfNot(LTLfUntil([LTLfNot(f) for f in self.formulas]))
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         if epsilon:
@@ -377,46 +403,70 @@ class LTLfRelease(DualBinaryOperatorNNF, BaseConvertibleFormula, LTLfTemporalFor
             ]
         )
 
-    def truth(self, i: FiniteTrace, pos: int = 0):
-        f1 = self.formulas[0]
-        f2 = (
-            LTLfRelease(self.formulas[1:])
-            if len(self.formulas) > 2
-            else self.formulas[1]
-        )
-        return all(
-            f2.truth(i, j) or any(f1.truth(i, k) for k in range(pos, j))
-            for j in range(pos, len(i))
-        )
 
-    def to_LDLf(self):
-        return self.convert().to_LDLf()
+class LTLfEventually(LTLfUnaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.EVENTUALLY.value
+
+    def to_nnf(self) -> LTLfFormula:
+        return LTLfUntil([LTLfTrue(), self.f])
+
+    def negate(self) -> LTLfFormula:
+        return self.to_nnf().negate()
+
+    def truth(self, i: FiniteTrace, pos: int):
+        return self.to_nnf().truth(i, pos)
+
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        return self.to_nnf()._delta(i, epsilon=epsilon)
+
+    # def to_ldlf(self):
+    #     return LDLfDiamond(
+    #         RegExpStar(RegExpPropositional(PLTrue())),
+    #         LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
+    #     )
 
 
-class LTLfEnd(DeltaConvertibleFormula, BaseConvertibleFormula, LTLfAtomic):
-    def __init__(self):
-        LTLfAtomic.__init__(self, Symbols.END.value)
+class LTLfAlways(LTLfUnaryOperator):
+
+    @property
+    def operator_symbol(self) -> Symbol:
+        return Symbols.EVENTUALLY.value
+
+    def to_nnf(self) -> LTLfFormula:
+        return LTLfRelease([LTLfFalse(), self.f.to_nnf()])
+
+    def negate(self) -> LTLfFormula:
+        return self.to_nnf().negate()
+
+    def truth(self, i: FiniteTrace, pos: int):
+        return self.to_nnf().truth(i, pos)
+
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        return self.to_nnf()._delta(i, epsilon=epsilon)
+
+
+class LTLfEnd(LTLfFormula):
+
+    def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        return self.to_nnf()._delta(i, epsilon=epsilon)
+
+    def find_labels(self) -> Set[Symbol]:
+        return self.to_nnf().find_labels()
+
+    def truth(self, i: FiniteTrace, pos: int):
+        return self.to_nnf().truth(i, pos)
 
     def _members(self):
-        return (self.s,)
+        return Symbols.END.value,
 
-    def convert(self):
+    def to_nnf(self) -> LTLfFormula:
         return LTLfAlways(LTLfFalse()).to_nnf()
 
-    def negate(self):
-        return LTLfEventually(LTLfTrue()).to_nnf()
+    def negate(self) -> LTLfFormula:
+        return self.to_nnf().negate()
 
     def __str__(self):
         return "_".join(map(str, self._members()))
-
-
-LTLfAtomic.Not = LTLfNot  # type: ignore
-
-LTLfAnd.Dual = LTLfOr  # type: ignore
-LTLfOr.Dual = LTLfAnd  # type: ignore
-
-LTLfNext.Dual = LTLfWeakNext  # type: ignore
-LTLfWeakNext.Dual = LTLfNext  # type: ignore
-
-LTLfEventually.Dual = LTLfAlways  # type: ignore
-LTLfAlways.Dual = LTLfEventually  # type: ignore

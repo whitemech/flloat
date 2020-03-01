@@ -2,10 +2,14 @@
 
 """Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
-from typing import Sequence, Set, Tuple, cast
+from typing import Sequence, Set, Tuple
 
-from flloat.base.symbols import Symbol, Symbols
+from pythomata import PropositionalInterpretation
+
+from flloat.symbols import Symbol, Symbols
 from flloat.helpers import Hashable
+
+FiniteTrace = Sequence[PropositionalInterpretation]
 
 
 class Formula(Hashable, ABC):
@@ -19,8 +23,16 @@ class Formula(Hashable, ABC):
         """Simplify the formula."""
         return self
 
+    def to_nnf(self):
+        """Transform the formula in NNF."""
+        return self
 
-class AtomicFormula(Formula):
+    @abstractmethod
+    def negate(self) -> "Formula":
+        """Negate the formula. Used by 'to_nnf'."""
+
+
+class AtomicFormula(Formula, ABC):
     """An abstract atomic formula."""
 
     def __init__(self, s: Symbol):
@@ -91,7 +103,6 @@ class UnaryOperator(Operator, ABC):
 
 
 OperatorChildren = Sequence[Formula]
-CommOperatorChildren = Set[Formula]
 
 
 class BinaryOperator(Operator, ABC):
@@ -105,8 +116,7 @@ class BinaryOperator(Operator, ABC):
         """
         super().__init__()
         assert len(formulas) >= 2
-        self.formulas = tuple(formulas)
-        self.formulas = self._popup()
+        self.formulas = tuple(formulas)  # type: OperatorChildren
 
     def __str__(self):
         """Return the string representation."""
@@ -119,79 +129,48 @@ class BinaryOperator(Operator, ABC):
     def _members(self) -> Tuple[Symbol, OperatorChildren]:
         return self.operator_symbol, self.formulas
 
-    def _popup(self) -> OperatorChildren:
-        """
-        Refactor the binary formula.
-
-        That is, find recursively commutative binary operator
-        among child formulas and pop up them at the same level.
-        """
-        res = []
-        for child in self.formulas:
-            if type(child) == type(self):
-                superchilds = cast(BinaryOperator, child).formulas
-                res.extend(superchilds)
-            else:
-                res.append(child)
-        return tuple(res)
-
     def find_labels(self) -> Set[Symbol]:
         """Return the set of symbols."""
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
 
-class CommutativeBinaryOperator(BinaryOperator, ABC):
-    """A generic commutative binary formula."""
+class PropositionalTruth:
+    """Interface for propositional formulas."""
 
-    def __init__(self, formulas: OperatorChildren, idempotence: bool = True):
+    @abstractmethod
+    def truth(self, i: PropositionalInterpretation) -> bool:
         """
-        Instantiate a commutative binary operator.
+        Return the truth evaluation of the formula wrt the propositional interpretation.
 
-        :param formulas: a sequence of sub-formulas concatenated with the binary operator.
-        :param idempotence: whether the binary operator satisfies
-                          | the idempotence property (e.g. A & A === A)
+        :param i: the propositional interpretation.
+        :return: True if the formula is satisfied by the interpretation, False otherwise.
         """
-        super().__init__(formulas)
-        self.idempotence = idempotence
-        if idempotence:
-            # order does not matter -> set operation
-            # remove duplicates -> set operation
-            self.formulas_set = frozenset(self.formulas)
-            # unique representation -> sorting
-            self.members = tuple(sorted(self.formulas_set, key=lambda x: hash(x)))
 
-    def simplify(self) -> Formula:
+
+class FiniteTraceTruth:
+    """Interface for formulas that support the trace semantics."""
+
+    @abstractmethod
+    def truth(self, i: FiniteTrace, pos: int) -> bool:
         """
-        Simplify the formula.
+        Return the truth evaluation of the formula wrt the trace.
 
-        :return: the simplified formula.
+        :param i: the trace.
+        :param pos: the position from where to start the evaluation
+        :return: True if the formula is satisfied by the trace, False otherwise.
         """
-        if self.idempotence:
-            if len(self.formulas_set) == 1:
-                return next(iter(self.formulas_set)).simplify()
-            else:
-                return type(self)(self.members)
-        else:
-            return self
 
-    def _members(self):
-        if self.idempotence:
-            return self.operator_symbol, self.members
-            # return (self.operator_symbol, self.formulas_set)
-        else:
-            return super()._members()
 
-    def find_labels(self):
-        """Return the set of symbols."""
-        return set.union(*map(lambda f: f.find_labels(), self.formulas))
+class RegExpTruth:
+    """Interface for regular expression semantics."""
 
-    def __str__(self):
-        """Return the string representation."""
-        if self.idempotence:
-            return (
-                "("
-                + (" " + str(self.operator_symbol) + " ").join(map(str, self.members))
-                + ")"
-            )
-        else:
-            return super().__str__()
+    @abstractmethod
+    def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0) -> bool:
+        """
+        Return the truth evaluation of the regex wrt the trace.
+
+        :param tr: the trace.
+        :param start: the start index.
+        :param end: the end index.
+        :return: True if the regex is satisfied by the trace, False otherwise.
+        """

@@ -125,7 +125,7 @@ def test_nnf():
 
     dup = parser("!(A | A)")
     nnf_dup = dup.to_nnf()
-    assert nnf_dup == PLNot(a)
+    assert nnf_dup == PLAnd([PLNot(a), PLNot(a)])
 
     material_implication = parser("!A | B <-> !(A & !B) <-> A->B")
     nnf_material_implication = parser(

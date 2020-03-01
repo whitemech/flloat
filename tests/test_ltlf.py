@@ -139,8 +139,8 @@ def test_nnf():
     f = parser("!(!A | B)")
     assert f.to_nnf() == LTLfAnd([a, LTLfNot(b)])
 
-    f = parser("!( (A->B) <-> (!A | B))")
-    assert f.to_nnf() == LTLfAnd([LTLfAnd([a, LTLfNot(b)]), LTLfOr([LTLfNot(a), b])])
+    f = parser("!(A <-> B)")
+    assert f.to_nnf() == LTLfAnd([LTLfOr([LTLfNot(a), LTLfNot(b)]), LTLfOr([a, b])])
 
     # Next and Weak Next
     f = parser("!(X (A & B))")
@@ -153,16 +153,16 @@ def test_nnf():
     f = parser("!(F (A | B))")
     assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
 
-    f = parser("!(F (A | B))")
-    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
-    f = parser("!(G (A | B))")
-    assert f.to_nnf() == LTLfEventually(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
-
     # Until and Release
     f = parser("!(A U B)")
     assert f.to_nnf() == LTLfRelease([LTLfNot(a), LTLfNot(b)])
     f = parser("!(A R B)")
     assert f.to_nnf() == LTLfUntil([LTLfNot(a), LTLfNot(b)])
+
+    f = parser("!(F (A | B))")
+    assert f.to_nnf() == LTLfAlways(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
+    f = parser("!(G (A | B))")
+    assert f.to_nnf() == LTLfEventually(LTLfAnd([LTLfNot(a), LTLfNot(b)])).to_nnf()
 
 
 class TestDelta:
@@ -258,8 +258,10 @@ class TestDelta:
                 PLAnd(
                     [
                         true,
-                        PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
-                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                        PLAnd([
+                            PLAtomic(LTLfUntil([LTLfAtomic("A"), LTLfAtomic("B")])),
+                            PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
+                        ])
                     ]
                 ),
             ]
@@ -278,8 +280,10 @@ class TestDelta:
                 PLOr(
                     [
                         true,
-                        PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
-                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                        PLOr([
+                            PLAtomic(LTLfRelease([LTLfAtomic("A"), LTLfAtomic("B")])),
+                            PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
+                        ])
                     ]
                 ),
             ]
@@ -297,9 +301,11 @@ class TestDelta:
                 true,
                 PLAnd(
                     [
-                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
                         true,
-                        PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                        PLAnd([
+                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
+                        ])
                     ]
                 ),
             ]
@@ -309,9 +315,11 @@ class TestDelta:
                 false,
                 PLAnd(
                     [
-                        PLAtomic(LTLfEventually(LTLfTrue()).to_nnf()),
                         true,
-                        PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                        PLAnd([
+                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfAtomic("A")])),
+                            PLAtomic(LTLfUntil([LTLfTrue(), LTLfTrue()])),
+                        ])
                     ]
                 ),
             ]
@@ -331,8 +339,10 @@ class TestDelta:
                 PLOr(
                     [
                         false,
-                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
-                        PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                        PLOr([
+                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
+                        ])
                     ]
                 ),
             ]
@@ -343,8 +353,10 @@ class TestDelta:
                 PLOr(
                     [
                         false,
-                        PLAtomic(LTLfAlways(LTLfFalse()).to_nnf()),
-                        PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                        PLOr([
+                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfAtomic("A")])),
+                            PLAtomic(LTLfRelease([LTLfFalse(), LTLfFalse()])),
+                        ])
                     ]
                 ),
             ]

@@ -24,8 +24,7 @@ from flloat.ldlf import (
     RegExpPropositional,
     LDLfEnd,
     LDLfLast,
-    LDLfAtomic,
-)
+    LDLfPropositionalAtom)
 from flloat.parser.pl import PLTransformer
 
 CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -137,7 +136,7 @@ class LDLfTransformer(Transformer):
         tree = args[0]
         pl_transformer = PLTransformer()
         symbol = pl_transformer.transform(tree)
-        return LDLfAtomic(symbol)
+        return LDLfPropositionalAtom(symbol)
 
     def regular_expression(self, args):
         assert len(args) == 1
