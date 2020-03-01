@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+"""This module provides support for Propositional Logic."""
+
 import functools
 from abc import abstractmethod, ABC
 from typing import Set, Any, Dict, Optional
@@ -24,10 +27,12 @@ class PLFormula(Formula, PropositionalTruth):
     """A class to represent propositional formulas."""
 
     def __init__(self):
+        """Initialize a PL formula."""
         Formula.__init__(self)
         self._atoms = None  # type: Optional[Set[PLAtomic]]
 
     def __repr__(self):
+        """Return a representation of the formula."""
         return str(self)
 
     def find_atomics(self) -> Set["PLAtomic"]:
@@ -97,6 +102,7 @@ class PLAtomic(AtomicFormula, PLFormula):
     """A class to represent propositional atomic formulas."""
 
     def truth(self, i: PropInt, *args) -> bool:
+        """Evaluate the formula."""
         return i.get(self.s, False)
 
     def find_labels(self) -> Set[Any]:
@@ -107,6 +113,7 @@ class PLAtomic(AtomicFormula, PLFormula):
         return {self}
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return PLNot(self)
 
 
@@ -114,11 +121,12 @@ class PLBinaryOperator(BinaryOperator[PLFormula], PLFormula, ABC):
     """An operator for Propositional Logic."""
 
     def to_nnf(self):
+        """Transform in NNF."""
         return type(self)([f.to_nnf() for f in self.formulas])
 
     def _find_atomics(self) -> Set[PLAtomic]:
         return functools.reduce(
-            set.union, [f.find_atomics() for f in self.formulas] # type: ignore
+            set.union, [f.find_atomics() for f in self.formulas]  # type: ignore
         )
 
 
@@ -126,12 +134,15 @@ class PLTrue(PLAtomic):
     """Propositional true."""
 
     def __init__(self):
+        """Initialize the PL true formula."""
         PLAtomic.__init__(self, Symbols.TRUE.value)
 
     def truth(self, *args) -> bool:
+        """Evaluate the formula."""
         return True
 
     def negate(self) -> "PLFalse":
+        """Negate the formula."""
         return PLFalse()
 
     def find_labels(self) -> Set[Any]:
@@ -139,7 +150,7 @@ class PLTrue(PLAtomic):
         return set()
 
     def to_nnf(self):
-        """Convert to NNF."""
+        """Transform in NNF."""
         return self
 
 
@@ -147,12 +158,15 @@ class PLFalse(PLAtomic):
     """Propositional false."""
 
     def __init__(self):
+        """Initialize the formula."""
         PLAtomic.__init__(self, Symbols.FALSE.value)
 
     def truth(self, *args) -> bool:
+        """Evaluate the formula."""
         return False
 
     def negate(self) -> "PLTrue":
+        """Negate the formula."""
         return PLTrue()
 
     def find_labels(self) -> Set[Any]:
@@ -160,6 +174,7 @@ class PLFalse(PLAtomic):
         return set()
 
     def to_nnf(self):
+        """Transform in NNF."""
         return self
 
 
@@ -168,18 +183,22 @@ class PLNot(UnaryOperator[PLFormula], PLFormula):
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.NOT.value
 
     def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
         return not self.f.truth(i)
 
     def to_nnf(self):
+        """Transform in NNF."""
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
         else:
             return self
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return self.f
 
     def _find_atomics(self) -> Set["PLAtomic"]:
@@ -187,7 +206,7 @@ class PLNot(UnaryOperator[PLFormula], PLFormula):
 
 
 class PLOr(PLBinaryOperator):
-    """Propositional Or"""
+    """Propositional Or."""
 
     @property
     def operator_symbol(self) -> Symbol:
@@ -195,46 +214,57 @@ class PLOr(PLBinaryOperator):
         return Symbols.OR.value
 
     def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
         return any(f.truth(i) for f in self.formulas)
 
     def to_nnf(self):
+        """Transform in NNF."""
         return PLOr([f.to_nnf() for f in self.formulas])
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return PLAnd([f.negate() for f in self.formulas])
 
 
 class PLAnd(PLBinaryOperator):
-    """Propositional And"""
+    """Propositional And."""
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.AND.value
 
     def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
         return all(f.truth(i) for f in self.formulas)
 
     def to_nnf(self):
+        """Transform in NNF."""
         return PLAnd([f.to_nnf() for f in self.formulas])
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return PLOr([f.negate() for f in self.formulas])
 
 
 class PLImplies(PLBinaryOperator):
-    """Propositional Implication"""
+    """Propositional Implication."""
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
     def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i)
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def to_nnf(self):
+        """Transform in NNF."""
         first, second = self.formulas[0:2]
         final_formula = PLOr([PLNot(first).to_nnf(), second.to_nnf()])
         for subformula in self.formulas[2:]:
@@ -243,16 +273,19 @@ class PLImplies(PLBinaryOperator):
 
 
 class PLEquivalence(PLBinaryOperator):
-    """Propositional Equivalence"""
+    """Propositional Equivalence."""
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
     def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i)
 
     def to_nnf(self):
+        """Transform in NNF."""
         fs = self.formulas
         pos = PLAnd(fs)
         neg = PLAnd([PLNot(f) for f in fs])
@@ -260,4 +293,5 @@ class PLEquivalence(PLBinaryOperator):
         return res
 
     def negate(self) -> PLFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
