@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+
+"""This module contains the classes to support LDLf."""
+
 from abc import abstractmethod, ABC
 from typing import Set, cast, Sequence
 
 from pythomata import PropositionalInterpretation
+from pythomata.impl.symbolic import SymbolicDFA
 
 from flloat.base import (
     Formula,
@@ -20,6 +24,7 @@ from flloat.symbols import Symbol, Symbols
 
 
 class LDLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
+    """Class for LDLf formulas."""
 
     def to_nnf(self) -> "LDLfFormula":
         """Transform the formula in NNF."""
@@ -30,6 +35,7 @@ class LDLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
         """Negate the formula. Used by 'to_nnf'."""
 
     def delta(self, i: PropositionalInterpretation, epsilon=False) -> PLFormula:
+        """Apply the delta function."""
         f = self.to_nnf()
         d = f._delta(i, epsilon=epsilon)
         if epsilon:
@@ -41,17 +47,21 @@ class LDLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
 
     @abstractmethod
     def _delta(self, i: PropositionalInterpretation, epsilon=False) -> "PLFormula":
-        """apply delta function, assuming that 'self' is a LDLf formula in Negative Normal Form"""
+        """Apply delta function, assuming that 'self' is a LDLf formula in Negative Normal Form."""
         raise NotImplementedError
 
     def __repr__(self):
+        """Get the object representation."""
         return self.__str__()
 
-    def to_automaton(self):
+    def to_automaton(self) -> SymbolicDFA:
+        """Translate into automaton."""
         return to_automaton(self)
 
 
 class DeltaRegExp(ABC):
+    """Interface for the delta of regular expressions."""
+
     @abstractmethod
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon: bool = False
@@ -86,7 +96,10 @@ class RegExpFormula(Formula, RegExpTruth, DeltaRegExp, ABC):
 
 
 class LDLfUnaryOperator(UnaryOperator[LDLfFormula], LDLfFormula, ABC):
+    """Class for LDLf unary operators."""
+
     def __init__(self, f: LDLfFormula):
+        """Initialize the formula."""
         super().__init__(f)
         self.f = cast(LDLfFormula, self.f)
 
@@ -95,17 +108,21 @@ class LDLfBinaryOperator(BinaryOperator[LDLfFormula], LDLfFormula, ABC):
     """A binary operator for LDLf."""
 
     def __init__(self, formulas: Sequence[LDLfFormula]):
+        """Initialize the formula."""
         super().__init__(formulas)
         self.formulas = cast(Sequence[LDLfFormula], self.formulas)
 
 
 class LDLfTemporalFormula(LDLfFormula, ABC):
+    """Class for temporal operators in LDLf."""
+
     @property
     @abstractmethod
     def temporal_brackets(self) -> str:
-        """The bracket symbols for the temporal operator."""
+        """Get the bracket symbols for the temporal operator."""
 
     def __init__(self, r: RegExpFormula, f: LDLfFormula):
+        """Initialize the formula."""
         super().__init__()
         self.r = r
         self.f = f
@@ -114,6 +131,7 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         return self.temporal_brackets, self.r, self.f
 
     def __str__(self):
+        """Transform to string."""
         return (
             self.temporal_brackets[0]
             + str(self.r)
@@ -124,9 +142,11 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         )
 
     def find_labels(self) -> Set[Symbol]:
+        """Find the labels."""
         return self.f.find_labels().union(self.r.find_labels())
 
     def to_nnf(self):
+        """Transform to NNF."""
         return type(self)(self.r.to_nnf(), self.f.to_nnf())
 
 
@@ -137,87 +157,117 @@ class LDLfPropositionalAtom(LDLfFormula):
     """
 
     def __init__(self, s: Symbol):
+        """Initialize the formula."""
         super().__init__()
         self.s = s
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
     def truth(self, i: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
     def _members(self):
         return self.to_nnf()._members()
 
     def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
         return LDLfDiamond(RegExpPropositional(PLAtomic(self.s)), LDLfLogicalTrue())
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def find_labels(self) -> Set[Symbol]:
+        """Find the labels."""
         return {self.s}
 
     def __str__(self):
+        """Transform to string."""
         return "_".join(map(str, self._members()))
 
 
 class LDLfLogicalTrue(AtomicFormula, LDLfFormula):
+    """Class for the LDLf logical true formula."""
+
     def __init__(self):
+        """Initialize the formula."""
         super().__init__(Symbols.LOGICAL_TRUE.value)
 
     def find_labels(self):
+        """Find the labels."""
         return set()
 
     def truth(self, *args):
+        """Evaluate the formula."""
         return True
 
     def to_nnf(self):
+        """Transform to NNF."""
         return self
 
     def negate(self):
+        """Negate the formula."""
         return LDLfLogicalFalse()
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLTrue()
 
 
 class LDLfLogicalFalse(AtomicFormula, LDLfFormula):
+    """Class for the LDLf logical false formula."""
+
     def __init__(self):
+        """Initialize the formula."""
         super().__init__(Symbols.LOGICAL_FALSE.value)
 
     def find_labels(self):
+        """Find the labels."""
         return set()
 
     def truth(self, *args):
+        """Evaluate the formula."""
         return False
 
     def to_nnf(self):
+        """Transform to NNF."""
         return self
 
     def negate(self):
+        """Negate the formula."""
         return LDLfLogicalTrue()
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLFalse()
 
 
 class LDLfNot(UnaryOperator, LDLfFormula):
+    """Class for the LDLf logical not formula."""
+
     def __init__(self, f: LDLfFormula):
+        """Initialize the formula."""
         super().__init__(f)
         self.f = cast(LDLfFormula, self.f)
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.NOT.value
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.f
 
     def truth(self, i: FiniteTrace, pos: int) -> bool:
+        """Evaluate the formula."""
         return not self.f.truth(i, pos)
 
     def to_nnf(self):
+        """Transform to NNF."""
         if not isinstance(self.f, AtomicFormula):
             return self.f.negate().to_nnf()
         elif isinstance(self.f, (LDLfLogicalFalse, LDLfLogicalTrue)):
@@ -226,6 +276,7 @@ class LDLfNot(UnaryOperator, LDLfFormula):
             return self
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         if epsilon:
             return PLFalse()
 
@@ -237,52 +288,69 @@ class LDLfNot(UnaryOperator, LDLfFormula):
 
 
 class LDLfAnd(LDLfBinaryOperator):
+    """Class for the LDLf And formulas."""
+
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.AND.value
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return LDLfOr([f.negate() for f in self.formulas])
 
     def truth(self, i: FiniteTrace, pos: int) -> bool:
+        """Evaluate the formula."""
         return all(f.truth(i, pos) for f in self.formulas)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLAnd([f._delta(i, epsilon) for f in self.formulas])
 
 
 class LDLfOr(LDLfBinaryOperator):
+    """Class for the LDLf Or formulas."""
+
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.OR.value
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return LDLfOr([f.negate() for f in self.formulas])
 
     def truth(self, i: FiniteTrace, pos: int) -> bool:
+        """Evaluate the formula."""
         return any(f.truth(i, pos) for f in self.formulas)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLOr([f._delta(i, epsilon) for f in self.formulas])
 
 
 class LDLfImplies(LDLfBinaryOperator):
-    """LDLf Implication"""
+    """Class for the LDLf Implication formulas."""
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
     def truth(self, i: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
     def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
         first, second = self.formulas[0:2]
         final_formula = LDLfOr([LDLfNot(first).to_nnf(), second.to_nnf()])
         for subformula in self.formulas[2:]:
@@ -293,14 +361,19 @@ class LDLfImplies(LDLfBinaryOperator):
 
 
 class LDLfEquivalence(LDLfBinaryOperator):
+    """Class for the LDLf Equivalence formulas."""
+
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
     def truth(self, i: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
     def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
         fs = self.formulas
         pos = LDLfAnd(fs)
         neg = LDLfAnd([LDLfNot(f) for f in fs])
@@ -308,21 +381,27 @@ class LDLfEquivalence(LDLfBinaryOperator):
         return res
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
 
 class LDLfDiamond(LDLfTemporalFormula):
+    """Class for the LDLf Diamond formulas."""
+
     @property
     def temporal_brackets(self) -> str:
+        """Get the bracket symbols for the temporal operator."""
         return (
             Symbols.EVENTUALLY_BRACKET_LEFT.value
             + Symbols.EVENTUALLY_BRACKET_RIGHT.value
         )
 
     def truth(self, tr: FiniteTrace, pos: int = 0):
+        """Evaluate the formula."""
         # last + 1 in order to include the last step
         return any(
             self.r.truth(tr, pos, j) and self.f.truth(tr, j)
@@ -330,18 +409,24 @@ class LDLfDiamond(LDLfTemporalFormula):
         )
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.r.delta_diamond(self.f, i, epsilon)
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return LDLfBox(self.r, self.f.negate())
 
 
 class LDLfBox(LDLfTemporalFormula):
+    """Class for the LDLf Box formulas."""
+
     @property
     def temporal_brackets(self) -> str:
+        """Get the bracket symbols for the temporal operator."""
         return Symbols.ALWAYS_BRACKET_LEFT.value + Symbols.ALWAYS_BRACKET_RIGHT.value
 
     def truth(self, tr: FiniteTrace, pos: int = 0):
+        """Evaluate the formula."""
         # last + 1 in order to include the last step
         return all(
             not (self.r.truth(tr, pos, j)) or self.f.truth(tr, j)
@@ -349,35 +434,45 @@ class LDLfBox(LDLfTemporalFormula):
         )
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.r.delta_box(self.f, i, epsilon)
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return LDLfDiamond(self.r, self.f.negate())
 
 
 class RegExpPropositional(RegExpFormula):
+    """Class for the propositional regex."""
+
     def __init__(self, pl_formula: PLFormula):
+        """Initialize the formula."""
         RegExpFormula.__init__(self)
         self.pl_formula = pl_formula
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
+        """Evaluate the formula."""
         return end == start + 1 and start < len(tr) and self.pl_formula.truth(tr[start])
 
     def _members(self):
         return RegExpPropositional, self.pl_formula
 
     def __str__(self):
+        """Transform into string."""
         return str(self.pl_formula)
 
     def to_nnf(self):
+        """Transform to NNF."""
         return RegExpPropositional(self.pl_formula.to_nnf())
 
     def negate(self):
+        """Negate the formula."""
         return RegExpPropositional(self.pl_formula.negate())
 
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ):
+        """Apply delta function for regular expressions in the diamond operator."""
         if epsilon:
             return PLFalse()
         if self.pl_formula.truth(i):
@@ -386,6 +481,7 @@ class RegExpPropositional(RegExpFormula):
             return PLFalse()
 
     def delta_box(self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False):
+        """Apply delta function for regular expressions in the box operator."""
         if epsilon:
             return PLTrue()
         if self.pl_formula.truth(i):
@@ -394,90 +490,109 @@ class RegExpPropositional(RegExpFormula):
             return PLTrue()
 
     def find_labels(self):
+        """Find the labels."""
         return self.pl_formula.find_labels()
 
 
 class RegExpTest(UnaryOperator, RegExpFormula):
+    """Class for the test regex."""
+
     def __init__(self, f: LDLfFormula):
+        """Initialize the formula."""
         RegExpFormula.__init__(self)
         UnaryOperator.__init__(self, f)
         self.f = cast(LDLfFormula, self.f)
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.PATH_TEST.value
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
+        """Evaluate the formula."""
         return start == end and self.f.truth(tr, start)
 
     def to_nnf(self):
+        """Transform to NNF."""
         return RegExpTest(self.f.to_nnf())
 
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ) -> PLFormula:
+        """Apply delta function for regular expressions in the diamond operator."""
         return PLAnd([self.f._delta(i, epsilon), f._delta(i, epsilon)])  # type: ignore
 
     def delta_box(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ) -> PLFormula:
+        """Apply delta function for regular expressions in the box operator."""
         return PLOr(
             [LDLfNot(self.f).to_nnf()._delta(i, epsilon), f._delta(i, epsilon)]
         )  # type: ignore
 
     def find_labels(self):
+        """Find the labels."""
         return self.f.find_labels()
 
     def __str__(self):
+        """Transform into string."""
         s = super().__str__()
         s = s[1:] + s[0]
         return s
 
 
 class RegExpUnion(BinaryOperator, RegExpFormula):
+    """Class for the union regex."""
+
     def __init__(self, formulas: Sequence[RegExpFormula]):
+        """Initialize the formula."""
         super().__init__(formulas)
         self.formulas = cast(Sequence[RegExpFormula], self.formulas)
 
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.PATH_UNION.value
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
+        """Evaluate the formula."""
         return any(f.truth(tr, start, end) for f in self.formulas)
 
     def to_nnf(self):
+        """Transform to NNF."""
         return RegExpUnion([r.to_nnf() for r in self.formulas])
 
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ):
+        """Apply delta function for regular expressions in the diamond operator."""
         return PLOr([LDLfDiamond(r, f)._delta(i, epsilon) for r in self.formulas])
 
     def delta_box(self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False):
+        """Apply delta function for regular expressions in the box operator."""
         return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas])
 
 
 class RegExpSequence(BinaryOperator, RegExpFormula):
+    """Class for the sequence regex."""
+
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.PATH_SEQUENCE.value
 
     def __init__(self, formulas: Sequence[RegExpFormula]):
+        """Initialize the formula."""
         super().__init__(formulas)
         self.formulas = cast(Sequence[RegExpFormula], self.formulas)
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
+        """Evaluate the formula."""
         f1 = self.formulas[0]
         if len(self.formulas) == 2:
             f2 = self.formulas[1]
         else:
             f2 = RegExpSequence(self.formulas[1:])
-
-        l = [
-            (f1.truth(tr, start, k), f2.truth(tr, k, end))
-            for k in range(start, end + 1)
-        ]
 
         return any(
             f1.truth(tr, start, k) and f2.truth(tr, k, end)
@@ -485,17 +600,20 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
         )
 
     def to_nnf(self):
+        """Transform to NNF."""
         return RegExpSequence([r.to_nnf() for r in self.formulas])
 
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ):
+        """Apply delta function for regular expressions in the diamond operator."""
         res = LDLfDiamond(self.formulas[-1], f)
         for r in reversed(self.formulas[:-1]):
             res = LDLfDiamond(r, res)
         return res._delta(i, epsilon)
 
     def delta_box(self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False):
+        """Apply delta function for regular expressions in the box operator."""
         res = LDLfBox(self.formulas[-1], f)
         for r in reversed(self.formulas[:-1]):
             res = LDLfBox(r, res)
@@ -503,31 +621,39 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
 
 
 class RegExpStar(UnaryOperator, RegExpFormula):
+    """Class for the star regex."""
+
     @property
     def operator_symbol(self) -> Symbol:
+        """Get the operator symbol."""
         return Symbols.PATH_STAR.value
 
     def __init__(self, f: RegExpFormula):
+        """Initialize the formula."""
         super().__init__(f)
         self.f = cast(RegExpFormula, self.f)
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
+        """Evaluate the formula."""
         return start == end or any(
             self.f.truth(tr, start, k) and self.truth(tr, k, end)
             for k in range(start, end + 1)
         )
 
     def __str__(self):
+        """Transform into string."""
         s = super().__str__()
         s = s[1:] + s[0]
         return s
 
     def to_nnf(self):
+        """Transform to NNF."""
         return RegExpStar(self.f.to_nnf())
 
     def delta_diamond(
         self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False
     ):
+        """Apply delta function for regular expressions in the diamond operator."""
         return PLOr(
             [
                 f._delta(i, epsilon),
@@ -538,6 +664,7 @@ class RegExpStar(UnaryOperator, RegExpFormula):
         )
 
     def delta_box(self, f: LDLfFormula, i: PropositionalInterpretation, epsilon=False):
+        """Apply delta function for regular expressions in the box operator."""
         return PLAnd(
             [
                 f._delta(i, epsilon),
@@ -547,53 +674,71 @@ class RegExpStar(UnaryOperator, RegExpFormula):
 
 
 class LDLfEnd(LDLfFormula):
+    """Class for the LDLf End formulas."""
+
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
     def find_labels(self) -> Set[Symbol]:
+        """Find the labels."""
         return self.to_nnf().find_labels()
 
     def truth(self, i: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
     def _members(self):
         return (Symbols.END.value,)
 
     def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
         return LDLfBox(RegExpPropositional(PLTrue()), LDLfLogicalFalse())
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def __str__(self):
+        """Transform into string."""
         return "_".join(map(str, self._members()))
 
 
 class LDLfLast(LDLfFormula):
+    """Class for the LDLf Last formulas."""
+
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
     def find_labels(self) -> Set[Symbol]:
+        """Find the labels."""
         return self.to_nnf().find_labels()
 
     def truth(self, i: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
     def _members(self):
         return (Symbols.LAST.value,)
 
     def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
         return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd().to_nnf())
 
     def negate(self) -> LDLfFormula:
+        """Negate the formula."""
         return self.to_nnf().negate()
 
     def __str__(self):
+        """Transform into string."""
         return "_".join(map(str, self._members()))
 
 
 class _FreezedFalse(LDLfFormula):
+
     def __init__(self, f: LDLfFormula):
+        """Initialize the formula."""
         super().__init__()
         self.f = f
 
@@ -604,26 +749,33 @@ class _FreezedFalse(LDLfFormula):
         return "_".join(map(str, self._members()))
 
     def delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self._delta(i, epsilon)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLFalse()
 
     def to_nnf(self):
+        """Transform to NNF."""
         return self
 
     def negate(self):
+        """Negate the formula."""
         return _FreezedFalse(self.f)
 
     def find_labels(self):
+        """Find the labels."""
         return super().find_labels()
 
     def truth(self, tr: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         raise NotImplementedError
 
 
 class _FreezedTrue(LDLfFormula):
     def __init__(self, f: LDLfFormula):
+        """Initialize the formula."""
         super().__init__()
         self.f = f
 
@@ -634,21 +786,27 @@ class _FreezedTrue(LDLfFormula):
         return "_".join(map(str, self._members()))
 
     def delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return self._delta(i, epsilon)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
+        """Apply the delta function."""
         return PLTrue()
 
     def to_nnf(self):
+        """Transform to NNF."""
         return self
 
     def negate(self):
+        """Negate the formula."""
         return _FreezedFalse(self.f)
 
     def find_labels(self):
+        """Find the labels."""
         return super().find_labels()
 
     def truth(self, tr: FiniteTrace, pos: int):
+        """Evaluate the formula."""
         raise NotImplementedError
 
 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+"""Helpers module."""
+
 from abc import ABC, abstractmethod
 from copy import copy
 from itertools import chain, combinations
@@ -8,6 +11,7 @@ from pythomata import PropositionalInterpretation as PropInt
 from sympy import Symbol
 from sympy.logic.boolalg import Boolean, BooleanFalse, BooleanTrue
 
+from flloat.symbols import Symbols
 
 ParsingError = ValueError("Parsing error.")
 
@@ -16,6 +20,7 @@ class Hashable(ABC):
     """A base class to represent hashable objects."""
 
     def __init__(self):
+        """Initialize."""
         self._hash = None
 
     @abstractmethod
@@ -23,23 +28,27 @@ class Hashable(ABC):
         raise NotImplementedError
 
     def __eq__(self, other):
+        """Compare."""
         if type(other) is type(self):
             return self._members() == other._members()
         else:
             return False
 
     def __hash__(self):
+        """Compute the hash."""
         if self._hash is None:
             members = self._members()
             self._hash = hash(members)
         return self._hash
 
     def __getstate__(self):
+        """Get the state."""
         d = copy(self.__dict__)
         d.pop("_hash")
         return d
 
     def __setstate__(self, state):
+        """Set the state."""
         self.__dict__ = state
         self._hash = None
 
@@ -62,7 +71,7 @@ def powerset(s: Set) -> FrozenSet:
 
 def iter_powerset(s: Set) -> Iterable:
     """
-    The generative version of the power set function.
+    Compute the generative version of the power set function.
 
     >>> sorted(map(tuple, powerset({1,2,3})))
     [(), (1,), (1, 2), (1, 2, 3), (1, 3), (2,), (2, 3), (3,)]
@@ -76,7 +85,8 @@ def iter_powerset(s: Set) -> Iterable:
         yield c
 
 
-def sym2regexp(sym):
+def sym2regexp(sym: Symbols):
+    """Transform a symbol to regex."""
     s = sym.value
     if s in r"|()+?*.[]":
         return r"\%s" % s
@@ -86,7 +96,7 @@ def sym2regexp(sym):
 
 def evaluate(formula: Boolean, i: PropInt) -> bool:
     """
-    Evaluate a SymPy boolean expression againts a propositional interpretation.
+    Evaluate a SymPy boolean expression against a propositional interpretation.
 
     The symbols not present in the propositional interpretation will be considered False.
 

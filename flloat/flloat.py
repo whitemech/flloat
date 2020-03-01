@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+"""Main module of the pakage."""
+
 from typing import Set, FrozenSet, Dict, cast
 
 import sympy
@@ -8,7 +11,6 @@ from sympy.logic.boolalg import BooleanFalse
 
 from flloat.base import Formula
 from flloat.delta import Delta
-from flloat.symbols import Symbol
 from flloat.helpers import powerset
 from flloat.pl import (
     PLFormula,
@@ -25,7 +27,7 @@ from flloat.pl import (
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
-    """Finds all the atomic formulas"""
+    """Find all the atomic formulas."""
     res = set()
     if isinstance(formula, PLFormula):
         res = formula.find_atomics()
@@ -35,8 +37,12 @@ def find_atomics(formula: Formula) -> Set[PLAtomic]:
 
 
 def _transform_delta(f: Formula, formula2AtomicFormula):
-    """From a Propositional Formula to a Propositional Formula
-    with non-propositional subformulas replaced with a "freezed" atomic formula."""
+    """
+    Transform delta.
+
+    From a Propositional Formula to a Propositional Formula.
+    with non-propositional subformulas replaced with a "freezed" atomic formula.
+    """
     if isinstance(f, PLNot):
         return PLNot(_transform_delta(f, formula2AtomicFormula))
     # elif isinstance(f, PLBinaryOperator): #PLAnd, PLOr, PLImplies, PLEquivalence
@@ -139,7 +145,8 @@ def get_labels_from_macrostate(macrostate):
     return labels
 
 
-def to_automaton(f) -> SymbolicDFA:
+def to_automaton(f) -> SymbolicDFA:  # noqa: C901
+    """Translate to automaton."""
     f = f.to_nnf()
     initial_state = frozenset({frozenset({PLAtomic(f)})})
     states = {initial_state}
