@@ -23,8 +23,8 @@ IMPLY : "->"
 OR: "||"|"|"
 AND: "&&"|"&"
 NOT: "!"
-STRING: /\w+/
-TRUE.2: "True" | "TRUE" | "true"
-FALSE.2: "False" | "FALSE" | "false"
+STRING: /[a-zA-Z]\w*/
+TRUE.2: /(?i:true)/
+FALSE.2: /(?i:false)/
 
 %ignore /\s+/

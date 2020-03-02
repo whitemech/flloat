@@ -214,7 +214,7 @@ class TestParsingTree:
     def test_implications(self):
 
         ok, err = self.checker.precedence_check(
-            "a <-> b -> c", "<->,a,->,b,c".split(",")
+            "a <-> b -> c3", "<->,a,->,b,c3".split(",")
         )
         assert ok, err
 
@@ -233,10 +233,13 @@ class TestParsingTree:
     def test_bad_examples(self):
 
         with pytest.raises(lark.UnexpectedInput):
-            self.checker.precedence_check("!a&", None)
+            self.checker.precedence_check("!a&", list("!a&"))
 
         with pytest.raises(lark.UnexpectedInput):
-            self.checker.precedence_check("!&b", None)
+            self.checker.precedence_check("!&b", list("!&b"))
 
         with pytest.raises(lark.UnexpectedInput):
-            self.checker.precedence_check("a|b|", None)
+            self.checker.precedence_check("a|b|", list("a|b|"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("a|3", list("a|3"))

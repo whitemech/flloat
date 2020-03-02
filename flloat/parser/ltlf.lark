@@ -1,37 +1,42 @@
 start: ltlf_formula
-ltlf_formula: ltlf_equivalence
 
-ltlf_equivalence: ltlf_implication (EQUIVALENCE ltlf_implication)*
-ltlf_implication: ltlf_or (IMPLY ltlf_or)*
-ltlf_or:          ltlf_and (OR ltlf_and)*
-ltlf_and:         ltlf_until (AND ltlf_until)*
-ltlf_until:       ltlf_release (UNTIL ltlf_release)*
-ltlf_release:     ltlf_always (RELEASE ltlf_always)*
-ltlf_always:      ALWAYS* ltlf_eventually
-ltlf_eventually:  EVENTUALLY* ltlf_next
-ltlf_next:        NEXT* ltlf_weak_next
-ltlf_weak_next:   WEAK_NEXT* ltlf_not
-ltlf_not:         NOT* ltlf_wrapped
-ltlf_wrapped:     ltlf_atom
-            |     LSEPARATOR ltlf_formula RSEPARATOR
-ltlf_atom:        ltlf_symbol
-         |        ltlf_true
-         |        ltlf_false
+?ltlf_formula:     ltlf_equivalence
+?ltlf_equivalence: ltlf_implication (EQUIVALENCE ltlf_implication)*
+?ltlf_implication: ltlf_or (IMPLY ltlf_or)*
+?ltlf_or:          ltlf_and (OR ltlf_and)*
+?ltlf_and:         ltlf_until (AND ltlf_until)*
+?ltlf_until:       ltlf_release (UNTIL ltlf_release)*
+?ltlf_release:     ltlf_always (RELEASE ltlf_always)*
+?ltlf_always:      ALWAYS* ltlf_eventually
+?ltlf_eventually:  EVENTUALLY* ltlf_next
+?ltlf_next:        NEXT* ltlf_weak_next
+?ltlf_weak_next:   WEAK_NEXT* ltlf_not
+?ltlf_not:         NOT* ltlf_wrapped
+?ltlf_wrapped:     ltlf_atom
+             |     LSEPARATOR ltlf_formula RSEPARATOR
+?ltlf_atom:        ltlf_symbol
+          |        ltlf_true
+          |        ltlf_false
 
 ltlf_true: prop_true
 ltlf_false: prop_false
-ltlf_symbol: STRING
-UNTIL.2: "U"
-RELEASE.2: "R"
-ALWAYS.2: "G"
-EVENTUALLY.2: "F"
-NEXT.2: "X"
-WEAK_NEXT.2: "WX"
-END.2: "END"|"end"|"End"
-LAST.2: "LAST"|"last"|"Last"
+ltlf_symbol: SYMBOL_STRING
 
-WHITESPACE: (" " | "\n")+
-%ignore WHITESPACE
+// Operators must not be part of a word
+UNTIL.2: /U(?=[^a-z])/
+RELEASE.2: /R(?=[^a-z])/
+ALWAYS.2: /G(?=[^a-z])/
+EVENTUALLY.2: /F(?=[^a-z])/
+NEXT.2: /X(?=[^a-z])/
+WEAK_NEXT.2: /WX(?=[^a-z])/
+END.2: /(?i:end)/
+LAST.2: /(?i:last)/
+
+// Symbols cannot contain uppercase letters, because these are reserved
+SYMBOL_STRING: /[a-z][a-z0-9_]*/
+
+%ignore /\s+/
+
 %import .pl.STRING -> STRING
 %import .pl.prop_true -> prop_true
 %import .pl.prop_false -> prop_false

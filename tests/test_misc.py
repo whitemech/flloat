@@ -36,18 +36,18 @@ def test_ltlf_example_readme():
     from flloat.parser.ltlf import LTLfParser
 
     parser = LTLfParser()
-    formula = "F (A & !B)"
+    formula = "F (a & !b)"
     parsed_formula = parser(formula)
 
     t1 = [
-        {"A": False, "B": False},
-        {"A": True, "B": False},
-        {"A": True, "B": False},
-        {"A": True, "B": True},
-        {"A": False, "B": False},
+        {"a": False, "b": False},
+        {"a": True, "b": False},
+        {"a": True, "b": False},
+        {"a": True, "b": True},
+        {"a": False, "b": False},
     ]
     assert parsed_formula.truth(t1, 0)
-    t2 = [{"A": False, "B": False}, {"A": True, "B": True}, {"A": False, "B": True}]
+    t2 = [{"a": False, "b": False}, {"a": True, "b": True}, {"a": False, "b": True}]
     assert not parsed_formula.truth(t2, 0)
     dfa = parsed_formula.to_automaton()
     assert dfa.accepts(t1)
@@ -59,7 +59,7 @@ def test_hash_consistency_after_pickling():
     import pickle
 
     parser = LTLfParser()
-    formula = "F (A & !B)"
+    formula = "F (a & !b)"
     old_obj = parser(formula)
 
     h = hash(old_obj)

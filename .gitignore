@@ -296,9 +296,6 @@ GitHub.sublime-settings
 Session.vim
 Sessionx.vim
 
-vimsession
-/.ycm_extra_conf.py
-
 # Temporary
 .netrwhist
 
