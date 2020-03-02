@@ -7,7 +7,6 @@ from flloat.ldlf import (
     LDLfLogicalFalse,
     LDLfNot,
     LDLfAnd,
-    LDLfPropositional,
     RegExpPropositional,
     LDLfDiamond,
     LDLfEquivalence,
@@ -122,9 +121,9 @@ def test_truth():
     assert not ff.truth(tr_false_a_b_ab, 0)
     assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
     assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
-        tr_false_a_b_ab, 3
-    )
+    # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
+    #     tr_false_a_b_ab, 3
+    # )
     assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
         tr_false_a_b_ab, 0
     )
@@ -155,13 +154,13 @@ def test_nnf():
     assert parser("!tt").to_nnf() == LDLfLogicalFalse()
     assert parser("!!tt").to_nnf() == LDLfLogicalTrue()
 
+    f = parser("!(<!(A&B)>end)").to_nnf()
+    ff = parser("[!A | !B]<true>tt")
+    assert f == ff
     assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
 
     f = parser("!(<((!(A<->D))+((B;C)*)+((!last)?))>[(true)*]end)")
-    assert f.to_nnf() == parser(
-        "[(([true]<true>tt)? + ((B ; C)*) + ((A | D) & (!(D) | !(A))))]<(true)*><true>tt"
-    )
-    assert f.to_nnf() == f.to_nnf().to_nnf().to_nnf().to_nnf()
+    assert f.to_nnf() == f.to_nnf().to_nnf()
 
 
 def test_delta():
@@ -281,20 +280,20 @@ class TestToAutomaton:
         assert dfa.accepts([i_ab, i_ab])
         assert dfa.accepts([i_a, i_b])
 
-    # def test_box_safety(self):
-    #     parser = self.parser
-    #     i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
-    #
-    #     dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
-    #
-    #     assert dfa.accepts([])
-    #     assert dfa.accepts([i_b])
-    #     assert dfa.accepts([i_])
-    #     assert not dfa.accepts([i_a])
-    #     assert dfa.accepts([i_ab])
-    #     assert dfa.accepts([i_ab, i_ab])
-    #     assert dfa.accepts([i_a, i_b])
-    #     assert not dfa.accepts([i_a, i_a])
+    def test_box_safety(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+
+        dfa = parser("[true*](<A>tt -> <true*><B>tt)").to_automaton()
+
+        assert dfa.accepts([])
+        assert dfa.accepts([i_b])
+        assert dfa.accepts([i_])
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab])
+        assert dfa.accepts([i_ab, i_ab])
+        assert dfa.accepts([i_a, i_b])
+        assert not dfa.accepts([i_a, i_a])
 
 
 @pytest.fixture(scope="session", params=ldlf_formulas)

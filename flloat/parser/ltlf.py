@@ -23,9 +23,8 @@ from flloat.ltlf import (
     LTLfAtomic,
     LTLfFalse,
 )
+from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
-
-CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class LTLfTransformer(Transformer):
