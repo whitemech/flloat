@@ -6,12 +6,20 @@ start: ltlf_formula
 ?ltlf_or:          ltlf_and (OR ltlf_and)*
 ?ltlf_and:         ltlf_until (AND ltlf_until)*
 ?ltlf_until:       ltlf_release (UNTIL ltlf_release)*
-?ltlf_release:     ltlf_always (RELEASE ltlf_always)*
-?ltlf_always:      ALWAYS* ltlf_eventually
-?ltlf_eventually:  EVENTUALLY* ltlf_next
-?ltlf_next:        NEXT* ltlf_weak_next
-?ltlf_weak_next:   WEAK_NEXT* ltlf_not
-?ltlf_not:         NOT* ltlf_wrapped
+?ltlf_release:     ltlf_unaryop (RELEASE ltlf_unaryop)*
+
+?ltlf_unaryop:     ltlf_always
+             |     ltlf_eventually
+             |     ltlf_next
+             |     ltlf_weak_next
+             |     ltlf_not
+             |     ltlf_wrapped
+
+?ltlf_always:      ALWAYS ltlf_unaryop
+?ltlf_eventually:  EVENTUALLY ltlf_unaryop
+?ltlf_next:        NEXT ltlf_unaryop
+?ltlf_weak_next:   WEAK_NEXT ltlf_unaryop
+?ltlf_not:         NOT ltlf_unaryop
 ?ltlf_wrapped:     ltlf_atom
              |     LSEPARATOR ltlf_formula RSEPARATOR
 ?ltlf_atom:        ltlf_symbol
@@ -23,12 +31,12 @@ ltlf_false: prop_false
 ltlf_symbol: SYMBOL_STRING
 
 // Operators must not be part of a word
-UNTIL.2: /U(?=[^a-z])/
-RELEASE.2: /R(?=[^a-z])/
-ALWAYS.2: /G(?=[^a-z])/
-EVENTUALLY.2: /F(?=[^a-z])/
-NEXT.2: /X(?=[^a-z])/
-WEAK_NEXT.2: /WX(?=[^a-z])/
+UNTIL.2: /U(?=[^a-z]|$)/
+RELEASE.2: /R(?=[^a-z]|$)/
+ALWAYS.2: /G(?=[^a-z]|$)/
+EVENTUALLY.2: /F(?=[^a-z]|$)/
+NEXT.2: /X(?=[^a-z]|$)/
+WEAK_NEXT.2: /WX(?=[^a-z]|$)/
 END.2: /(?i:end)/
 LAST.2: /(?i:last)/
 

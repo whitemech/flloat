@@ -772,15 +772,20 @@ class TestParsingTree:
         )
         assert ok, err
 
-        # TODO: next
-        # ok, err = self.checker.precedence_check("X G a", list("X()Ga"))
+        ok, err = self.checker.precedence_check("X G a", list("XGa"))
         assert ok, err
 
         ok, err = self.checker.precedence_check("GX a", list("GXa"))
         assert ok, err
 
-        # ok, err = self.checker.precedence_check(
-        # "X G X F WX G", "X G X F WX G".split(" "))
+        ok, err = self.checker.precedence_check(
+            "XGXFWX G prop0", "X G X F WX G prop0".split(" ")
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "XXWX!(!WXGGG a)", "X,X,WX,!,(,),!,WX,G,G,G,a".split(",")
+        )
         assert ok, err
 
     def test_bad_termination(self):

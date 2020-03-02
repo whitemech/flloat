@@ -521,7 +521,7 @@ class LTLfAlways(LTLfUnaryOperator):
     @property
     def operator_symbol(self) -> Symbol:
         """Get the operator symbol."""
-        return Symbols.EVENTUALLY.value
+        return Symbols.ALWAYS.value
 
     def to_nnf(self) -> LTLfFormula:
         """Transform to NNF."""
