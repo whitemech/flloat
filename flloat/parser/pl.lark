@@ -5,7 +5,7 @@ start: propositional_formula
 ?prop_implication: prop_or (IMPLY prop_or)*
 ?prop_or: prop_and (OR prop_and)*
 ?prop_and: prop_not (AND prop_not)*
-?prop_not: NOT? prop_wrapped
+?prop_not: NOT* prop_wrapped
 ?prop_wrapped: prop_atom
             | LSEPARATOR propositional_formula RSEPARATOR
 ?prop_atom: atom

@@ -101,9 +101,6 @@ class PLTransformer(Transformer):
         assert len(args) == 1
         return PLAtomic(str(args[0]))
 
-    def string(self, args):
-        return "".join(args)
-
 
 class PLParser:
 
