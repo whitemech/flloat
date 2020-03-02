@@ -7,15 +7,27 @@ from pathlib import Path
 from lark import Lark, Transformer
 
 from flloat.helpers import ParsingError
-from flloat.ltlf import LTLfEquivalence, LTLfImplies, LTLfOr, LTLfAnd, LTLfNot, LTLfUntil, LTLfRelease, LTLfAlways, \
-    LTLfEventually, LTLfNext, LTLfWeakNext, LTLfTrue, LTLfAtomic, LTLfFalse
+from flloat.ltlf import (
+    LTLfEquivalence,
+    LTLfImplies,
+    LTLfOr,
+    LTLfAnd,
+    LTLfNot,
+    LTLfUntil,
+    LTLfRelease,
+    LTLfAlways,
+    LTLfEventually,
+    LTLfNext,
+    LTLfWeakNext,
+    LTLfTrue,
+    LTLfAtomic,
+    LTLfFalse,
+)
+from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
-
-CUR_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
 
 class LTLfTransformer(Transformer):
-
     def __init__(self):
         super().__init__()
         self._pl_transformer = PLTransformer()
@@ -148,14 +160,12 @@ class LTLfTransformer(Transformer):
 
     def ltlf_symbol(self, args):
         assert len(args) == 1
-        tree = args[0]
-        pl_transformer = PLTransformer()
-        symbol = pl_transformer.transform(tree)
+        token = args[0]
+        symbol = str(token)
         return LTLfAtomic(symbol)
 
 
 class LTLfParser:
-
     def __init__(self):
         self._transformer = LTLfTransformer()
         self._parser = Lark(open(str(Path(CUR_DIR, "ltlf.lark"))), parser="lalr")

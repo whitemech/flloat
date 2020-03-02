@@ -1,20 +1,33 @@
 # -*- coding: utf-8 -*-
-from typing import Set, FrozenSet, Dict
+
+"""Main module of the pakage."""
+
+from typing import Set, FrozenSet, Dict, cast, List
 
 import sympy
-from pythomata import SymbolicAutomaton, SimpleDFA
-from pythomata import PropositionalInterpretation as PropInt
-from pythomata.alphabets import MapAlphabet
-from sympy.logic.boolalg import BooleanFalse, BooleanTrue
+from pythomata import SymbolicAutomaton, PropositionalInterpretation
+from pythomata.impl.symbolic import SymbolicDFA
+from sympy.logic.boolalg import BooleanFalse
 
-from flloat.base.formulas import Formula
-from flloat.base.symbols import Symbol
-from flloat.helpers import powerset, iter_powerset
-from flloat.pl import PLFormula, PLAtomic, PLNot, PLAnd, PLOr, PLImplies, PLEquivalence, PLTrue, PLFalse, to_sympy
+from flloat.base import Formula
+from flloat.delta import Delta
+from flloat.helpers import powerset
+from flloat.pl import (
+    PLFormula,
+    PLAtomic,
+    PLNot,
+    PLAnd,
+    PLOr,
+    PLImplies,
+    PLEquivalence,
+    PLTrue,
+    PLFalse,
+    to_sympy,
+)
 
 
 def find_atomics(formula: Formula) -> Set[PLAtomic]:
-    """Finds all the atomic formulas"""
+    """Find all the atomic formulas."""
     res = set()
     if isinstance(formula, PLFormula):
         res = formula.find_atomics()
@@ -24,15 +37,20 @@ def find_atomics(formula: Formula) -> Set[PLAtomic]:
 
 
 def _transform_delta(f: Formula, formula2AtomicFormula):
-    """From a Propositional Formula to a Propositional Formula
-    with non-propositional subformulas replaced with a "freezed" atomic formula."""
-    t = type(f)
+    """
+    Transform delta.
+
+    From a Propositional Formula to a Propositional Formula.
+    with non-propositional subformulas replaced with a "freezed" atomic formula.
+    """
     if isinstance(f, PLNot):
         return PLNot(_transform_delta(f, formula2AtomicFormula))
     # elif isinstance(f, PLBinaryOperator): #PLAnd, PLOr, PLImplies, PLEquivalence
     elif isinstance(f, (PLAnd, PLOr, PLImplies, PLEquivalence)):
-        return t([_transform_delta(subf, formula2AtomicFormula) for subf in f.formulas])
-    elif t == PLTrue or t == PLFalse:
+        return type(f)(
+            [_transform_delta(subf, formula2AtomicFormula) for subf in f.formulas]
+        )
+    elif type(f) == PLTrue or type(f) == PLFalse:
         return f
     else:
         return formula2AtomicFormula[f]
@@ -52,19 +70,19 @@ def _is_true(Q: FrozenSet[FrozenSet]):
     if len(conj) == 0:
         return False
     else:
-        conj = PLOr(conj) if len(conj) >= 2 else conj[0]
+        pl_conj = PLOr(conj) if len(conj) >= 2 else conj[0]
+        result = pl_conj.truth({})
+        return result
 
-    result = conj.truth(None)
-    return result
 
-
-def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropInt):
-    actions_set = set(i.keys())
+def _make_transition(
+    marco_q: FrozenSet[FrozenSet[PLAtomic]], i: PropositionalInterpretation
+):
     new_macrostate = set()
 
-    for q in Q:
+    for q in marco_q:
         # delta function applied to every formula in the macro state Q
-        delta_formulas = [f.s.delta(i) for f in q]
+        delta_formulas = [cast(Delta, f.s).delta(i) for f in q]
 
         # find atomics -> so also ldlf formulas
         # replace atomic with custom object
@@ -74,13 +92,10 @@ def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropInt):
         # (i.e. propositional atoms) or LDLf formulas
         atomics = [s for subf in delta_formulas for s in find_atomics(subf)]
 
-        atom2id = {v: str(k) for k, v in enumerate(atomics)}  # type: Dict[str, PLAtomic]
-        id2atom = {v: k for k, v in atom2id.items()}  # type: Dict[PLAtomic, str]
-
-        # "freeze" the found atoms as symbols and build a mapping from symbols to formulas
-        symbol2formula = {
-            atom2id[f] for f in atomics if f != PLTrue() and f != PLFalse()
-        }
+        atom2id = {
+            v: str(k) for k, v in enumerate(atomics)
+        }  # type: Dict[PLAtomic, str]
+        id2atom = {v: k for k, v in atom2id.items()}  # type: Dict[str, PLAtomic]
 
         # build a map from formula to a "freezed" propositional Atomic Formula
         formula2atomic_formulas = {
@@ -102,61 +117,30 @@ def _make_transition(Q: FrozenSet[FrozenSet[Symbol]], i: PropInt):
         elif len(transformed_delta_formulas) == 1:
             conjunctions = transformed_delta_formulas[0]
         else:
-            conjunctions = PLAnd(transformed_delta_formulas)
+            conjunctions = PLAnd(transformed_delta_formulas)  # type: ignore
 
         # the model in this case is the smallest set of symbols
         # s.t. the conjunction of "freezed" atomic formula is true.
         # alphabet = frozenset(symbol2formula)
         # models = frozenset(conjunctions.minimal_models(alphabet))
 
-        formula = to_sympy(conjunctions, replace=atom2id)
+        formula = to_sympy(conjunctions, replace=atom2id)  # type: ignore
         all_models = list(sympy.satisfiable(formula, all_models=True))
         if len(all_models) == 1 and all_models[0] == BooleanFalse():
-            models = set()
+            models = []  # type: List[Set[str]]
         elif len(all_models) == 1 and all_models[0] == {True: True}:
-            models = [{}]
+            models = [set()]
         else:
-            models = map(lambda x: {k for k, v in x.items() if v is True}, all_models)
+            models = list(
+                map(lambda x: {k for k, v in x.items() if v is True}, all_models)
+            )
 
         for min_model in models:
             q_prime = frozenset({id2atom[s] for s in map(str, min_model)})
-
             new_macrostate.add(q_prime)
 
     return frozenset(new_macrostate)
 
-
-# class DFAOTF(Simulator):
-#     """DFA on the fly"""
-#
-#     def step(self, s: Symbol) -> Any:
-#         pass
-#
-#     def accepts(self, word: List[Symbol]) -> bool:
-#         return self.word_acceptance(word)
-#
-#     def __init__(self, f):
-#         self.f = f.to_nnf()
-#         self.cur_state = frozenset([frozenset([self.f])])
-#
-#     def reset(self):
-#         self.cur_state = frozenset([frozenset([self.f])])
-#
-#     def word_acceptance(self, action_set_list: List[PLInterpretation]):
-#         self.reset()
-#         for a in action_set_list:
-#             self.make_transition(a)
-#         return self.is_true()
-#
-#     def is_true(self):
-#         return _is_true(self.cur_state)
-#
-#     def get_current_state(self):
-#         return self.cur_state
-#
-#     def make_transition(self, i: PLInterpretation):
-#         self.cur_state = _make_transition(self.cur_state, i)
-#
 
 def get_labels_from_macrostate(macrostate):
     """Get labels from macrostate."""
@@ -167,12 +151,13 @@ def get_labels_from_macrostate(macrostate):
     return labels
 
 
-def to_automaton(f):
+def to_automaton(f) -> SymbolicDFA:  # noqa: C901
+    """Translate to automaton."""
     f = f.to_nnf()
     initial_state = frozenset({frozenset({PLAtomic(f)})})
     states = {initial_state}
     final_states = set()
-    transition_function = {}
+    transition_function = {}  # type: Dict
 
     all_labels = f.find_labels()
     alphabet = powerset(all_labels)
@@ -180,7 +165,7 @@ def to_automaton(f):
     if f.delta({}, epsilon=True) == PLTrue():
         final_states.add(initial_state)
 
-    visited = set()
+    visited = set()  # type: Set
     to_be_visited = {initial_state}
 
     while len(to_be_visited) != 0:
@@ -193,9 +178,7 @@ def to_automaton(f):
                     states.add(new_state)
                     to_be_visited.add(new_state)
 
-                transition_function.setdefault(q, {})[
-                    actions_set
-                ] = new_state
+                transition_function.setdefault(q, {})[actions_set] = new_state
 
                 if new_state not in visited:
                     visited.add(new_state)
@@ -208,17 +191,24 @@ def to_automaton(f):
         state_idx = automaton.create_state()
         state2idx[state] = state_idx
         if state == initial_state:
-            automaton.set_initial_state(state_idx, True)
+            automaton.set_initial_state(state_idx)
         if state in final_states:
-            automaton.set_final_state(state_idx, True)
+            automaton.set_accepting_state(state_idx, True)
 
     for source in transition_function:
         for symbol, destination in transition_function[source].items():
             source_idx = state2idx[source]
             dest_idx = state2idx[destination]
             pos_expr = sympy.And(*map(sympy.Symbol, symbol))
-            neg_expr = sympy.And(*map(lambda x: sympy.Not(sympy.Symbol(x)), all_labels.difference(symbol)))
-            automaton.add_transition(source_idx, sympy.And(pos_expr, neg_expr), dest_idx)
+            neg_expr = sympy.And(
+                *map(
+                    lambda x: sympy.Not(sympy.Symbol(x)), all_labels.difference(symbol)
+                )
+            )
+            automaton.add_transition(
+                (source_idx, sympy.And(pos_expr, neg_expr), dest_idx)
+            )
 
-    dfa = automaton.determinize().minimize()
-    return dfa
+    determinized = automaton.determinize()
+    minimized = determinized.minimize()
+    return minimized
