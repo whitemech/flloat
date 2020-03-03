@@ -180,19 +180,7 @@ if __name__ == "__main__":
     parser = LTLfParser()
     while True:
         try:
-            s = input("ltlf > ")
-        except EOFError:
-            break
-        if not s:
-            continue
-        result = parser(s)
-        print(result)
-
-if __name__ == "__main__":
-    parser = LTLfParser()
-    while True:
-        try:
-            s = input("ldlf> ")
+            s = input("ltlf> ")
             if not s:
                 continue
             result = parser(s)

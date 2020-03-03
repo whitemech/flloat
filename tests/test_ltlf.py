@@ -784,7 +784,7 @@ class TestParsingTree:
         assert ok, err
 
         ok, err = self.checker.precedence_check(
-            "XXWX!(!WXGGG a)", "X,X,WX,!,(,),!,WX,G,G,G,a".split(",")
+            "XXWX!(!WXGGG a)", "X X WX ! ( ) ! WX G G G a".split(" ")
         )
         assert ok, err
 

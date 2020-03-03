@@ -25,10 +25,14 @@ start: ltlf_formula
 ?ltlf_atom:        ltlf_symbol
           |        ltlf_true
           |        ltlf_false
+          |        ltlf_last
+          |        ltlf_end
 
+ltlf_symbol: SYMBOL_STRING
 ltlf_true: prop_true
 ltlf_false: prop_false
-ltlf_symbol: SYMBOL_STRING
+ltlf_last: LAST
+ltlf_end: END
 
 // Operators must not be part of a word
 UNTIL.2: /U(?=[^a-z]|$)/
