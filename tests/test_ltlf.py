@@ -58,6 +58,19 @@ def test_parser():
     )
 
 
+def test_names():
+
+    good = ["a", "b", "name", "complex_name", "proposition10"]
+    bad = ["Future", "X", "$", "", "40a", "niceName"]
+
+    for name in good:
+        str(LTLfAtomic(name)) == name
+
+    for name in bad:
+        with pytest.raises(ValueError):
+            str(LTLfAtomic(name)) == name
+
+
 class TestTruth:
     @classmethod
     def setup_class(cls):
