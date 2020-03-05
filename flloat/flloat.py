@@ -31,8 +31,10 @@ def find_atomics(formula: Formula) -> Set[PLAtomic]:
     res = set()
     if isinstance(formula, PLFormula):
         res = formula.find_atomics()
+    elif isinstance(formula, PLAtomic):
+        res.add(formula)
     else:
-        res.add(PLAtomic(formula))
+        raise TypeError("Logic error: unexpected type.")
     return res
 
 

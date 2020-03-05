@@ -2,21 +2,22 @@
 
 """Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
-from typing import Sequence, Set, Tuple, TypeVar, Generic, cast
+from typing import Sequence, Set, Tuple, TypeVar, Generic, cast, Union
 
 from pythomata import PropositionalInterpretation
 
-from flloat.symbols import Symbol, Symbols
+from flloat.symbols import Symbols, OpSymbol
 from flloat.helpers import Hashable
 
 FiniteTrace = Sequence[PropositionalInterpretation]
+AtomSymbol = Union["QuotedFormula", str]
 
 
 class Formula(Hashable, ABC):
     """Abstract class for a formula."""
 
     @abstractmethod
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Return the set of symbols."""
 
     def to_nnf(self) -> "Formula":
@@ -28,16 +29,20 @@ class Formula(Hashable, ABC):
         """Negate the formula. Used by 'to_nnf'."""
 
 
+# TODO: add syntactic constraints in all atomics
 class AtomicFormula(Formula, ABC):
     """An abstract atomic formula."""
 
-    def __init__(self, s: Symbol):
-        """
-        Inintialize the atomic formula.
+    def __init__(self, s: Union[AtomSymbol, Formula]):
+        """Inintializes the atomic formula.
 
-        :param s: the atomic symbol.
+        :param s: the atomic symbol. Formulae are implicitly converted to
+            quoted formulae.
         """
         super().__init__()
+
+        if isinstance(s, Formula):
+            s = QuotedFormula(s)
         self.s = s
 
     def _members(self):
@@ -47,9 +52,52 @@ class AtomicFormula(Formula, ABC):
         """Get the string representation."""
         return str(self.s)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Return the set of symbols."""
         return {self.s}
+
+
+class QuotedFormula(Hashable):
+    """This object is a constant representation of a formula.
+
+    Quoted formulas can be used as hashable objects and for atomic symbols.
+    """
+
+    _mutable = ["_hash"]
+
+    def __init__(self, f: Formula):
+        """Initialize.
+
+        :param f: formula to represent.
+        """
+        super().__init__()
+        self.__dict__["f"] = f
+
+    def _members(self):
+        return self.f
+
+    def __str__(self):
+        """Quoted formula."""
+        return '"' + str(self.f) + '"'
+
+    def __repr__(self):
+        """Quoted formula."""
+        return str(self)
+
+    def __getattr__(self, attrname):
+        """Redirect to Formula."""
+        return getattr(self.f, attrname)
+
+    def __setattr__(self, attr, value):
+        """If immutable, raises an error."""
+        if attr in self._mutable:
+            self.__dict__[attr] = value
+        else:
+            raise AttributeError("Can't modify: immutable object.")
+
+    def __delattr__(self, attr):
+        """Raise an error, because del is not supported."""
+        raise AttributeError("Can't modify: immutable object.")
 
 
 class Operator(Formula, ABC):
@@ -61,7 +109,7 @@ class Operator(Formula, ABC):
 
     @property
     @abstractmethod
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the symbol of the operator."""
 
 
@@ -97,7 +145,7 @@ class UnaryOperator(Generic[T], Operator, ABC):
         """Compare the formula with another formula."""
         return self.f.__lt__(other.f)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Return the set of symbols."""
         return cast(Formula, self.f).find_labels()
 
@@ -123,10 +171,10 @@ class BinaryOperator(Generic[T], Operator, ABC):
             + ")"
         )
 
-    def _members(self) -> Tuple[Symbol, OperatorChildren]:
+    def _members(self) -> Tuple[OpSymbol, OperatorChildren]:
         return self.operator_symbol, self.formulas
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Return the set of symbols."""
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
