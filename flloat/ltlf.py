@@ -11,6 +11,7 @@ References:
 """
 from abc import abstractmethod, ABC
 from typing import Set
+import re
 
 from pythomata import PropositionalInterpretation
 from pythomata.impl.symbolic import SymbolicDFA
@@ -82,6 +83,21 @@ class LTLfBinaryOperator(BinaryOperator[LTLfFormula], LTLfFormula, ABC):
 
 class LTLfAtomic(AtomicFormula, LTLfFormula):
     """Class for LTLf atomic formulas."""
+
+    symbol_string = re.compile("[a-z][a-z0-9_]*")
+
+    def __init__(self, s: Symbol):
+        """
+        Inintializes the a propositional symbol.
+
+        :param s: the symbol name must be composed of lower-case letters,
+            numbers and lowercases, starting with a letter.
+        """
+        if not self.symbol_string.fullmatch(str(s)):
+            raise ValueError(
+                "The symbol name does not respect the convention. See doc."
+            )
+        AtomicFormula.__init__(self, s)
 
     def negate(self):
         """Negate the formula."""
@@ -521,7 +537,7 @@ class LTLfAlways(LTLfUnaryOperator):
     @property
     def operator_symbol(self) -> Symbol:
         """Get the operator symbol."""
-        return Symbols.EVENTUALLY.value
+        return Symbols.ALWAYS.value
 
     def to_nnf(self) -> LTLfFormula:
         """Transform to NNF."""

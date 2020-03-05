@@ -174,41 +174,72 @@ def test_find_labels():
     assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}
 
 
-def test_precedence():
+class TestParsingTree:
+    """\
+    The parsing tree should give the right priority to the operators.
+    """
 
-    # Path to grammar
-    this_path = os.path.dirname(os.path.abspath(__file__))
-    grammar_path = "../flloat/parser/pl.lark"
-    grammar_path = os.path.join(this_path, *grammar_path.split("/"))
+    @classmethod
+    def setup_class(cls):
 
-    checker = ParsingCheck(grammar_path)
+        # Path to grammar
+        this_path = os.path.dirname(os.path.abspath(__file__))
+        grammar_path = "../flloat/parser/pl.lark"
+        grammar_path = os.path.join(this_path, *grammar_path.split("/"))
 
-    ok, err = checker.precedence_check("!a & b", [c for c in "&!ab"])
-    assert ok, err
+        cls.checker = ParsingCheck(grammar_path)
 
-    ok, err = checker.precedence_check("a & !b", [c for c in "&a!b"])
-    assert ok, err
+    def test_unary(self):
 
-    ok, err = checker.precedence_check("a & b & c", [c for c in "&&abc"])
+        ok, err = self.checker.precedence_check("!a & b", list("&!ab"))
+        assert ok, err
 
-    ok, err = checker.precedence_check("a & b | c", [c for c in "|&abc"])
+        ok, err = self.checker.precedence_check("a & !b", list("&a!b"))
+        assert ok, err
 
-    ok, err = checker.precedence_check("a | b & c", [c for c in "|a&bc"])
-    assert ok, err
+        ok, err = self.checker.precedence_check("a | !b", list("|a!b"))
+        assert ok, err
 
-    ok, err = checker.precedence_check("a <-> b -> c", "<->,a,->,b,c".split(","))
-    assert ok, err
+    def test_and_or(self):
 
-    ok, err = checker.precedence_check("(a <-> b) -> c", "->,(,),<->,a,b,c".split(","))
-    assert ok, err
+        ok, err = self.checker.precedence_check("a & b & c", list("&&abc"))
+        assert ok, err
 
-    ok, err = checker.precedence_check("!a&(b->c)", "&,!,a,(,),->,b,c".split(","))
-    assert ok, err
+        ok, err = self.checker.precedence_check("a & b | c", list("|&abc"))
+        assert ok, err
 
-    # Bad examples
-    with pytest.raises(lark.UnexpectedInput):
-        ok, err = checker.precedence_check("!a&", None)
-    with pytest.raises(lark.UnexpectedInput):
-        ok, err = checker.precedence_check("!&b", None)
-    with pytest.raises(lark.UnexpectedInput):
-        ok, err = checker.precedence_check("a|b|", None)
+        ok, err = self.checker.precedence_check("a | b & c", list("|a&bc"))
+        assert ok, err
+
+    def test_implications(self):
+
+        ok, err = self.checker.precedence_check(
+            "a <-> b -> c3", "<->,a,->,b,c3".split(",")
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "(a <-> b) -> c", "->,(,),<->,a,b,c".split(",")
+        )
+        assert ok, err
+
+    def test_misc(self):
+
+        ok, err = self.checker.precedence_check(
+            "!a&(b->c)", "&,!,a,(,),->,b,c".split(",")
+        )
+        assert ok, err
+
+    def test_bad_examples(self):
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("!a&", list("!a&"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("!&b", list("!&b"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("a|b|", list("a|b|"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("a|3", list("a|3"))

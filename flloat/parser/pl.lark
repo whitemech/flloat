@@ -5,7 +5,7 @@ start: propositional_formula
 ?prop_implication: prop_or (IMPLY prop_or)*
 ?prop_or: prop_and (OR prop_and)*
 ?prop_and: prop_not (AND prop_not)*
-?prop_not: NOT? prop_wrapped
+?prop_not: NOT* prop_wrapped
 ?prop_wrapped: prop_atom
             | LSEPARATOR propositional_formula RSEPARATOR
 ?prop_atom: atom
@@ -23,8 +23,8 @@ IMPLY : "->"
 OR: "||"|"|"
 AND: "&&"|"&"
 NOT: "!"
-STRING: /\w+/
-TRUE.2: "True" | "TRUE" | "true"
-FALSE.2: "False" | "FALSE" | "false"
+STRING: /[a-zA-Z]\w*/
+TRUE.2: /(?i:true)/
+FALSE.2: /(?i:false)/
 
 %ignore /\s+/

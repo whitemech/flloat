@@ -158,6 +158,12 @@ class LTLfTransformer(Transformer):
     def ltlf_false(self, args):
         return LTLfFalse()
 
+    def ltlf_last(self, args):
+        raise NotImplementedError("LTLf last not supported, yet")
+
+    def ltlf_end(self, args):
+        raise NotImplementedError("LTLf end not supported, yet")
+
     def ltlf_symbol(self, args):
         assert len(args) == 1
         token = args[0]
@@ -180,19 +186,7 @@ if __name__ == "__main__":
     parser = LTLfParser()
     while True:
         try:
-            s = input("ltlf > ")
-        except EOFError:
-            break
-        if not s:
-            continue
-        result = parser(s)
-        print(result)
-
-if __name__ == "__main__":
-    parser = LTLfParser()
-    while True:
-        try:
-            s = input("ldlf> ")
+            s = input("ltlf> ")
             if not s:
                 continue
             result = parser(s)
