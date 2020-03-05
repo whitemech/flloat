@@ -3,6 +3,7 @@
 """Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
 from typing import Sequence, Set, Tuple, TypeVar, Generic, cast, Union
+import re
 
 from pythomata import PropositionalInterpretation
 
@@ -29,9 +30,15 @@ class Formula(Hashable, ABC):
         """Negate the formula. Used by 'to_nnf'."""
 
 
-# TODO: add syntactic constraints in all atomics
 class AtomicFormula(Formula, ABC):
-    """An abstract atomic formula."""
+    """An abstract atomic formula.
+
+    Both formulae and names can be used as atomic symbols.
+    A name must be a string made of letters, numbers, underscores, or it must
+    be a quoted string.
+    """
+
+    name_regex = re.compile(r'(\w+)|(".*")')
 
     def __init__(self, s: Union[AtomSymbol, Formula]):
         """Inintializes the atomic formula.
@@ -40,10 +47,19 @@ class AtomicFormula(Formula, ABC):
             quoted formulae.
         """
         super().__init__()
+        self.s: AtomSymbol
 
+        # If formula
         if isinstance(s, Formula):
-            s = QuotedFormula(s)
-        self.s = s
+            self.s = QuotedFormula(s)
+
+        # If name
+        else:
+            self.s = str(s)
+            if not self.name_regex.fullmatch(self.s):
+                raise ValueError(
+                    "The symbol name does not respect the naming convention."
+                )
 
     def _members(self):
         return self.s

@@ -85,20 +85,7 @@ class LTLfBinaryOperator(BinaryOperator[LTLfFormula], LTLfFormula, ABC):
 class LTLfAtomic(AtomicFormula, LTLfFormula):
     """Class for LTLf atomic formulas."""
 
-    symbol_string = re.compile("[a-z][a-z0-9_]*")
-
-    def __init__(self, s: AtomSymbol):
-        """
-        Inintializes the a propositional symbol.
-
-        :param s: the symbol name must be composed of lower-case letters,
-            numbers and lowercases, starting with a letter.
-        """
-        if not self.symbol_string.fullmatch(str(s)):
-            raise ValueError(
-                "The symbol name does not respect the convention. See doc."
-            )
-        AtomicFormula.__init__(self, s)
+    name_regex = re.compile(r"[a-z][a-z0-9_]*")
 
     def negate(self):
         """Negate the formula."""
