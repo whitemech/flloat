@@ -47,11 +47,10 @@ class AtomicFormula(Formula, ABC):
             quoted formulae.
         """
         super().__init__()
-        self.s: AtomSymbol
 
         # If formula
         if isinstance(s, Formula):
-            self.s = QuotedFormula(s)
+            self.s = QuotedFormula(s)  # type: AtomSymbol
 
         # If name
         else:
@@ -76,7 +75,8 @@ class AtomicFormula(Formula, ABC):
 class QuotedFormula(Hashable):
     """This object is a constant representation of a formula.
 
-    Quoted formulas can be used as hashable objects and for atomic symbols.
+    This can be used as a normal formula. Quoted formulas can also be used as
+    hashable objects and for atomic symbols.
     """
 
     _mutable = ["_hash"]
@@ -87,14 +87,15 @@ class QuotedFormula(Hashable):
         :param f: formula to represent.
         """
         super().__init__()
-        self.__dict__["f"] = f
+        self.__dict__["_QuotedFormula__f"] = f
+        self.__dict__["_QuotedFormula__str"] = '"' + str(f) + '"'
 
-    def _members(self):
-        return self.f
+    def _members(self) -> Formula:
+        return self.__f
 
     def __str__(self):
         """Quoted formula."""
-        return '"' + str(self.f) + '"'
+        return self.__str
 
     def __repr__(self):
         """Quoted formula."""
@@ -102,7 +103,7 @@ class QuotedFormula(Hashable):
 
     def __getattr__(self, attrname):
         """Redirect to Formula."""
-        return getattr(self.f, attrname)
+        return getattr(self.__f, attrname)
 
     def __setattr__(self, attr, value):
         """If immutable, raises an error."""
@@ -114,6 +115,16 @@ class QuotedFormula(Hashable):
     def __delattr__(self, attr):
         """Raise an error, because del is not supported."""
         raise AttributeError("Can't modify: immutable object.")
+
+    def __dir__(self):
+        """Expose the same interface as wrapped."""
+        members = set(dir(self.__f)).union(object.__dir__(self))
+        return sorted(members)
+
+    @property
+    def wrapped(self) -> Formula:
+        """Return the wrapped Formula."""
+        return self.__f
 
 
 class Operator(Formula, ABC):

@@ -70,3 +70,18 @@ def test_hash_consistency_after_pickling():
     assert h == hash(new_obj)
 
     os.remove("temp")
+
+
+def test_QuotedFormula():
+    from flloat.parser.ltlf import LTLfParser
+    from flloat.base import QuotedFormula
+
+    f = LTLfParser()("!(G a & X b)")
+    qf = QuotedFormula(f)
+
+    assert qf.wrapped is f
+
+    dir_qf = dir(qf)
+    for member in dir(f):
+        assert member in dir_qf
+        assert hasattr(qf, member)
