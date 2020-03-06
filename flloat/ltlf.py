@@ -23,11 +23,12 @@ from flloat.base import (
     FiniteTrace,
     UnaryOperator,
     BinaryOperator,
+    AtomSymbol,
 )
 from flloat.delta import Delta
 from flloat.flloat import to_automaton
 from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd, PLFormula
-from flloat.symbols import Symbol, Symbols
+from flloat.symbols import Symbols, OpSymbol
 
 
 class LTLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
@@ -84,20 +85,7 @@ class LTLfBinaryOperator(BinaryOperator[LTLfFormula], LTLfFormula, ABC):
 class LTLfAtomic(AtomicFormula, LTLfFormula):
     """Class for LTLf atomic formulas."""
 
-    symbol_string = re.compile("[a-z][a-z0-9_]*")
-
-    def __init__(self, s: Symbol):
-        """
-        Inintializes the a propositional symbol.
-
-        :param s: the symbol name must be composed of lower-case letters,
-            numbers and lowercases, starting with a letter.
-        """
-        if not self.symbol_string.fullmatch(str(s)):
-            raise ValueError(
-                "The symbol name does not respect the convention. See doc."
-            )
-        AtomicFormula.__init__(self, s)
+    name_regex = re.compile(r"[a-z][a-z0-9_]*")
 
     def negate(self):
         """Negate the formula."""
@@ -116,7 +104,7 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
         else:
             return False
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return PLAtomic(self.s).find_labels()
 
@@ -146,7 +134,7 @@ class LTLfTrue(LTLfAtomic):
         """Negate the formula."""
         return LTLfFalse()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return set()
 
@@ -170,7 +158,7 @@ class LTLfFalse(LTLfAtomic):
         """Evaluate the formula."""
         return False
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return set()
 
@@ -179,7 +167,7 @@ class LTLfNot(LTLfUnaryOperator):
     """Class for the LTLf not formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.NOT.value
 
@@ -223,7 +211,7 @@ class LTLfAnd(LTLfBinaryOperator):
     """Class for the LTLf And formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.AND.value
 
@@ -251,7 +239,7 @@ class LTLfOr(LTLfBinaryOperator):
     """Class for the LTLf Or formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.OR.value
 
@@ -276,7 +264,7 @@ class LTLfImplies(LTLfBinaryOperator):
     """Class for the LTLf Implication formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
@@ -307,7 +295,7 @@ class LTLfEquivalence(LTLfBinaryOperator):
     """Class for the LTLf Equivalente formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
@@ -336,7 +324,7 @@ class LTLfNext(LTLfUnaryOperator):
     """Class for the LTLf Next formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.NEXT.value
 
@@ -370,7 +358,7 @@ class LTLfWeakNext(LTLfUnaryOperator):
     """Class for the LTLf Weak Next formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.WEAK_NEXT.value
 
@@ -401,7 +389,7 @@ class LTLfUntil(LTLfBinaryOperator):
     """Class for the LTLf Until formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.UNTIL.value
 
@@ -457,7 +445,7 @@ class LTLfRelease(LTLfBinaryOperator):
     """Class for the LTLf Release formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.RELEASE.value
 
@@ -504,7 +492,7 @@ class LTLfEventually(LTLfUnaryOperator):
     """Class for the LTLf Eventually formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.EVENTUALLY.value
 
@@ -535,7 +523,7 @@ class LTLfAlways(LTLfUnaryOperator):
     """Class for the LTLf Always formula."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.ALWAYS.value
 
@@ -563,7 +551,7 @@ class LTLfEnd(LTLfFormula):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return self.to_nnf().find_labels()
 

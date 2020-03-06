@@ -174,6 +174,27 @@ def test_find_labels():
     assert formula.find_labels() == {c for c in {"A", "AB", "A0"}}
 
 
+def test_names():
+
+    good = [
+        "A",
+        "b",
+        "Hello",
+        "PropZero",
+        "Prop0",
+        "this_is_fine_2",
+        '"This is also allowed!"',
+        PLParser()("A -> B"),
+    ]
+    bad = ["!", "&", "Invalid:", "", '"', "="]
+
+    for name in good:
+        PLAtomic(name)
+    for name in bad:
+        with pytest.raises(ValueError):
+            PLAtomic(name)
+
+
 class TestParsingTree:
     """\
     The parsing tree should give the right priority to the operators.

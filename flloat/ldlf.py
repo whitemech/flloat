@@ -16,11 +16,12 @@ from flloat.base import (
     RegExpTruth,
     AtomicFormula,
     FiniteTrace,
+    AtomSymbol,
 )
 from flloat.delta import Delta
 from flloat.flloat import to_automaton
 from flloat.pl import PLFormula, PLTrue, PLFalse, PLAnd, PLOr, PLAtomic
-from flloat.symbols import Symbol, Symbols
+from flloat.symbols import Symbols, OpSymbol
 
 
 class LDLfFormula(Formula, FiniteTraceTruth, Delta, ABC):
@@ -141,7 +142,7 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
             + ")"
         )
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return self.f.find_labels().union(self.r.find_labels())
 
@@ -156,7 +157,7 @@ class LDLfPropositionalAtom(LDLfFormula):
     In LDLf with empty trace, this is equivalent to <phi>tt.
     """
 
-    def __init__(self, s: Symbol):
+    def __init__(self, s: AtomSymbol):
         """Initialize the formula."""
         super().__init__()
         self.s = s
@@ -180,7 +181,7 @@ class LDLfPropositionalAtom(LDLfFormula):
         """Negate the formula."""
         return self.to_nnf().negate()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return {self.s}
 
@@ -254,7 +255,7 @@ class LDLfNot(UnaryOperator, LDLfFormula):
         self.f = cast(LDLfFormula, self.f)
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.NOT.value
 
@@ -291,7 +292,7 @@ class LDLfAnd(LDLfBinaryOperator):
     """Class for the LDLf And formulas."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.AND.value
 
@@ -312,7 +313,7 @@ class LDLfOr(LDLfBinaryOperator):
     """Class for the LDLf Or formulas."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.OR.value
 
@@ -333,7 +334,7 @@ class LDLfImplies(LDLfBinaryOperator):
     """Class for the LDLf Implication formulas."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
@@ -364,7 +365,7 @@ class LDLfEquivalence(LDLfBinaryOperator):
     """Class for the LDLf Equivalence formulas."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
@@ -504,7 +505,7 @@ class RegExpTest(UnaryOperator, RegExpFormula):
         self.f = cast(LDLfFormula, self.f)
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_TEST.value
 
@@ -550,7 +551,7 @@ class RegExpUnion(BinaryOperator, RegExpFormula):
         self.formulas = cast(Sequence[RegExpFormula], self.formulas)
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_UNION.value
 
@@ -577,7 +578,7 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
     """Class for the sequence regex."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_SEQUENCE.value
 
@@ -624,7 +625,7 @@ class RegExpStar(UnaryOperator, RegExpFormula):
     """Class for the star regex."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_STAR.value
 
@@ -680,7 +681,7 @@ class LDLfEnd(LDLfFormula):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return self.to_nnf().find_labels()
 
@@ -711,7 +712,7 @@ class LDLfLast(LDLfFormula):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return self.to_nnf().find_labels()
 

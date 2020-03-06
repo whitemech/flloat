@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """This module contains the definition to deal with symbols."""
 from enum import Enum
-from typing import Set, Hashable
+from typing import Set
 
-Symbol = Hashable
+
+OpSymbol = str
 
 
 class Symbols(Enum):

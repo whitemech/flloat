@@ -19,8 +19,9 @@ from flloat.base import (
     AtomicFormula,
     BinaryOperator,
     UnaryOperator,
+    AtomSymbol,
 )
-from flloat.symbols import Symbol, Symbols
+from flloat.symbols import Symbols, OpSymbol
 
 
 class PLFormula(Formula, PropositionalTruth):
@@ -57,7 +58,7 @@ class PLFormula(Formula, PropositionalTruth):
 
 
 def to_sympy(
-    formula: Formula, replace: Optional[Dict[Symbol, sympy.Symbol]] = None
+    formula: Formula, replace: Optional[Dict[AtomSymbol, sympy.Symbol]] = None
 ) -> Boolean:
     """
     Translate a PLFormula object into a SymPy expression.
@@ -182,7 +183,7 @@ class PLNot(UnaryOperator[PLFormula], PLFormula):
     """Propositional Not."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.NOT.value
 
@@ -209,7 +210,7 @@ class PLOr(PLBinaryOperator):
     """Propositional Or."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.OR.value
 
@@ -230,7 +231,7 @@ class PLAnd(PLBinaryOperator):
     """Propositional And."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.AND.value
 
@@ -251,7 +252,7 @@ class PLImplies(PLBinaryOperator):
     """Propositional Implication."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
@@ -276,7 +277,7 @@ class PLEquivalence(PLBinaryOperator):
     """Propositional Equivalence."""
 
     @property
-    def operator_symbol(self) -> Symbol:
+    def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
