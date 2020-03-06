@@ -144,6 +144,30 @@ class TestTruth:
         assert parser("G c").truth(t, 10)
         assert parser("G F c").truth(t, 0)
 
+    def test_last(self):
+        parser = self.parser
+        t = self.trace
+
+        last = parser("last")
+        not_last = parser("! last")
+
+        assert last.negate() == not_last.to_nnf()
+
+        for pos in range(0, 5):
+            assert not parser("last").truth(t, pos)
+        assert parser("last").truth(t, 5)
+        assert not parser("last").truth(t, 6)
+
+        assert parser("XXXXX last").truth(t)
+        assert not parser("XXXX last").truth(t)
+        assert not parser("XXXXX !last").truth(t)
+        assert parser("XXXX !last").truth(t)
+
+        assert parser("c&last").truth(t, 5)
+
+        assert parser("last").truth(t[5:])
+        assert not parser("last").truth(t[6:])
+
 
 def test_nnf():
     parser = LTLfParser()

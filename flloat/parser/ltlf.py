@@ -22,6 +22,7 @@ from flloat.ltlf import (
     LTLfTrue,
     LTLfAtomic,
     LTLfFalse,
+    LTLfLast,
 )
 from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
@@ -159,7 +160,7 @@ class LTLfTransformer(Transformer):
         return LTLfFalse()
 
     def ltlf_last(self, args):
-        raise NotImplementedError("LTLf last not supported, yet")
+        return LTLfLast()
 
     def ltlf_end(self, args):
         raise NotImplementedError("LTLf end not supported, yet")

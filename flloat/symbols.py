@@ -39,7 +39,6 @@ class Symbols(Enum):
     CARET = "^"
     TRUE = "true"
     FALSE = "false"
-    LTLf_LAST = "last"
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]
