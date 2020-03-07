@@ -166,7 +166,7 @@ class LDLfPropositionalAtom(LDLfFormula):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
@@ -263,7 +263,7 @@ class LDLfNot(UnaryOperator, LDLfFormula):
         """Negate the formula."""
         return self.f
 
-    def truth(self, i: FiniteTrace, pos: int) -> bool:
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return not self.f.truth(i, pos)
 
@@ -300,7 +300,7 @@ class LDLfAnd(LDLfBinaryOperator):
         """Negate the formula."""
         return LDLfOr([f.negate() for f in self.formulas])
 
-    def truth(self, i: FiniteTrace, pos: int) -> bool:
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return all(f.truth(i, pos) for f in self.formulas)
 
@@ -321,7 +321,7 @@ class LDLfOr(LDLfBinaryOperator):
         """Negate the formula."""
         return LDLfOr([f.negate() for f in self.formulas])
 
-    def truth(self, i: FiniteTrace, pos: int) -> bool:
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return any(f.truth(i, pos) for f in self.formulas)
 
@@ -338,7 +338,7 @@ class LDLfImplies(LDLfBinaryOperator):
         """Get the operator symbol."""
         return Symbols.IMPLIES.value
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
@@ -369,7 +369,7 @@ class LDLfEquivalence(LDLfBinaryOperator):
         """Get the operator symbol."""
         return Symbols.EQUIVALENCE.value
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
@@ -685,7 +685,7 @@ class LDLfEnd(LDLfFormula):
         """Find the labels."""
         return self.to_nnf().find_labels()
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
@@ -716,7 +716,7 @@ class LDLfLast(LDLfFormula):
         """Find the labels."""
         return self.to_nnf().find_labels()
 
-    def truth(self, i: FiniteTrace, pos: int):
+    def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return self.to_nnf().truth(i, pos)
 
@@ -768,7 +768,7 @@ class _FreezedFalse(LDLfFormula):
         """Find the labels."""
         return super().find_labels()
 
-    def truth(self, tr: FiniteTrace, pos: int):
+    def truth(self, tr: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         raise NotImplementedError
 
@@ -805,7 +805,7 @@ class _FreezedTrue(LDLfFormula):
         """Find the labels."""
         return super().find_labels()
 
-    def truth(self, tr: FiniteTrace, pos: int):
+    def truth(self, tr: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         raise NotImplementedError
 

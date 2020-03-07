@@ -223,7 +223,7 @@ class FiniteTraceTruth:
     """Interface for formulas that support the trace semantics."""
 
     @abstractmethod
-    def truth(self, i: FiniteTrace, pos: int) -> bool:
+    def truth(self, i: FiniteTrace, pos: int = 0) -> bool:
         """
         Return the truth evaluation of the formula wrt the trace.
 

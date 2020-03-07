@@ -557,7 +557,7 @@ class LTLfLast(LTLfFormula):
 
     def negate(self) -> LTLfFormula:
         """Negate the formula."""
-        return LTLfNext(LTLfTrue())
+        return self.to_nnf().negate()
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
@@ -565,7 +565,7 @@ class LTLfLast(LTLfFormula):
 
     def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
-        return self.to_nnf().find_labels()
+        return set()
 
     def _members(self):
         return (Symbols.LAST.value,)
@@ -584,7 +584,7 @@ class LTLfEnd(LTLfFormula):
 
     def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
-        return self.to_nnf().find_labels()
+        return set()
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
