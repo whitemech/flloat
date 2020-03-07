@@ -726,15 +726,29 @@ class TestToAutomaton:
 
 
 @pytest.fixture(scope="session", params=ltlf_formulas)
-def formula_automa_pair(request):
+def ltlf_formula_automa_pair(request):
     formula_obj = parser(request.param)
     automaton = formula_obj.to_automaton()
     return formula_obj, automaton
 
 
+@pytest.fixture(scope="session", params=ltlf_formulas)
+def ltlf_formula_nnf_pair(request):
+    formula_obj = parser(request.param)
+    nnf = formula_obj.to_nnf()
+    return formula_obj, nnf
+
+
 @given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
-def test_formula_automaton_equivalence(formula_automa_pair, word):
-    formula_obj, automaton = formula_automa_pair
+def test_nnf_equivalence(ltlf_formula_nnf_pair, word):
+    """Test that a formula is equivalent to its NNF form."""
+    formula, formula_nnf = ltlf_formula_nnf_pair
+    assert formula.truth(word, 0) == formula_nnf.truth(word, 0)
+
+
+@given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
+def test_formula_automaton_equivalence(ltlf_formula_automa_pair, word):
+    formula_obj, automaton = ltlf_formula_automa_pair
     assert formula_obj.truth(word, 0) == automaton.accepts(word)
 
 
