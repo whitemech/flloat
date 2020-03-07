@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import lark
 import pytest
 from hypothesis import given
 
@@ -23,6 +25,8 @@ from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
 from .conftest import ldlf_formulas
 from .strategies import propositional_words
+from .parsing import ParsingCheck
+from . import test_pl
 
 
 parser = LDLfParser()
@@ -321,3 +325,106 @@ def test_nnf_equivalence(ldlf_formula_nnf_pair, word):
 def test_formula_automaton_equivalence(ldlf_formula_automa_pair, word):
     formula_obj, automaton = ldlf_formula_automa_pair
     assert formula_obj.truth(word, 0) == automaton.accepts(word)
+
+
+class TestParsingTree:
+    @classmethod
+    def setup_class(cls):
+
+        # Path to grammar
+        this_path = os.path.dirname(os.path.abspath(__file__))
+        grammar_path = "../flloat/parser/ldlf.lark"
+        grammar_path = os.path.join(this_path, *grammar_path.split("/"))
+
+        cls.checker = ParsingCheck(grammar_path)
+
+    def test_propositional(self):
+
+        # LDLf must include PL
+        test_pl.TestParsingTree.test_unary(self)
+        test_pl.TestParsingTree.test_and_or(self)
+        test_pl.TestParsingTree.test_implications(self)
+        test_pl.TestParsingTree.test_misc(self)
+        test_pl.TestParsingTree.test_bad_examples(self)
+
+    def test_boxes_and_diamonds(self):
+
+        ok, err = self.checker.precedence_check(
+            "<R>a", list("<>Ra")
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[B][B]<A>a", list("[]B[]B<>Aa")
+        )
+        assert ok, err
+
+    def test_regex(self):
+
+        ok, err = self.checker.precedence_check(
+            "<a&b+c>a", list("<>+&abca")
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[a; b; c|b]a", list("[];;ab|cba"),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[a&b->c; b+c]a", list("[]+;") + ["->"] + list("&abcbca"),
+        )
+        assert ok, err
+
+    def test_star(self):
+
+        ok, err = self.checker.precedence_check(
+            "[a+b*]c", list("[]+a*bc"),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[((a&b+p)*)]c", list("[]()*()+&abpc"),
+        )
+        assert ok, err
+
+    def test_general(self):
+
+        ok, err = self.checker.precedence_check(
+            "a-><b>e&c", ["->"] + list("a&<>bec"),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "a-><b>(e&c)", ["->"] + list("a<>b()&ec"),
+        )
+        assert ok, err
+
+    def test_bad_termination(self):
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("!a&", list("!a&"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("a&!", list("&a!"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("(a)(", list("()a("))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("<R>", list("<>R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[R]", list("[]R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[R][R", list("[]R[R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[]a", list("[]a"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[(a]b", list("[(a]b"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[a]b*", list("[]ab*"))

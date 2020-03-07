@@ -13,8 +13,8 @@ start: propositional_formula
 	     | prop_false
 
 atom: SYMBOL_NAME
-prop_true.2: TRUE
-prop_false.2: FALSE
+prop_true: TRUE
+prop_false: FALSE
 
 LSEPARATOR : "("
 RSEPARATOR : ")"
