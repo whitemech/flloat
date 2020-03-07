@@ -102,7 +102,7 @@ def to_sympy(
 class PLAtomic(AtomicFormula, PLFormula):
     """A class to represent propositional atomic formulas."""
 
-    def truth(self, i: PropInt, *args) -> bool:
+    def truth(self, i: PropInt, *args):
         """Evaluate the formula."""
         return i.get(self.s, False)
 
@@ -138,7 +138,7 @@ class PLTrue(PLAtomic):
         """Initialize the PL true formula."""
         PLAtomic.__init__(self, Symbols.TRUE.value)
 
-    def truth(self, *args) -> bool:
+    def truth(self, *args):
         """Evaluate the formula."""
         return True
 
@@ -162,7 +162,7 @@ class PLFalse(PLAtomic):
         """Initialize the formula."""
         PLAtomic.__init__(self, Symbols.FALSE.value)
 
-    def truth(self, *args) -> bool:
+    def truth(self, *args):
         """Evaluate the formula."""
         return False
 
