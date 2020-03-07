@@ -261,6 +261,3 @@ class TestParsingTree:
 
         with pytest.raises(lark.UnexpectedInput):
             self.checker.precedence_check("a|b|", list("a|b|"))
-
-        with pytest.raises(lark.UnexpectedInput):
-            self.checker.precedence_check("a|3", list("a|3"))

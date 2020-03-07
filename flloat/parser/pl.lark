@@ -12,7 +12,7 @@ start: propositional_formula
 	     | prop_true
 	     | prop_false
 
-atom: STRING
+atom: SYMBOL_NAME
 prop_true.2: TRUE
 prop_false.2: FALSE
 
@@ -23,7 +23,7 @@ IMPLY : "->"
 OR: "||"|"|"
 AND: "&&"|"&"
 NOT: "!"
-STRING: /[a-zA-Z]\w*/
+SYMBOL_NAME: /(\w+)|(".*")/
 TRUE.2: /(?i:true)/
 FALSE.2: /(?i:false)/
 

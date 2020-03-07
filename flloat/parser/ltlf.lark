@@ -28,7 +28,7 @@ start: ltlf_formula
           |        ltlf_last
           |        ltlf_end
 
-ltlf_symbol: SYMBOL_STRING
+ltlf_symbol: SYMBOL_NAME
 ltlf_true: prop_true
 ltlf_false: prop_false
 ltlf_last: LAST
@@ -45,11 +45,10 @@ END.2: /(?i:end)/
 LAST.2: /(?i:last)/
 
 // Symbols cannot contain uppercase letters, because these are reserved
-SYMBOL_STRING: /[a-z][a-z0-9_]*/
+SYMBOL_NAME: /[a-z][a-z0-9_]*/
 
 %ignore /\s+/
 
-%import .pl.STRING -> STRING
 %import .pl.prop_true -> prop_true
 %import .pl.prop_false -> prop_false
 %import .pl.NOT -> NOT
