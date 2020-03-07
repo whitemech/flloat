@@ -6,4 +6,6 @@
 
 ## Contributors
 
-None yet. [Why not be the first](./contributing.md)? 
+* [Roberto Cipollone](https://github.com/cipollone) <[cipollone.rt@gmail.com](mailto:cipollone.rt@gmail.com)>
+
+[How to contribute](./CONTRIBUTING.md)? 

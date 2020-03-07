@@ -388,7 +388,24 @@ class TestParsingTree:
         )
         assert ok, err
 
-    def test_general(self):
+        ok, err = self.checker.precedence_check(
+            "<(a*)*+c*>z", list("<>+*()*a*cz")
+        )
+        assert ok, err
+
+    def test_test(self):
+
+        ok, err = self.checker.precedence_check(
+            "[a; <a>b?]c", list("[];a?<>abc"),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[[<a>b?]b?*]c", list("[]*?[]?<>abbc")
+        )
+        assert ok, err
+
+    def test_outer(self):
 
         ok, err = self.checker.precedence_check(
             "a-><b>e&c", ["->"] + list("a&<>bec"),
@@ -397,6 +414,24 @@ class TestParsingTree:
 
         ok, err = self.checker.precedence_check(
             "a-><b>(e&c)", ["->"] + list("a<>b()&ec"),
+        )
+        assert ok, err
+
+    def test_special(self):
+
+        # These can be confused with atoms. Print to see the difference
+        ok, err = self.checker.precedence_check(
+            "<true>tt", "< > true tt".split(" "),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "<false>ff", "< > false ff".split(" "),
+        )
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "last&end", "& last end".split(" "),
         )
         assert ok, err
 
@@ -427,4 +462,15 @@ class TestParsingTree:
             self.checker.precedence_check("[(a]b", list("[(a]b"))
 
         with pytest.raises(lark.UnexpectedInput):
-            self.checker.precedence_check("[a]b*", list("[]ab*"))
+            self.checker.precedence_check("[a]b*", list("[]a*b"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[a**]b", list("[]**ab"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[<a>c??]b", list("[]??<>acb"))
+
+        # Test on propositions not supported due to ambiguity for lalr parser
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[a?]b", list("[]**ab"))
+

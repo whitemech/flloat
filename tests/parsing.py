@@ -12,7 +12,7 @@ class ParsingCheck:
 
         :param lark: path of a lark grammar file.
         """
-        self.parser = Lark(open(lark), parser="lalr")
+        self.parser = Lark(open(lark), parser="lalr", debug=True)
 
     def precedence_check(
         self, formula: str, tokens: List[str], print_tree: bool = False
