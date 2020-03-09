@@ -31,8 +31,7 @@ regular_expression: re_union
 ?re_union:      re_sequence (UNION re_sequence)*
 ?re_sequence:   re_star (SEQ re_star)*
 ?re_star:       re_test STAR?
-?re_test:       ldlf_box TEST
-        |       ldlf_diamond TEST
+?re_test:       TEST ldlf_formula
         |       re_wrapped
 ?re_wrapped:    re_propositional
            |    LSEPARATOR regular_expression RSEPARATOR

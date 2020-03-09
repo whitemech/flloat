@@ -32,6 +32,7 @@ class LDLfTransformer(Transformer):
     def __init__(self):
         super().__init__()
         self._pl_transformer = PLTransformer()
+        self._pl_imported = ("prop_atom", "propositional_formula")
 
     def __starred_binaryop(self, args, formula_type):
         """Process a binary operator with repetitions.
@@ -43,7 +44,7 @@ class LDLfTransformer(Transformer):
             a list of arguments.
         :return: a Formula.
         """
-        
+
         if len(args) == 1:
             return args[0]
         elif (len(args) - 1) % 2 == 0:
@@ -139,7 +140,7 @@ class LDLfTransformer(Transformer):
         if len(args) == 1:
             return args[0]
         elif len(args) == 2:
-            formula, _ = args
+            _, formula = args
             return RegExpTest(formula)
         else:
             raise ParsingError
@@ -162,7 +163,7 @@ class LDLfTransformer(Transformer):
 
         if attr.startswith("pl__"):
             return getattr(self._pl_transformer, attr[4:])
-        elif attr == "prop_atom" or attr == "propositional_formula":
+        elif attr in self._pl_imported:
             return getattr(self._pl_transformer, attr)
         elif attr.isupper():
             raise AttributeError("Terminals should not be parsed")

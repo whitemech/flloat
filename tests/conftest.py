@@ -27,8 +27,8 @@ ldlf_formulas = [
     "<A ; B>ff",
     "<A*>tt",
     "<A*>ff",
-    "<<A>tt?>tt",
-    "<<A>tt?>ff",
+    "<?<A>tt>tt",
+    "<?<A>tt>ff",
     "[A & B]tt",
     "[A & B]ff",
     "[A | C]tt",
@@ -39,8 +39,8 @@ ldlf_formulas = [
     "[A ; B]ff",
     "[A*]tt",
     "[A*]ff",
-    "[<A>tt?]tt",
-    "[<A>tt?]ff",
+    "[?<A>tt]tt",
+    "[?<A>tt]ff",
 ]
 
 
