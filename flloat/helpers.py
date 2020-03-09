@@ -53,6 +53,59 @@ class Hashable(ABC):
         self._hash = None
 
 
+class Wrapper(Hashable):
+    """Wrap other objects and expose the same interface.
+
+    This helper class can be subclassed to create a constant view on wrapped
+    objects, exposing the same interface.
+    This is an immutable object: either add members to _mutable list, or
+    modify them through __dict__.
+    """
+
+    _mutable = ["_hash"]
+
+    def __init__(self, obj):
+        """Initialize: save the wrapped object."""
+        super().__init__()
+        self.__dict__["_Wrapper__obj"] = obj
+
+    def __str__(self):
+        """Just forward to obj."""
+        return str(self.__obj)
+
+    def __repr__(self):
+        """Just forward to obj."""
+        return repr(self.__obj)
+
+    def __getattr__(self, attr):
+        """Redirect to obj."""
+        return getattr(self.__obj, attr)
+
+    def __setattr__(self, attr, value):
+        """If immutable, raises an error."""
+        if attr in self._mutable:
+            self.__dict__[attr] = value
+        else:
+            raise AttributeError("Can't modify: immutable object.")
+
+    def __delattr__(self, attr):
+        """Raise an error, because del is not supported."""
+        raise AttributeError("Can't modify: immutable object.")
+
+    def __dir__(self):
+        """Expose the same interface as wrapped."""
+        members = set(dir(self.__obj)).union(object.__dir__(self))
+        return sorted(members)
+
+    def _members(self):
+        return self.__obj
+
+    @property
+    def wrapped(self):
+        """Return the wrapped object."""
+        return self.__obj
+
+
 def powerset(s: Set) -> FrozenSet:
     """
     Compute the power set of a set.

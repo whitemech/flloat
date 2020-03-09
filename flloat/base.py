@@ -8,7 +8,7 @@ import re
 from pythomata import PropositionalInterpretation
 
 from flloat.symbols import Symbols, OpSymbol
-from flloat.helpers import Hashable
+from flloat.helpers import Hashable, Wrapper
 
 FiniteTrace = Sequence[PropositionalInterpretation]
 AtomSymbol = Union["QuotedFormula", str]
@@ -72,59 +72,28 @@ class AtomicFormula(Formula, ABC):
         return {self.s}
 
 
-class QuotedFormula(Hashable):
+class QuotedFormula(Wrapper):
     """This object is a constant representation of a formula.
 
     This can be used as a normal formula. Quoted formulas can also be used as
     hashable objects and for atomic symbols.
     """
 
-    _mutable = ["_hash"]
-
     def __init__(self, f: Formula):
         """Initialize.
 
         :param f: formula to represent.
         """
-        super().__init__()
-        self.__dict__["_QuotedFormula__f"] = f
+        super().__init__(f)
         self.__dict__["_QuotedFormula__str"] = '"' + str(f) + '"'
 
-    def _members(self) -> Formula:
-        return self.__f
-
     def __str__(self):
-        """Quoted formula."""
+        """Cache str."""
         return self.__str
 
     def __repr__(self):
-        """Quoted formula."""
+        """Nice representation."""
         return str(self)
-
-    def __getattr__(self, attrname):
-        """Redirect to Formula."""
-        return getattr(self.__f, attrname)
-
-    def __setattr__(self, attr, value):
-        """If immutable, raises an error."""
-        if attr in self._mutable:
-            self.__dict__[attr] = value
-        else:
-            raise AttributeError("Can't modify: immutable object.")
-
-    def __delattr__(self, attr):
-        """Raise an error, because del is not supported."""
-        raise AttributeError("Can't modify: immutable object.")
-
-    def __dir__(self):
-        """Expose the same interface as wrapped."""
-        members = set(dir(self.__f)).union(object.__dir__(self))
-        return sorted(members)
-
-    @property
-    def wrapped(self) -> Formula:
-        """Return the wrapped Formula."""
-        return self.__f
 
 
 class Operator(Formula, ABC):
@@ -246,3 +215,29 @@ class RegExpTruth:
         :param end: the end index.
         :return: True if the regex is satisfied by the trace, False otherwise.
         """
+
+
+class FiniteTraceWrapper(Wrapper, FiniteTraceTruth):
+    """Valuate propositional sentences on finite traces.
+
+    This class wraps any propositional sentence, PropositionalTruth interface,
+    and exposes the FiniteTraceTruth interface.
+    """
+
+    def __init__(self, prop: PropositionalTruth):
+        """Wrap a propositional sentence."""
+        Wrapper.__init__(self, prop)
+
+    def truth(self, i: FiniteTrace, pos: int = 0) -> bool:
+        """Return the truth evaluation of a propositional on the trace.
+
+        In logics over finite traces, propositionals are used as descriptions
+        for a set of interpretations. Any propositional sentence (even `true`)
+        can only be satisfied in a valid instant of the trace: a proposition is
+        true if the current instant contains an interpretation which satisfy
+        the formula. Outside the trace everything is false.
+        """
+        if pos >= len(i):
+            return False
+        else:
+            return self.wrapped.truth(i[pos])

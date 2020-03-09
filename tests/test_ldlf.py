@@ -107,49 +107,75 @@ def test_parser():
     )
 
 
-def test_truth():
-    sa, sb = "A", "B"
-    a, b = PLAtomic(sa), PLAtomic(sb)
+class TestTruth:
+    @classmethod
+    def setup_class(cls):
+        cls.parser = LDLfParser()
+        cls.trace = [{}, {"A": True}, {"A": True}, {"A": True, "B": True}, {}]
 
-    i_ = {}
-    i_a = {"A": True}
-    i_b = {"B": True}
-    i_ab = {"A": True, "B": True}
+    def test_1(self):
+        sa, sb = "A", "B"
+        a, b = PLAtomic(sa), PLAtomic(sb)
 
-    tr_false_a_b_ab = [i_, i_a, i_b, i_ab, i_]
+        i_ = {}
+        i_a = {"A": True}
+        i_b = {"B": True}
+        i_ab = {"A": True, "B": True}
 
-    tt = LDLfLogicalTrue()
-    ff = LDLfLogicalFalse()
+        tr_false_a_b_ab = [i_, i_a, i_b, i_ab, i_]
 
-    assert tt.truth(tr_false_a_b_ab, 0)
-    assert not ff.truth(tr_false_a_b_ab, 0)
-    assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
-    assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
-    #     tr_false_a_b_ab, 3
-    # )
-    assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
-        tr_false_a_b_ab, 0
-    )
+        tt = LDLfLogicalTrue()
+        ff = LDLfLogicalFalse()
 
-    parser = LDLfParser()
-    trace = [{}, {"A": True}, {"A": True}, {"A": True, "B": True}, {}]
+        assert tt.truth(tr_false_a_b_ab, 0)
+        assert not ff.truth(tr_false_a_b_ab, 0)
+        assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
+        assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
+        # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
+        #     tr_false_a_b_ab, 3
+        # )
+        assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
+            tr_false_a_b_ab, 0
+        )
 
-    formula = "<true*;A&B>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 0)
+        trace = self.trace
+        parser = self.parser
 
-    formula = "[(A+!B)*]<C>tt"
-    parsed_formula = parser(formula)
-    assert not parsed_formula.truth(trace, 1)
+        formula = "<true*;A&B>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
 
-    formula = "<?(<!C>tt)><A>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 1)
+        formula = "[(A+!B)*]<C>tt"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 1)
 
-    formula = "<!C+A>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 1)
+        formula = "<?(<!C>tt)><A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+        formula = "<!C+A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+        formula = "<!C+A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+        formula = "<!A>A"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "<!A; !B>(A & B)"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+    def test_2(self):
+        parser = self.parser
+        trace = self.trace
+
+        formula = "<true*>A&B"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
 
 
 def test_nnf():
