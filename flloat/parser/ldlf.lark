@@ -36,7 +36,7 @@ regular_expression: re_union
         |       re_wrapped
 ?re_wrapped:    re_propositional
            |    LSEPARATOR regular_expression RSEPARATOR
-?re_propositional: propositional_formula
+re_propositional: propositional_formula
 
 
 BOXLSEPARATOR: "["
@@ -52,8 +52,8 @@ FF.2: /(?i:ff)/
 
 %ignore /\s+/
 
-%import .pl.start -> propositional_formula
-%import .pl.prop_atom -> prop_atom
+%import .pl.propositional_formula
+%import .pl.prop_atom
 %import .pl.EQUIVALENCE -> EQUIVALENCE
 %import .pl.IMPLY -> IMPLY
 %import .pl.OR -> OR
