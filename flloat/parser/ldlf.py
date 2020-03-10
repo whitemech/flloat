@@ -26,6 +26,7 @@ from flloat.ldlf import (
 )
 from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
+from flloat.base import FiniteTraceWrapper
 
 
 class LDLfTransformer(Transformer):
@@ -158,15 +159,28 @@ class LDLfTransformer(Transformer):
         assert len(args) == 1
         return RegExpPropositional(args[0])
 
+    def _adapt_prop_to_traces(self, attr, args):
+        """Parse and prepare propositionals for valuation over traces."""
+
+        parsed = getattr(self._pl_transformer, attr)(args)
+        return FiniteTraceWrapper(parsed)
+
     def __getattr__(self, attr: str):
         """Also parse propositional logic."""
 
+        # Prop logic internals: parse and return
         if attr.startswith("pl__"):
             return getattr(self._pl_transformer, attr[4:])
+
+        # Prop logic entry points: parse and adapt to traces
         elif attr in self._pl_imported:
-            return getattr(self._pl_transformer, attr)
+            return lambda args: self._adapt_prop_to_traces(attr, args)
+
+        # Parsing not required: catched by lark
         elif attr.isupper():
             raise AttributeError("Terminals should not be parsed")
+
+        # Grammar error
         else:
             raise ParseError("No transformation exists for rule", attr)
 

@@ -2,7 +2,7 @@
 
 """Base classes for the implementation of a generic syntax tree."""
 from abc import abstractmethod, ABC
-from typing import Sequence, Set, Tuple, TypeVar, Generic, cast, Union
+from typing import Sequence, Set, Tuple, TypeVar, Generic, cast, Union, Dict
 import re
 
 from pythomata import PropositionalInterpretation
@@ -217,27 +217,45 @@ class RegExpTruth:
         """
 
 
-class FiniteTraceWrapper(Wrapper, FiniteTraceTruth):
-    """Valuate propositional sentences on finite traces.
+class FiniteTraceWrapper(Wrapper, PropositionalTruth, FiniteTraceTruth):
+    """Allow to valuate propositional sentences on finite traces.
 
-    This class wraps any propositional sentence, PropositionalTruth interface,
-    and exposes the FiniteTraceTruth interface.
+    This class wraps any propositional sentence, with follows the
+    PropositionalTruth interface, and adds support for the FiniteTraceTruth
+    interface.
     """
 
     def __init__(self, prop: PropositionalTruth):
         """Wrap a propositional sentence."""
         Wrapper.__init__(self, prop)
 
-    def truth(self, i: FiniteTrace, pos: int = 0) -> bool:
-        """Return the truth evaluation of a propositional on the trace.
+    def truth(
+        self, i: Union[FiniteTrace, PropositionalInterpretation], pos: int = 0
+    ) -> bool:
+        """Return the truth of a propositional sentence.
 
         In logics over finite traces, propositionals are used as descriptions
         for a set of interpretations. Any propositional sentence (even `true`)
         can only be satisfied in a valid instant of the trace: a proposition is
         true if the current instant contains an interpretation which satisfy
         the formula. Outside the trace everything is false.
+
+        This object still support the original interface, PropositionalTruth.
+
+        :param i: a proporitional interpretation or a trace
+        :param pos: a position on the trace (ignored with prop interpretations)
+        :return: Truth of this sentence.
         """
-        if pos >= len(i):
-            return False
+        # If prop
+        if isinstance(i, Dict):
+            return self.wrapped.truth(i)
+
+        # If trace
+        elif isinstance(i, Sequence):
+            if not (0 <= pos < len(i)):
+                return False
+            else:
+                return self.wrapped.truth(i[pos])
+
         else:
-            return self.wrapped.truth(i[pos])
+            raise TypeError("Interpretation type")

@@ -7,11 +7,8 @@ from abc import abstractmethod, ABC
 from typing import Set, Any, Dict, Optional
 
 import sympy
-from pythomata import (
-    PropositionalInterpretation as PropInt,
-    PropositionalInterpretation,
-)
 from sympy.logic.boolalg import Boolean, BooleanTrue, BooleanFalse
+from pythomata import PropositionalInterpretation
 
 from flloat.base import (
     Formula,
@@ -102,7 +99,7 @@ def to_sympy(
 class PLAtomic(AtomicFormula, PLFormula):
     """A class to represent propositional atomic formulas."""
 
-    def truth(self, i: PropInt, *args):
+    def truth(self, i: PropositionalInterpretation, *args):
         """Evaluate the formula."""
         return i.get(self.s, False)
 

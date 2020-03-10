@@ -161,21 +161,37 @@ class TestTruth:
         parsed_formula = parser(formula)
         assert parsed_formula.truth(trace, 1)
 
-        formula = "<!A>A"
-        parsed_formula = parser(formula)
-        assert parsed_formula.truth(trace, 0)
-
-        formula = "<!A; !B>(A & B)"
-        parsed_formula = parser(formula)
-        assert parsed_formula.truth(trace, 0)
-
     def test_2(self):
         parser = self.parser
         trace = self.trace
 
-        formula = "<true*>A&B"
+        formula = "<!A>A"
         parsed_formula = parser(formula)
         assert parsed_formula.truth(trace, 0)
+
+        formula = "<!A; !B><A>(A & B)"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "<true*>(A&B&<true>(!A&!B))"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "[true*; B]!A"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "[true*]!C"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "!<true>A & !<true>true & <true>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 4)
+
+        formula = "<true>(!A & !true & tt) & !A & !B"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 4)
 
 
 def test_nnf():
