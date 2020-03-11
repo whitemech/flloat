@@ -3,7 +3,7 @@
 """This module contains the classes to support LDLf."""
 
 from abc import abstractmethod, ABC
-from typing import Set, cast, Sequence
+from typing import Set, Sequence
 
 from pythomata import PropositionalInterpretation
 from pythomata.impl.symbolic import SymbolicDFA
@@ -11,12 +11,14 @@ from pythomata.impl.symbolic import SymbolicDFA
 from flloat.base import (
     Formula,
     FiniteTraceTruth,
+    FiniteTraceWrapper,
     UnaryOperator,
     BinaryOperator,
     RegExpTruth,
     AtomicFormula,
     FiniteTrace,
     AtomSymbol,
+    T,
 )
 from flloat.delta import Delta
 from flloat.flloat import to_automaton
@@ -93,7 +95,7 @@ class RegExpFormula(Formula, RegExpTruth, DeltaRegExp, ABC):
 
     def negate(self) -> Formula:
         """Negate should not be called for regular expressions."""
-        raise ValueError
+        raise AttributeError("Regular expressions do not support negation")
 
 
 class LDLfUnaryOperator(UnaryOperator[LDLfFormula], LDLfFormula, ABC):
@@ -101,8 +103,8 @@ class LDLfUnaryOperator(UnaryOperator[LDLfFormula], LDLfFormula, ABC):
 
     def __init__(self, f: LDLfFormula):
         """Initialize the formula."""
-        super().__init__(f)
-        self.f = cast(LDLfFormula, self.f)
+        LDLfFormula.__init__(self)
+        UnaryOperator.__init__(self, _maybe_propositional(f))
 
 
 class LDLfBinaryOperator(BinaryOperator[LDLfFormula], LDLfFormula, ABC):
@@ -110,8 +112,26 @@ class LDLfBinaryOperator(BinaryOperator[LDLfFormula], LDLfFormula, ABC):
 
     def __init__(self, formulas: Sequence[LDLfFormula]):
         """Initialize the formula."""
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[LDLfFormula], self.formulas)
+        LDLfFormula.__init__(self)
+        BinaryOperator.__init__(self, _maybe_propositional(formulas))
+
+
+class REfUnaryOperator(UnaryOperator[T], RegExpFormula, ABC):
+    """A unary operator for REf."""
+
+    def __init__(self, f: T):
+        """Initialize the formula."""
+        RegExpFormula.__init__(self)
+        UnaryOperator.__init__(self, _maybe_propositional(f))
+
+
+class REfBinaryOperator(BinaryOperator[RegExpFormula], RegExpFormula, ABC):
+    """A binary operator for REf."""
+
+    def __init__(self, formulas: Sequence[RegExpFormula]):
+        """Initialize the formula."""
+        RegExpFormula.__init__(self)
+        BinaryOperator.__init__(self, _maybe_propositional(formulas))
 
 
 class LDLfTemporalFormula(LDLfFormula, ABC):
@@ -126,7 +146,7 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         """Initialize the formula."""
         super().__init__()
         self.r = r
-        self.f = f
+        self.f = _maybe_propositional(f)
 
     def _members(self):
         return self.temporal_brackets, self.r, self.f
@@ -151,6 +171,8 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         return type(self)(self.r.to_nnf(), self.f.to_nnf())
 
 
+# TODO: this class is not used: propositionals are passed directly to LDLf
+#  operators. Is this fine, we may just correct all type hints in this module.
 class LDLfPropositionalAtom(LDLfFormula):
     """An LDLf propositional formula.
 
@@ -246,13 +268,8 @@ class LDLfLogicalFalse(AtomicFormula, LDLfFormula):
         return PLFalse()
 
 
-class LDLfNot(UnaryOperator, LDLfFormula):
+class LDLfNot(LDLfUnaryOperator):
     """Class for the LDLf logical not formula."""
-
-    def __init__(self, f: LDLfFormula):
-        """Initialize the formula."""
-        super().__init__(f)
-        self.f = cast(LDLfFormula, self.f)
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -453,7 +470,11 @@ class RegExpPropositional(RegExpFormula):
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
         """Evaluate the formula."""
-        return end == start + 1 and start < len(tr) and self.pl_formula.truth(tr[start])
+        return (
+            end == start + 1
+            and 0 <= start < len(tr)
+            and self.pl_formula.truth(tr[start])
+        )
 
     def _members(self):
         return RegExpPropositional, self.pl_formula
@@ -495,14 +516,8 @@ class RegExpPropositional(RegExpFormula):
         return self.pl_formula.find_labels()
 
 
-class RegExpTest(UnaryOperator, RegExpFormula):
+class RegExpTest(REfUnaryOperator[LDLfFormula]):
     """Class for the test regex."""
-
-    def __init__(self, f: LDLfFormula):
-        """Initialize the formula."""
-        RegExpFormula.__init__(self)
-        UnaryOperator.__init__(self, f)
-        self.f = cast(LDLfFormula, self.f)
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -542,13 +557,8 @@ class RegExpTest(UnaryOperator, RegExpFormula):
         return s
 
 
-class RegExpUnion(BinaryOperator, RegExpFormula):
+class RegExpUnion(REfBinaryOperator):
     """Class for the union regex."""
-
-    def __init__(self, formulas: Sequence[RegExpFormula]):
-        """Initialize the formula."""
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[RegExpFormula], self.formulas)
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -574,18 +584,13 @@ class RegExpUnion(BinaryOperator, RegExpFormula):
         return PLAnd([LDLfBox(r, f)._delta(i, epsilon) for r in self.formulas])
 
 
-class RegExpSequence(BinaryOperator, RegExpFormula):
+class RegExpSequence(REfBinaryOperator):
     """Class for the sequence regex."""
 
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_SEQUENCE.value
-
-    def __init__(self, formulas: Sequence[RegExpFormula]):
-        """Initialize the formula."""
-        super().__init__(formulas)
-        self.formulas = cast(Sequence[RegExpFormula], self.formulas)
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
         """Evaluate the formula."""
@@ -621,18 +626,13 @@ class RegExpSequence(BinaryOperator, RegExpFormula):
         return res._delta(i, epsilon)
 
 
-class RegExpStar(UnaryOperator, RegExpFormula):
+class RegExpStar(REfUnaryOperator):
     """Class for the star regex."""
 
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
         return Symbols.PATH_STAR.value
-
-    def __init__(self, f: RegExpFormula):
-        """Initialize the formula."""
-        super().__init__(f)
-        self.f = cast(RegExpFormula, self.f)
 
     def truth(self, tr: FiniteTrace, start: int = 0, end: int = 0):
         """Evaluate the formula."""
@@ -827,3 +827,19 @@ def _expand(f: Formula):
     #     return PLFalse()
     else:
         return f
+
+
+def _maybe_propositional(f):
+    """Adapt the formula for truth over finite traces, if necessary.
+
+    :param f: A formula or a sequence of formulas.
+    :return: A formula.
+    """
+    if isinstance(f, PLFormula):
+        f = FiniteTraceWrapper(f)
+    elif isinstance(f, Sequence):
+        f = [
+            FiniteTraceWrapper(element) if isinstance(element, PLFormula) else element
+            for element in f
+        ]
+    return f
