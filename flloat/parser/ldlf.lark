@@ -1,56 +1,58 @@
 start: ldlf_formula
-ldlf_formula:  ldlf_equivalence
 
-ldlf_equivalence: ldlf_implication (EQUIVALENCE ldlf_implication)*
-ldlf_implication: ldlf_or (IMPLY ldlf_or)*
-ldlf_or: ldlf_and (OR ldlf_and)*
-ldlf_and: ldlf_box (AND ldlf_box)*
-ldlf_box: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_box
-        | ldlf_diamond
-ldlf_diamond: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_box
-            | ldlf_not
-ldlf_not: NOT* ldlf_atom
-ldlf_atom:   ldlf_tt
-           | ldlf_ff
-           | ldlf_last
-           | ldlf_end
-           | ldlf_wrapped
-ldlf_wrapped: LSEPARATOR ldlf_formula RSEPARATOR
+?ldlf_formula:  ldlf_equivalence
+?ldlf_equivalence: ldlf_implication (EQUIVALENCE ldlf_implication)*
+?ldlf_implication: ldlf_or (IMPLY ldlf_or)*
+?ldlf_or: ldlf_and (OR ldlf_and)*
+?ldlf_and: ldlf_unaryop (AND ldlf_unaryop)*
 
-ldlf_tt.2: TT
-ldlf_ff.2: FF
-ldlf_last.2: LAST
-ldlf_end.2: END
+?ldlf_unaryop:     ldlf_box
+             |     ldlf_diamond
+             |     ldlf_not
+             |     ldlf_wrapped
+?ldlf_box: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_unaryop
+?ldlf_diamond: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_unaryop
+?ldlf_not: NOT ldlf_unaryop
+?ldlf_wrapped:    ldlf_atom
+             |    LSEPARATOR ldlf_formula RSEPARATOR
+?ldlf_atom:   ldlf_tt
+          |   ldlf_ff
+          |   ldlf_last
+          |   ldlf_end
+          |   prop_atom
 
-regular_expression: regular_expression_union
+ldlf_tt: TT
+ldlf_ff: FF
+ldlf_last: LAST
+ldlf_end: END
 
-regular_expression_union: regular_expression_sequence (UNION regular_expression_sequence)*
-regular_expression_sequence: regular_expression_star (SEQ regular_expression_star)*
-regular_expression_star: regular_expression_test STAR?
-                       | LSEPARATOR regular_expression RSEPARATOR STAR?
-regular_expression_test: regular_expression_propositional
-                       | ldlf_formula TEST
-                       | LSEPARATOR ldlf_formula RSEPARATOR TEST
-regular_expression_propositional: propositional_formula
+regular_expression: re_union
+
+?re_union:      re_sequence (UNION re_sequence)*
+?re_sequence:   re_star (SEQ re_star)*
+?re_star:       re_test STAR?
+?re_test:       TEST ldlf_formula
+        |       re_wrapped
+?re_wrapped:    re_propositional
+           |    LSEPARATOR regular_expression RSEPARATOR
+re_propositional: propositional_formula
 
 
-%import common.ESCAPED_STRING
-WHITESPACE: (" " | "\n")+
 BOXLSEPARATOR: "["
 BOXRSEPARATOR: "]"
 DIAMONDLSEPARATOR: "<"
 DIAMONDRSEPARATOR: ">"
-TT: "tt"
-FF: "ff"
 UNION: "+"
 SEQ: ";"
 TEST: "?"
 STAR: "*"
-%ignore WHITESPACE
-%import .pl.start -> propositional_formula
-%import .pl.STRING -> STRING
-%import .pl.prop_true -> prop_true
-%import .pl.prop_false -> prop_false
+TT.2: /(?i:tt)/
+FF.2: /(?i:ff)/
+
+%ignore /\s+/
+
+%import .pl.propositional_formula
+%import .pl.prop_atom
 %import .pl.EQUIVALENCE -> EQUIVALENCE
 %import .pl.IMPLY -> IMPLY
 %import .pl.OR -> OR

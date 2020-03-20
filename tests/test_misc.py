@@ -73,11 +73,13 @@ def test_hash_consistency_after_pickling():
 
 
 def test_QuotedFormula():
-    from flloat.parser.ltlf import LTLfParser
     from flloat.base import QuotedFormula
+    from flloat.parser.ltlf import LTLfParser
+    from flloat.ltlf import LTLfAtomic, LTLfAnd
 
-    f = LTLfParser()("!(G a & X b)")
+    f = LTLfParser()("!(G a)")
     qf = QuotedFormula(f)
+    atomf = LTLfAnd([LTLfAtomic(f), LTLfAtomic(f)])
 
     assert qf.wrapped is f
 

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import lark
 import pytest
 from hypothesis import given
 
@@ -23,6 +25,8 @@ from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
 from .conftest import ldlf_formulas
 from .strategies import propositional_words
+from .parsing import ParsingCheck
+from . import test_pl
 
 
 parser = LDLfParser()
@@ -82,7 +86,7 @@ def test_parser():
         LDLfEnd(),
     )
 
-    assert parser("!(<(!(A<->D))+((B;C)*)+(!last?)>[(true)*]end)") == LDLfNot(
+    assert parser("!(<(!(A<->D))+((B;C)*)+(?!last)>[(true)*]end)") == LDLfNot(
         LDLfDiamond(
             RegExpUnion(
                 [
@@ -103,49 +107,91 @@ def test_parser():
     )
 
 
-def test_truth():
-    sa, sb = "A", "B"
-    a, b = PLAtomic(sa), PLAtomic(sb)
+class TestTruth:
+    @classmethod
+    def setup_class(cls):
+        cls.parser = LDLfParser()
+        cls.trace = [{}, {"A": True}, {"A": True}, {"A": True, "B": True}, {}]
 
-    i_ = {}
-    i_a = {"A": True}
-    i_b = {"B": True}
-    i_ab = {"A": True, "B": True}
+    def test_1(self):
+        sa, sb = "A", "B"
+        a, b = PLAtomic(sa), PLAtomic(sb)
 
-    tr_false_a_b_ab = [i_, i_a, i_b, i_ab, i_]
+        i_ = {}
+        i_a = {"A": True}
+        i_b = {"B": True}
+        i_ab = {"A": True, "B": True}
 
-    tt = LDLfLogicalTrue()
-    ff = LDLfLogicalFalse()
+        tr_false_a_b_ab = [i_, i_a, i_b, i_ab, i_]
 
-    assert tt.truth(tr_false_a_b_ab, 0)
-    assert not ff.truth(tr_false_a_b_ab, 0)
-    assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
-    assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
-    # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
-    #     tr_false_a_b_ab, 3
-    # )
-    assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
-        tr_false_a_b_ab, 0
-    )
+        tt = LDLfLogicalTrue()
+        ff = LDLfLogicalFalse()
 
-    parser = LDLfParser()
-    trace = [{}, {"A": True}, {"A": True}, {"A": True, "B": True}, {}]
+        assert tt.truth(tr_false_a_b_ab, 0)
+        assert not ff.truth(tr_false_a_b_ab, 0)
+        assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
+        assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
+        # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
+        #     tr_false_a_b_ab, 3
+        # )
+        assert not LDLfDiamond(RegExpPropositional(PLAnd([a, b])), tt).truth(
+            tr_false_a_b_ab, 0
+        )
 
-    formula = "<true*;A&B>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 0)
+        trace = self.trace
+        parser = self.parser
 
-    formula = "[(A+!B)*]<C>tt"
-    parsed_formula = parser(formula)
-    assert not parsed_formula.truth(trace, 1)
+        formula = "<true*;A&B>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
 
-    formula = "<(<!C>tt)?><A>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 1)
+        formula = "[(A+!B)*]<C>tt"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 1)
 
-    formula = "<!C+A>tt"
-    parsed_formula = parser(formula)
-    assert parsed_formula.truth(trace, 1)
+        formula = "<?(<!C>tt)><A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+        formula = "<!C+A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+        formula = "<!C+A>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 1)
+
+    def test_2(self):
+        parser = self.parser
+        trace = self.trace
+
+        formula = "<!A>A"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "<!A; !B><A>(A & B)"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "<true*>(A&B&<true>(!A&!B))"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "[true*; B]!A"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "[true*]!C"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 0)
+
+        formula = "!<true>A & !<true>true & <true>tt"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 4)
+
+        formula = "<true>(!A & !true & tt) & !A & !B"
+        parsed_formula = parser(formula)
+        assert parsed_formula.truth(trace, 4)
 
 
 def test_nnf():
@@ -159,7 +205,7 @@ def test_nnf():
     assert f == ff
     assert parser("!(<!(A&B)>end)").to_nnf() == parser("[!A | !B]<true>tt")
 
-    f = parser("!(<((!(A<->D))+((B;C)*)+((!last)?))>[(true)*]end)")
+    f = parser("!(<((!(A<->D))+((B;C)*)+(?(!last)))>[(true)*]end)")
     assert f.to_nnf() == f.to_nnf().to_nnf()
 
 
@@ -185,7 +231,7 @@ def test_delta():
     assert parser("[B]ff").delta(i_b) == ff
     assert parser("[B]ff").delta(i_ab) == ff
 
-    f = parser("!(<(!last)?>end)")
+    f = parser("!(<?(!last)>end)")
     assert f.delta(i_) == f.to_nnf().delta(i_)
     assert f.delta(i_ab) == f.to_nnf().delta(i_ab)
 
@@ -202,7 +248,7 @@ def test_find_labels():
     formula = parser(f)
     assert formula.find_labels() == {c for c in "ABC"}
 
-    f = "(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)"
+    f = "(<(((?(<B>tt));true)*) ; (? (<(A & B)>tt))>tt)"
     formula = parser(f)
     assert formula.find_labels() == {c for c in "AB"}
 
@@ -260,7 +306,7 @@ class TestToAutomaton:
         parser = self.parser
         i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-        dfa = parser("(<((((<B>tt)?);true)*) ; ((<(A & B)>tt) ?)>tt)").to_automaton()
+        dfa = parser("(<(((?(<B>tt));true)*) ; ( ?(<(A & B)>tt))>tt)").to_automaton()
 
         assert not dfa.accepts([])
         assert not dfa.accepts([i_b, i_b, i_b])
@@ -321,3 +367,121 @@ def test_nnf_equivalence(ldlf_formula_nnf_pair, word):
 def test_formula_automaton_equivalence(ldlf_formula_automa_pair, word):
     formula_obj, automaton = ldlf_formula_automa_pair
     assert formula_obj.truth(word, 0) == automaton.accepts(word)
+
+
+class TestParsingTree:
+    @classmethod
+    def setup_class(cls):
+
+        # Path to grammar
+        this_path = os.path.dirname(os.path.abspath(__file__))
+        grammar_path = "../flloat/parser/ldlf.lark"
+        grammar_path = os.path.join(this_path, *grammar_path.split("/"))
+
+        cls.checker = ParsingCheck(grammar_path)
+
+    def test_propositional(self):
+
+        # LDLf must include PL
+        test_pl.TestParsingTree.test_unary(self)
+        test_pl.TestParsingTree.test_and_or(self)
+        test_pl.TestParsingTree.test_implications(self)
+        test_pl.TestParsingTree.test_misc(self)
+        test_pl.TestParsingTree.test_bad_examples(self)
+
+    def test_boxes_and_diamonds(self):
+
+        ok, err = self.checker.precedence_check("<R>a", list("<>Ra"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("[B][B]<A>a", list("[]B[]B<>Aa"))
+        assert ok, err
+
+    def test_regex(self):
+
+        ok, err = self.checker.precedence_check("<a&b+c>a", list("<>+&abca"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("[a; b; c|b]a", list("[];;ab|cba"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "[a&b->c; b+c]a", list("[]+;") + ["->"] + list("&abcbca")
+        )
+        assert ok, err
+
+    def test_star(self):
+
+        ok, err = self.checker.precedence_check("[a+b*]c", list("[]+a*bc"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("[((a&b+p)*)]c", list("[]()*()+&abpc"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("<(a*)*+c*>z", list("<>+*()*a*cz"))
+        assert ok, err
+
+    def test_test(self):
+
+        ok, err = self.checker.precedence_check("[a; ?<a>b]c", list("[];a?<>abc"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("[?[?<a>b]b*]c", list("[]*?[]?<>abbc"))
+        assert ok, err
+
+    def test_outer(self):
+
+        ok, err = self.checker.precedence_check("a-><b>e&c", ["->"] + list("a&<>bec"))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check(
+            "a-><b>(e&c)", ["->"] + list("a<>b()&ec")
+        )
+        assert ok, err
+
+    def test_special(self):
+
+        # These can be confused with atoms. Print to see the difference
+        ok, err = self.checker.precedence_check("<true>tt", "< > true tt".split(" "))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("<false>ff", "< > false ff".split(" "))
+        assert ok, err
+
+        ok, err = self.checker.precedence_check("last&end", "& last end".split(" "))
+        assert ok, err
+
+    def test_bad_termination(self):
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("!a&", list("!a&"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("a&!", list("&a!"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("(a)(", list("()a("))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("<R>", list("<>R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[R]", list("[]R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[R][R", list("[]R[R"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[]a", list("[]a"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[(a]b", list("[(a]b"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[a]b*", list("[]a*b"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[a**]b", list("[]**ab"))
+
+        with pytest.raises(lark.UnexpectedInput):
+            self.checker.precedence_check("[<a>c?]b", list("[]?<>acb"))
