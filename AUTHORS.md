@@ -9,7 +9,5 @@
 * [Roberto Cipollone](https://github.com/cipollone) <[cipollone.rt@gmail.com](mailto:cipollone.rt@gmail.com)>
 
 
-## Contributors
-
-None yet. [Why not be the first](./contributing.md)?
+Before contributing, please check the page [How to contribute](./contributing.md).
 
