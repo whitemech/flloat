@@ -6,7 +6,7 @@
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
 [![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
-[![](https://img.shields.io/badge/license-Apache%202-lightgrey)](https://img.shields.io/badge/license-Apache%202-lightgrey)
+[![](https://img.shields.io/badge/license-LGPLv3%2B-blue)](https://img.shields.io/badge/license-LGPLv3%2B-blue)
 [![](https://zenodo.org/badge/DOI/10.5281/zenodo.2577006.svg)](https://doi.org/10.5281/zenodo.2577006)
 
 A Python implementation of the [FLLOAT](https://github.com/RiccardoDeMasellis/FLLOAT.git) library.
