@@ -1,12 +1,20 @@
 site_name: FLLOAT
+site_description: Translator of LTLf/LDLf to Automata.
+copyright: 'Copyright &copy; 2018 - 2020 WhiteMech'
+
 nav:
-    - Home: index.md
-    - Credits: authors.md
-    - How to contribute: contributing.md
-    - Grammars: grammars.md
-    - References: references.md
+- Home: index.md
+- Grammars: grammars.md
+- Release History: release-history.md
+- How to contribute: contributing.md
+- Credits: authors.md
+- References: references.md
 
 theme: readthedocs
 markdown_extensions:
     - markdown_include.include:
         base_path: docs
+    - pymdownx.arithmatex
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'

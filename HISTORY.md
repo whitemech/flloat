@@ -1,5 +1,9 @@
 # History
 
+## 0.3.0 (2020-03-XX)
+
+* 
+
 ## 0.2.3 (2019-10-10)
 
 * Reverting some changes made on release `0.2.2`.

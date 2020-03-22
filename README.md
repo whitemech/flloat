@@ -1,7 +1,9 @@
 # FLLOAT
 
 [![](https://img.shields.io/pypi/v/flloat.svg)](https://pypi.python.org/pypi/flloat)
-![FLLOAT Continuous Integration pipeline.](https://github.com/whitemech/flloat/workflows/FLLOAT%20Continuous%20Integration%20pipeline./badge.svg)
+[![FLLOAT Continuous Integration pipeline.](
+  https://github.com/whitemech/flloat/workflows/FLLOAT%20Continuous%20Integration%20pipeline./badge.svg)](
+  https://github.com/whitemech/flloat/actions?query=workflow%3A%22FLLOAT+Continuous+Integration+pipeline.%22)
 [![codecov](https://codecov.io/gh/whitemech/flloat/branch/master/graph/badge.svg)](https://codecov.io/gh/whitemech/flloat)
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
