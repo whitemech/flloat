@@ -314,7 +314,9 @@ class LDLfNot(LDLfUnaryOperator):
 
     def to_nnf(self):
         """Transform to NNF."""
-        if isinstance(self.f, LDLfPropositionalAtom) or not isinstance(self.f, AtomicFormula):
+        if isinstance(self.f, LDLfPropositionalAtom) or not isinstance(
+            self.f, AtomicFormula
+        ):
             return self.f.negate().to_nnf()
         elif isinstance(self.f, (LDLfLogicalFalse, LDLfLogicalTrue)):
             return self.f.negate()
