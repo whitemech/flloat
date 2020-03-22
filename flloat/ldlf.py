@@ -364,7 +364,7 @@ class LDLfOr(LDLfBinaryOperator):
 
     def negate(self) -> LDLfFormula:
         """Negate the formula."""
-        return LDLfOr([f.negate() for f in self.formulas])
+        return LDLfAnd([f.negate() for f in self.formulas])
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
