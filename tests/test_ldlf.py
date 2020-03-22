@@ -23,7 +23,7 @@ from flloat.ldlf import (
 )
 from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
-from .conftest import ldlf_formulas
+from .conftest import LDLfFixtures
 from .strategies import propositional_words
 from .parsing import ParsingCheck
 from . import test_pl
@@ -373,14 +373,14 @@ class TestToAutomaton:
         assert not dfa.accepts([])
 
 
-@pytest.fixture(scope="session", params=ldlf_formulas)
+@pytest.fixture(scope="session", params=LDLfFixtures.ldlf_formulas)
 def ldlf_formula_automa_pair(request):
     formula_obj = parser(request.param)
     automaton = formula_obj.to_automaton()
     return formula_obj, automaton
 
 
-@pytest.fixture(scope="session", params=ldlf_formulas)
+@pytest.fixture(scope="session", params=LDLfFixtures.ldlf_formulas)
 def ldlf_formula_nnf_pair(request):
     formula_obj = parser(request.param)
     nnf = formula_obj.to_nnf()
@@ -392,6 +392,14 @@ def test_nnf_equivalence(ldlf_formula_nnf_pair, word):
     """Test that a formula is equivalent to its NNF form."""
     formula, formula_nnf = ldlf_formula_nnf_pair
     assert formula.truth(word, 0) == formula_nnf.truth(word, 0)
+
+
+@pytest.mark.parametrize("ldlf_theorem", LDLfFixtures.ldlf_theorems)
+@given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
+def test_theorems(ldlf_theorem, word):
+    """Test that the validity of theorems."""
+    formula = parser(ldlf_theorem)
+    assert formula.truth(word, 0)
 
 
 @given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
