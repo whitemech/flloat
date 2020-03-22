@@ -2,7 +2,12 @@
 
 ## 0.3.0 (2020-03-XX)
 
-* 
+* Refinement of all the grammars. Extensive improvement of the parsing.
+* Integration with Pythomata `>=0.3.0`
+* Simplified interfaces and refactoring of the class hierarchy for the logic modules.
+* Introduced FiniteTraceWrapper. It allows evaluating any propositional over a finite trace.
+* Several bug fixes and improved testing.
+* Improvement of docs and metadata consistency.
 
 ## 0.2.3 (2019-10-10)
 
