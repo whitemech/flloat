@@ -349,6 +349,29 @@ class TestToAutomaton:
         assert dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_a])
 
+    def test_convertible_atomics(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
+
+        dfa = parser("A").to_automaton()
+
+        assert not dfa.accepts([i_])
+        assert dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
+        dfa = parser("A & B").to_automaton()
+
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
+        dfa = parser("<true>true").to_automaton()
+
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
 
 @pytest.fixture(scope="session", params=ldlf_formulas)
 def ldlf_formula_automa_pair(request):
