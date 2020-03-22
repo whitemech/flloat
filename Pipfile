@@ -18,9 +18,6 @@ mkdocs = "*"
 markdown-include = "*"
 tox-pipenv = "*"
 hypothesis = {extras = ["lark"],version = "*"}
-pythomata = "*"
-lark-parser = "*"
-sympy = "*"
 
 [requires]
 python_version = "3.7"
