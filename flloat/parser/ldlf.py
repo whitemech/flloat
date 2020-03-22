@@ -22,6 +22,9 @@ from flloat.ldlf import (
     RegExpPropositional,
     LDLfEnd,
     LDLfLast,
+    LDLfPropositionalAtom,
+    LDLfPropositionalTrue,
+    LDLfPropositionalFalse,
 )
 from flloat.parser import CUR_DIR
 from flloat.parser.pl import PLTransformer
@@ -115,6 +118,18 @@ class LDLfTransformer(Transformer):
 
     def ldlf_end(self, args):
         return LDLfEnd()
+
+    def ldlf_prop_true(self, args):
+        return LDLfPropositionalTrue()
+
+    def ldlf_prop_false(self, args):
+        return LDLfPropositionalFalse()
+
+    def ldlf_prop_atom(self, args):
+        assert len(args) == 1
+        token = args[0]
+        symbol = str(token)
+        return LDLfPropositionalAtom(symbol)
 
     def regular_expression(self, args):
         assert len(args) == 1

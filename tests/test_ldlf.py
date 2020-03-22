@@ -193,6 +193,14 @@ class TestTruth:
         parsed_formula = parser(formula)
         assert parsed_formula.truth(trace, 4)
 
+        formula = "<true>true"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 4)
+
+        formula = "true"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 5)
+
 
 def test_nnf():
     parser = LDLfParser()
