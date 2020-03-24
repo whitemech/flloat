@@ -174,6 +174,10 @@ class BinaryOperator(Generic[T], Operator, ABC):
         """Return the set of symbols."""
         return set.union(*map(lambda f: f.find_labels(), self.formulas))
 
+    def to_nnf(self):
+        """Transform in NNF."""
+        return type(self)([f.to_nnf() for f in self.formulas])
+
 
 class PropositionalTruth:
     """Interface for propositional formulas."""

@@ -19,7 +19,13 @@ start: ldlf_formula
           |   ldlf_ff
           |   ldlf_last
           |   ldlf_end
-          |   prop_atom
+          |   ldlf_prop_true
+          |   ldlf_prop_false
+          |   ldlf_prop_atom
+
+ldlf_prop_true: TRUE
+ldlf_prop_false: FALSE
+ldlf_prop_atom: SYMBOL_NAME
 
 ldlf_tt: TT
 ldlf_ff: FF
@@ -52,7 +58,9 @@ FF.2: /(?i:ff)/
 %ignore /\s+/
 
 %import .pl.propositional_formula
-%import .pl.prop_atom
+%import .pl.TRUE -> TRUE
+%import .pl.FALSE -> FALSE
+%import .pl.SYMBOL_NAME -> SYMBOL_NAME
 %import .pl.EQUIVALENCE -> EQUIVALENCE
 %import .pl.IMPLY -> IMPLY
 %import .pl.OR -> OR

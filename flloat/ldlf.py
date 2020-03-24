@@ -11,7 +11,6 @@ from pythomata.impl.symbolic import SymbolicDFA
 from flloat.base import (
     Formula,
     FiniteTraceTruth,
-    FiniteTraceWrapper,
     UnaryOperator,
     BinaryOperator,
     RegExpTruth,
@@ -104,7 +103,7 @@ class LDLfUnaryOperator(UnaryOperator[LDLfFormula], LDLfFormula, ABC):
     def __init__(self, f: LDLfFormula):
         """Initialize the formula."""
         LDLfFormula.__init__(self)
-        UnaryOperator.__init__(self, _maybe_propositional(f))
+        UnaryOperator.__init__(self, f)
 
 
 class LDLfBinaryOperator(BinaryOperator[LDLfFormula], LDLfFormula, ABC):
@@ -113,7 +112,7 @@ class LDLfBinaryOperator(BinaryOperator[LDLfFormula], LDLfFormula, ABC):
     def __init__(self, formulas: Sequence[LDLfFormula]):
         """Initialize the formula."""
         LDLfFormula.__init__(self)
-        BinaryOperator.__init__(self, _maybe_propositional(formulas))
+        BinaryOperator.__init__(self, formulas)
 
 
 class REfUnaryOperator(UnaryOperator[T], RegExpFormula, ABC):
@@ -122,7 +121,7 @@ class REfUnaryOperator(UnaryOperator[T], RegExpFormula, ABC):
     def __init__(self, f: T):
         """Initialize the formula."""
         RegExpFormula.__init__(self)
-        UnaryOperator.__init__(self, _maybe_propositional(f))
+        UnaryOperator.__init__(self, f)
 
 
 class REfBinaryOperator(BinaryOperator[RegExpFormula], RegExpFormula, ABC):
@@ -131,7 +130,7 @@ class REfBinaryOperator(BinaryOperator[RegExpFormula], RegExpFormula, ABC):
     def __init__(self, formulas: Sequence[RegExpFormula]):
         """Initialize the formula."""
         RegExpFormula.__init__(self)
-        BinaryOperator.__init__(self, _maybe_propositional(formulas))
+        BinaryOperator.__init__(self, formulas)
 
 
 class LDLfTemporalFormula(LDLfFormula, ABC):
@@ -146,7 +145,7 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         """Initialize the formula."""
         super().__init__()
         self.r = r
-        self.f = _maybe_propositional(f)
+        self.f = f
 
     def _members(self):
         return self.temporal_brackets, self.r, self.f
@@ -171,9 +170,7 @@ class LDLfTemporalFormula(LDLfFormula, ABC):
         return type(self)(self.r.to_nnf(), self.f.to_nnf())
 
 
-# TODO: this class is not used: propositionals are passed directly to LDLf
-#  operators. Is this fine, we may just correct all type hints in this module.
-class LDLfPropositionalAtom(LDLfFormula):
+class LDLfPropositionalAtom(AtomicFormula, LDLfFormula):
     """An LDLf propositional formula.
 
     In LDLf with empty trace, this is equivalent to <phi>tt.
@@ -181,8 +178,7 @@ class LDLfPropositionalAtom(LDLfFormula):
 
     def __init__(self, s: AtomSymbol):
         """Initialize the formula."""
-        super().__init__()
-        self.s = s
+        AtomicFormula.__init__(self, s)
 
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         """Apply the delta function."""
@@ -193,7 +189,7 @@ class LDLfPropositionalAtom(LDLfFormula):
         return self.to_nnf().truth(i, pos)
 
     def _members(self):
-        return self.to_nnf()._members()
+        return AtomicFormula._members(self)
 
     def to_nnf(self) -> LDLfFormula:
         """Transform to NNF."""
@@ -205,11 +201,43 @@ class LDLfPropositionalAtom(LDLfFormula):
 
     def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
-        return {self.s}
+        return AtomicFormula.find_labels(self)
 
     def __str__(self):
         """Transform to string."""
-        return "_".join(map(str, self._members()))
+        return AtomicFormula.__str__(self)
+
+
+class LDLfPropositionalTrue(LDLfPropositionalAtom):
+    """Propositional `true` in LDLf for finite traces."""
+
+    def __init__(self):
+        """Initialize the formula."""
+        super().__init__(Symbols.TRUE.value)
+
+    def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
+        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfLogicalTrue())
+
+    def find_labels(self) -> Set[AtomSymbol]:
+        """Find the labels."""
+        return set()
+
+
+class LDLfPropositionalFalse(LDLfPropositionalAtom):
+    """Propositional `false` in LDLf for finite traces."""
+
+    def __init__(self):
+        """Initialize the formula."""
+        super().__init__(Symbols.FALSE.value)
+
+    def to_nnf(self) -> LDLfFormula:
+        """Transform to NNF."""
+        return LDLfDiamond(RegExpPropositional(PLFalse()), LDLfLogicalTrue())
+
+    def find_labels(self) -> Set[AtomSymbol]:
+        """Find the labels."""
+        return set()
 
 
 class LDLfLogicalTrue(AtomicFormula, LDLfFormula):
@@ -286,7 +314,9 @@ class LDLfNot(LDLfUnaryOperator):
 
     def to_nnf(self):
         """Transform to NNF."""
-        if not isinstance(self.f, AtomicFormula):
+        if isinstance(self.f, LDLfPropositionalAtom) or not isinstance(
+            self.f, AtomicFormula
+        ):
             return self.f.negate().to_nnf()
         elif isinstance(self.f, (LDLfLogicalFalse, LDLfLogicalTrue)):
             return self.f.negate()
@@ -336,7 +366,7 @@ class LDLfOr(LDLfBinaryOperator):
 
     def negate(self) -> LDLfFormula:
         """Negate the formula."""
-        return LDLfOr([f.negate() for f in self.formulas])
+        return LDLfAnd([f.negate() for f in self.formulas])
 
     def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
@@ -827,19 +857,3 @@ def _expand(f: Formula):
     #     return PLFalse()
     else:
         return f
-
-
-def _maybe_propositional(f):
-    """Adapt the formula for truth over finite traces, if necessary.
-
-    :param f: A formula or a sequence of formulas.
-    :return: A formula.
-    """
-    if isinstance(f, PLFormula):
-        f = FiniteTraceWrapper(f)
-    elif isinstance(f, Sequence):
-        f = [
-            FiniteTraceWrapper(element) if isinstance(element, PLFormula) else element
-            for element in f
-        ]
-    return f
