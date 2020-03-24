@@ -7,24 +7,24 @@ def test_ldlf_example_readme():
     from flloat.parser.ldlf import LDLfParser
 
     parser = LDLfParser()
-    formula = "<true*; A & B>tt"
+    formula = "<true*; a & b>tt"
     parsed_formula = parser(formula)
 
     assert (
-        str(parsed_formula) == "<((true)* ; (B & A))>(tt)"
-        or str(parsed_formula) == "<((true)* ; (A & B))>(tt)"
+        str(parsed_formula) == "<((true)* ; (b & a))>(tt)"
+        or str(parsed_formula) == "<((true)* ; (a & b))>(tt)"
     )
-    assert parsed_formula.find_labels() == {c for c in "AB"}
+    assert parsed_formula.find_labels() == {c for c in "ab"}
 
     t1 = [
-        {"A": False, "B": False},
-        {"A": True, "B": False},
-        {"A": True, "B": False},
-        {"A": True, "B": True},
-        {"A": False, "B": False},
+        {"a": False, "b": False},
+        {"a": True, "b": False},
+        {"a": True, "b": False},
+        {"a": True, "b": True},
+        {"a": False, "b": False},
     ]
     assert parsed_formula.truth(t1, 0)
-    t2 = [{"A": False, "B": False}, {"A": True, "B": False}, {"A": False, "B": True}]
+    t2 = [{"a": False, "b": False}, {"a": True, "b": False}, {"a": False, "b": True}]
     assert not parsed_formula.truth(t2, 0)
 
     dfa = parsed_formula.to_automaton()

@@ -48,22 +48,22 @@ pip install .
 from flloat.parser.ldlf import LDLfParser
 
 parser = LDLfParser()
-formula_string = "<true*; A & B>tt"
+formula_string = "<true*; a & b>tt"
 formula = parser(formula_string)        # returns a LDLfFormula
 
-print(formula)                          # prints "<((true)* ; (A & B))>(tt)"
-print(formula.find_labels())            # prints {A, B}
+print(formula)                          # prints "<((true)* ; (a & b))>(tt)"
+print(formula.find_labels())            # prints {a, b}
 ```
 
 *  Evaluate it over finite traces:
 
 ```python
 t1 = [
-    {"A": False, "B": False},
-    {"A": True, "B": False},
-    {"A": True, "B": False},
-    {"A": True, "B": True},
-    {"A": False, "B": False},
+    {"a": False, "b": False},
+    {"a": True, "b": False},
+    {"a": True, "b": False},
+    {"a": True, "b": True},
+    {"a": False, "b": False},
 ]
 formula.truth(t1, 0)  # True
 ```
@@ -89,22 +89,22 @@ from flloat.parser.ltlf import LTLfParser
 
 # parse the formula
 parser = LTLfParser()
-formula = "F (A & !B)"
+formula = "F (a & !b)"
 parsed_formula = parser(formula)
 
 # evaluate over finite traces
 t1 = [
-    {"A": False, "B": False},
-    {"A": True, "B": False},
-    {"A": True, "B": False},
-    {"A": True, "B": True},
-    {"A": False, "B": False},
+    {"a": False, "b": False},
+    {"a": True, "b": False},
+    {"a": True, "b": False},
+    {"a": True, "b": True},
+    {"a": False, "b": False},
 ]
 assert parsed_formula.truth(t1, 0)
 t2 = [
-    {"A": False, "B": False},
-    {"A": True, "B": True},
-    {"A": False, "B": True},
+    {"a": False, "b": False},
+    {"a": True, "b": True},
+    {"a": False, "b": True},
 ]
 assert not parsed_formula.truth(t2, 0)
 
