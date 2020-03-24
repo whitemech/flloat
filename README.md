@@ -1,27 +1,26 @@
 # FLLOAT
 
-
 [![](https://img.shields.io/pypi/v/flloat.svg)](https://pypi.python.org/pypi/flloat)
-[![](https://img.shields.io/travis/marcofavorito/flloat.svg)](https://travis-ci.org/marcofavorito/flloat)
-[![](https://img.shields.io/pypi/pyversions/flloat.svg)](https://pypi.python.org/pypi/flloat)
+[![FLLOAT Continuous Integration pipeline.](
+  https://github.com/whitemech/flloat/workflows/FLLOAT%20Continuous%20Integration%20pipeline./badge.svg)](
+  https://github.com/whitemech/flloat/actions?query=workflow%3A%22FLLOAT+Continuous+Integration+pipeline.%22)
+[![codecov](https://codecov.io/gh/whitemech/flloat/branch/master/graph/badge.svg)](https://codecov.io/gh/whitemech/flloat)
 [![](https://img.shields.io/badge/docs-mkdocs-9cf)](https://www.mkdocs.org/)
-[![](https://img.shields.io/badge/status-development-orange.svg)](https://img.shields.io/badge/status-development-orange.svg)
-[![](https://coveralls.io/repos/github/marcofavorito/flloat/badge.svg?branch=master)](https://coveralls.io/github/marcofavorito/flloat?branch=master)
 [![](https://img.shields.io/badge/flake8-checked-blueviolet)](https://img.shields.io/badge/flake8-checked-blueviolet)
 [![](https://img.shields.io/badge/mypy-checked-blue)](https://img.shields.io/badge/mypy-checked-blue)
-[![](https://img.shields.io/badge/license-Apache%202-lightgrey)](https://img.shields.io/badge/license-Apache%202-lightgrey)
+[![](https://img.shields.io/badge/license-LGPLv3%2B-blue)](https://img.shields.io/badge/license-LGPLv3%2B-blue)
 [![](https://zenodo.org/badge/DOI/10.5281/zenodo.2577006.svg)](https://doi.org/10.5281/zenodo.2577006)
 
 A Python implementation of the [FLLOAT](https://github.com/RiccardoDeMasellis/FLLOAT.git) library.
 
+## Links
 
-* Free software: Apache 2.0 license
-* Documentation: [https://marcofavorito.github.io/flloat/](https://marcofavorito.github.io/flloat/)
-
-## Dependencies
-
-The package depends on [Pythomata](https://logics4ai-sapienza.github.io/pythomata). Please follow the install instruction
-to get all the needed dependencies.
+- GitHub: [https://github.com/whitemech/flloat](https://github.com/whitemech/flloat)
+- PyPI: [https://pypi.org/project/flloat/](https://pypi.org/project/flloat/)
+- Documentation: [https://whitemech.github.io/flloat](https://whitemech.github.io/flloat)
+- Changelog: [https://whitemech.github.io/flloat/release-history/](https://whitemech.github.io/flloat/release-history/)
+- Issue Tracker:[https://github.com/whitemech/flloat/issues](https://github.com/whitemech/flloat/issues)
+- Download: [https://pypi.org/project/flloat/#files](https://pypi.org/project/flloat/#files)
 
 ## Install
 
@@ -31,12 +30,12 @@ pip install flloat
 ```
 - or, from source (`master` branch):
 ```
-pip install git+https://github.com/marcofavorito/flloat.git
+pip install git+https://github.com/whitemech/flloat.git
 ```
 
 - or, clone the repository and install:
 ```
-git clone htts://github.com/marcofavorito/flloat.git
+git clone htts://github.com/whitemech/flloat.git
 cd flloat
 pip install .
 ```
@@ -80,7 +79,7 @@ graph.render("./my-automaton")  # requires Graphviz installed on your system.
 ```
 
 Notice: `to_dot` requires [Graphviz](https://graphviz.gitlab.io/download/).
-For info about how to use a `pythomata.DFA` please look at the [Pythomata docs](https://github.com/marcofavorito/pythomata).
+For info about how to use a `pythomata.DFA` please look at the [Pythomata docs](https://github.com/whitemech/pythomata).
 
 * The same for a LTLf formula:
 
@@ -156,4 +155,7 @@ and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
-Copyright 2018-2020 Marco Favorito
+FLLOAT is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).
+
+Copyright 2018-2020 WhiteMech
+

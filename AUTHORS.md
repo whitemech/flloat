@@ -8,4 +8,6 @@
 
 * [Roberto Cipollone](https://github.com/cipollone) <[cipollone.rt@gmail.com](mailto:cipollone.rt@gmail.com)>
 
-[How to contribute](./CONTRIBUTING.md)? 
+
+Before contributing, please check the page [How to contribute](./contributing.md).
+
