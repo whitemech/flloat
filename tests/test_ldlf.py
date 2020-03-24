@@ -23,7 +23,7 @@ from flloat.ldlf import (
 )
 from flloat.parser.ldlf import LDLfParser
 from flloat.pl import PLTrue, PLFalse, PLAnd, PLNot, PLAtomic, PLEquivalence
-from .conftest import ldlf_formulas
+from .conftest import LDLfFixtures
 from .strategies import propositional_words
 from .parsing import ParsingCheck
 from . import test_pl
@@ -193,6 +193,14 @@ class TestTruth:
         parsed_formula = parser(formula)
         assert parsed_formula.truth(trace, 4)
 
+        formula = "<true>true"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 4)
+
+        formula = "true"
+        parsed_formula = parser(formula)
+        assert not parsed_formula.truth(trace, 5)
+
 
 def test_nnf():
     parser = LDLfParser()
@@ -341,15 +349,38 @@ class TestToAutomaton:
         assert dfa.accepts([i_a, i_b])
         assert not dfa.accepts([i_a, i_a])
 
+    def test_convertible_atomics(self):
+        parser = self.parser
+        i_, i_a, i_b, i_ab = self.i_, self.i_a, self.i_b, self.i_ab
 
-@pytest.fixture(scope="session", params=ldlf_formulas)
+        dfa = parser("A").to_automaton()
+
+        assert not dfa.accepts([i_])
+        assert dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
+        dfa = parser("A & B").to_automaton()
+
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
+        dfa = parser("<true>true").to_automaton()
+
+        assert not dfa.accepts([i_a])
+        assert dfa.accepts([i_ab, i_])
+        assert not dfa.accepts([])
+
+
+@pytest.fixture(scope="session", params=LDLfFixtures.ldlf_formulas)
 def ldlf_formula_automa_pair(request):
     formula_obj = parser(request.param)
     automaton = formula_obj.to_automaton()
     return formula_obj, automaton
 
 
-@pytest.fixture(scope="session", params=ldlf_formulas)
+@pytest.fixture(scope="session", params=LDLfFixtures.ldlf_formulas)
 def ldlf_formula_nnf_pair(request):
     formula_obj = parser(request.param)
     nnf = formula_obj.to_nnf()
@@ -361,6 +392,14 @@ def test_nnf_equivalence(ldlf_formula_nnf_pair, word):
     """Test that a formula is equivalent to its NNF form."""
     formula, formula_nnf = ldlf_formula_nnf_pair
     assert formula.truth(word, 0) == formula_nnf.truth(word, 0)
+
+
+@pytest.mark.parametrize("ldlf_theorem", LDLfFixtures.ldlf_theorems)
+@given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
+def test_theorems(ldlf_theorem, word):
+    """Test that the validity of theorems."""
+    formula = parser(ldlf_theorem)
+    assert formula.truth(word, 0)
 
 
 @given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))

@@ -118,10 +118,6 @@ class PLAtomic(AtomicFormula, PLFormula):
 class PLBinaryOperator(BinaryOperator[PLFormula], PLFormula, ABC):
     """An operator for Propositional Logic."""
 
-    def to_nnf(self):
-        """Transform in NNF."""
-        return type(self)([f.to_nnf() for f in self.formulas])
-
     def _find_atomics(self) -> Set[PLAtomic]:
         return functools.reduce(
             set.union, [f.find_atomics() for f in self.formulas]  # type: ignore

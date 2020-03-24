@@ -223,10 +223,6 @@ class LTLfAnd(LTLfBinaryOperator):
         """Evaluate the formula."""
         return all(f.truth(i, pos) for f in self.formulas)
 
-    def to_nnf(self):
-        """Transform to NNF."""
-        return LTLfAnd([f.to_nnf() for f in self.formulas])
-
     def negate(self) -> LTLfFormula:
         """Negate the formula."""
         return LTLfOr([f.negate() for f in self.formulas])
@@ -250,10 +246,6 @@ class LTLfOr(LTLfBinaryOperator):
     def truth(self, i: FiniteTrace, pos: int = 0):
         """Evaluate the formula."""
         return any(f.truth(i, pos) for f in self.formulas)
-
-    def to_nnf(self):
-        """Transform to NNF."""
-        return LTLfOr([f.to_nnf() for f in self.formulas])
 
     def negate(self) -> LTLfFormula:
         """Negate the formula."""
