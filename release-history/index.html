@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>References - FLLOAT</title>
+  <title>Release History - FLLOAT</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "References";
-    var mkdocs_page_input_path = "references.md";
+    var mkdocs_page_name = "Release History";
+    var mkdocs_page_input_path = "release-history.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -55,8 +55,26 @@
                     <li class="toctree-l1"><a class="reference internal" href="../grammars/">Grammars</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../release-history/">Release History</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Release History</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#030-2020-03-24">0.3.0 (2020-03-24)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#023-2019-10-10">0.2.3 (2019-10-10)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#022-2019-10-09">0.2.2 (2019-10-09)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#021-2019-10-09">0.2.1 (2019-10-09)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#020-2019-10-06">0.2.0 (2019-10-06)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#013-2018-04-20">0.1.3 (2018-04-20)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#011-2018-04-15">0.1.1 (2018-04-15)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#010-2018-04-11">0.1.0 (2018-04-11)</a>
+    </li>
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -67,10 +85,8 @@
                     <li class="toctree-l1"><a class="reference internal" href="../authors/">Credits</a>
                     </li>
                 </ul>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">References</a>
-    <ul class="current">
-    </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../references/">References</a>
                     </li>
                 </ul>
       </div>
@@ -94,7 +110,7 @@
     
       
     
-    <li>References</li>
+    <li>Release History</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -105,23 +121,49 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="references">References</h1>
-<p>Linear-time Temporal Logic on finite traces (LTLf) and 
-Linear Dynamic Logic on finite traces (LDLf) are two
-logical formalisms that are at the centre of
-prolific research activity.</p>
-<p>In particular, the simplicity and naturalness of LTL for 
-temporal specifications is appealing for fields like:</p>
+                <h1 id="history">History</h1>
+<h2 id="030-2020-03-24">0.3.0 (2020-03-24)</h2>
 <ul>
-<li>Reasoning about actions and planning</li>
-<li>Business process specification and verification    </li>
+<li>Refinement of all the grammars. Extensive improvement of the parsing.</li>
+<li>Integration with Pythomata <code>&gt;=0.3.0</code></li>
+<li>Simplified interfaces and refactoring of the class hierarchy for the logic modules.</li>
+<li>Introduced FiniteTraceWrapper. It allows evaluating any propositional over a finite trace.</li>
+<li>Several bug fixes and improved testing.</li>
+<li>Improvement of docs and metadata consistency.</li>
 </ul>
-<p>Here's a list of recommended readings:</p>
+<h2 id="023-2019-10-10">0.2.3 (2019-10-10)</h2>
 <ul>
-<li><a href="https://www.cs.rice.edu/~vardi/papers/ijcai13.pdf">Giuseppe De Giacomo and Moshe Y. Vardi. "Linear Temporal Logic and Linear Dynamic Logic on Finite Traces." IJCAI (2013)</a> </li>
-<li><a href="https://www.ijcai.org/Proceedings/15/Papers/223.pdf">Giuseppe De Giacomo and Moshe Y. Vardi. "Synthesis for LTL and LDL on finite traces." IJCAI (2015)</a></li>
-<li><a href="http://www.diag.uniroma1.it/~degiacom/papers/2016/IJCAI16dv.pdf">Giuseppe De Giacomo and Moshe Y. Vardi. "LTLf and LDLf synthesis under partial observability." IJCAI (2016)</a></li>
-<li><a href="https://pdfs.semanticscholar.org/914f/279742a9f509934a0959c080b08e9fad771e.pdf">Brafman Ronen, De Giacomo Giuseppe, AND Patrizi Fabio. "LTLf/LDLf Non-Markovian Rewards" AAAI (2018)</a></li>
+<li>Reverting some changes made on release <code>0.2.2</code>.</li>
+<li>Updated live version: <a href="http://flloat.herokuapp.com/">http://flloat.herokuapp.com/</a></li>
+</ul>
+<h2 id="022-2019-10-09">0.2.2 (2019-10-09)</h2>
+<ul>
+<li>Fix several issues in the computation of the delta function for LDLf.</li>
+</ul>
+<h2 id="021-2019-10-09">0.2.1 (2019-10-09)</h2>
+<ul>
+<li>Replace parsing library PLY with <a href="https://github.com/lark-parser/lark">Lark</a>.</li>
+</ul>
+<h2 id="020-2019-10-06">0.2.0 (2019-10-06)</h2>
+<ul>
+<li>Main refactoring of the package. No new features.</li>
+</ul>
+<h2 id="013-2018-04-20">0.1.3 (2018-04-20)</h2>
+<ul>
+<li>Support for LTLf formulas and conversion into NFA, DFA and DFA on-the-fly</li>
+</ul>
+<h2 id="011-2018-04-15">0.1.1 (2018-04-15)</h2>
+<ul>
+<li>Syntax, semantics and parsing support for the following formal languages:<ul>
+<li>Propositional Logic;</li>
+<li>Linear Dynamic Logic on Finite Traces;</li>
+</ul>
+</li>
+<li>Conversion from LDLf formula to NFA, DFA and DFA on-the-fly</li>
+</ul>
+<h2 id="010-2018-04-11">0.1.0 (2018-04-11)</h2>
+<ul>
+<li>First release on PyPI.</li>
 </ul>
               
             </div>
@@ -130,8 +172,10 @@ temporal specifications is appealing for fields like:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="../contributing/" class="btn btn-neutral float-right" title="How to contribute">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-        <a href="../authors/" class="btn btn-neutral" title="Credits"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+        <a href="../grammars/" class="btn btn-neutral" title="Grammars"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -159,8 +203,10 @@ temporal specifications is appealing for fields like:</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../authors/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../grammars/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
+      
+        <span style="margin-left: 15px"><a href="../contributing/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

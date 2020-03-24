@@ -7,13 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
+  
   <link rel="shortcut icon" href="../img/favicon.ico">
   <title>Grammars - FLLOAT</title>
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
-  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
   
   <script>
     // Current page data
@@ -24,7 +25,7 @@
   
   <script src="../js/jquery-2.1.1.min.js" defer></script>
   <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
@@ -35,6 +36,7 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
         <a href=".." class="icon icon-home"> FLLOAT</a>
         <div role="search">
@@ -45,53 +47,40 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-	<ul class="current">
-	  
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="..">Home</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../authors/">Credits</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../contributing/">How to contribute</a>
-	    </li>
-          
-            <li class="toctree-l1 current">
-		
-    <a class="current" href="./">Grammars</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#grammars">Grammars</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#propositional-logic">Propositional Logic</a></li>
-        
-            <li><a class="toctree-l3" href="#ltlf">LTLf</a></li>
-        
-            <li><a class="toctree-l3" href="#ldlf">LDLf</a></li>
-        
-        </ul>
-    
-
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Grammars</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#propositional-logic">Propositional Logic</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ltlf">LTLf</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ldlf">LDLf</a>
+    </li>
     </ul>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../references/">References</a>
-	    </li>
-          
-        </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../release-history/">Release History</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../contributing/">How to contribute</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../authors/">Credits</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../references/">References</a>
+                    </li>
+                </ul>
       </div>
-      &nbsp;
+    </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -116,106 +105,104 @@
       
     </li>
   </ul>
+  
   <hr/>
 </div>
           <div role="main">
             <div class="section">
               
                 <h1 id="grammars">Grammars</h1>
-<p>Here are reported the grammars used by the <a href="https://github.com/lark-parser/lark">Lark</a> parser 
+<p>Here are reported the grammars used by the <a href="https://github.com/lark-parser/lark">Lark</a> parser
 to parse Propositional Logic, LTLf and LDLf.</p>
 <h2 id="propositional-logic">Propositional Logic</h2>
-<p><a href="../flloat/parser/pl.lark">pl.lark</a></p>
+<p><a href="https://github.com/whitemech/flloat/blob/master/flloat/parser/pl.lark">pl.lark</a></p>
 <pre><code>start: propositional_formula
-propositional_formula: wrapped_prop
-                     | equivalence_prop
-                     | implication_prop
-                     | or_prop
-                     | and_prop
-                     | not_prop
-                     | atom_prop
 
-wrapped_prop: LSEPARATOR propositional_formula RSEPARATOR
-equivalence_prop.5: propositional_formula EQUIVALENCE propositional_formula
-implication_prop.4: propositional_formula IMPLY propositional_formula
-or_prop.3: propositional_formula OR propositional_formula
-and_prop.2: propositional_formula AND propositional_formula
-not_prop.1: NOT propositional_formula
-atom_prop: atom
-         | true_prop
-         | false_prop
-atom: string*
-true_prop.1: TRUE
-false_prop.1: FALSE
+?propositional_formula: prop_equivalence
+?prop_equivalence: prop_implication (EQUIVALENCE prop_implication)*
+?prop_implication: prop_or (IMPLY prop_or)*
+?prop_or: prop_and (OR prop_and)*
+?prop_and: prop_not (AND prop_not)*
+?prop_not: NOT* prop_wrapped
+?prop_wrapped: prop_atom
+            | LSEPARATOR propositional_formula RSEPARATOR
+?prop_atom: atom
+         | prop_true
+         | prop_false
 
-string: /\w/+
-TRUE : &quot;True&quot; | &quot;TRUE&quot; | &quot;true&quot;
-FALSE : &quot;False&quot; | &quot;FALSE&quot; | &quot;false&quot;
-
-EQUIVALENCE : &quot;&lt;-&gt;&quot;
-IMPLY : &quot;-&gt;&quot;
-OR  : &quot;||&quot;|&quot;|&quot;
-AND : &quot;&amp;&amp;&quot;|&quot;&amp;&quot;
-NOT : &quot;!&quot;
+atom: SYMBOL_NAME
+prop_true: TRUE
+prop_false: FALSE
 
 LSEPARATOR : &quot;(&quot;
 RSEPARATOR : &quot;)&quot;
+EQUIVALENCE : &quot;&lt;-&gt;&quot;
+IMPLY : &quot;-&gt;&quot;
+OR: &quot;||&quot;|&quot;|&quot;
+AND: &quot;&amp;&amp;&quot;|&quot;&amp;&quot;
+NOT: &quot;!&quot;
+SYMBOL_NAME: /(\w+)|(&quot;.*&quot;)/
+TRUE.2: /(?i:true)/
+FALSE.2: /(?i:false)/
 
-WHITESPACE: (&quot; &quot; | &quot;\n&quot;)+
-%ignore WHITESPACE
-
+%ignore /\s+/
 </code></pre>
 
 <h2 id="ltlf">LTLf</h2>
-<p><a href="../flloat/parser/ltlf.lark">ltlf.lark</a></p>
+<p><a href="https://github.com/whitemech/flloat/blob/master/flloat/parser/ltlf.lark">ltlf.lark</a></p>
 <pre><code>start: ltlf_formula
-ltlf_formula: ltlf_wrapped
-            | ltlf_equivalence
-            | ltlf_implication
-            | ltlf_or
-            | ltlf_and
-            | ltlf_until
-            | ltlf_release
-            | ltlf_always
-            | ltlf_eventually
-            | ltlf_next
-            | ltlf_weak_next
-            | ltlf_not
-            | ltlf_atom
 
-ltlf_wrapped:     LSEPARATOR ltlf_formula RSEPARATOR
-ltlf_equivalence.8: ltlf_formula EQUIVALENCE ltlf_formula
-ltlf_implication.7: ltlf_formula IMPLY ltlf_formula
-ltlf_or.6:          ltlf_formula OR ltlf_formula
-ltlf_and.5:         ltlf_formula AND ltlf_formula
-ltlf_until.4:       ltlf_formula UNTIL ltlf_formula
-ltlf_release.4:     ltlf_formula RELEASE ltlf_formula
-ltlf_always.3:      ALWAYS ltlf_formula
-ltlf_eventually.3:  EVENTUALLY ltlf_formula
-ltlf_next.2:        NEXT ltlf_formula
-ltlf_weak_next.2:   WEAK_NEXT ltlf_formula
-ltlf_not.1:         NOT ltlf_formula
-ltlf_atom:        ltlf_symbol
-         |        ltlf_true
-         |        ltlf_false
+?ltlf_formula:     ltlf_equivalence
+?ltlf_equivalence: ltlf_implication (EQUIVALENCE ltlf_implication)*
+?ltlf_implication: ltlf_or (IMPLY ltlf_or)*
+?ltlf_or:          ltlf_and (OR ltlf_and)*
+?ltlf_and:         ltlf_until (AND ltlf_until)*
+?ltlf_until:       ltlf_release (UNTIL ltlf_release)*
+?ltlf_release:     ltlf_unaryop (RELEASE ltlf_unaryop)*
 
-ltlf_true: true_prop
-ltlf_false: false_prop
-ltlf_symbol: string
-UNTIL: &quot;U&quot;
-RELEASE: &quot;R&quot;
-ALWAYS: &quot;G&quot;
-EVENTUALLY: &quot;F&quot;
-NEXT: &quot;X&quot;
-WEAK_NEXT: &quot;WX&quot;
-END: &quot;END&quot;|&quot;end&quot;|&quot;End&quot;
-LAST: &quot;LAST&quot;|&quot;last&quot;|&quot;Last&quot;
+?ltlf_unaryop:     ltlf_always
+             |     ltlf_eventually
+             |     ltlf_next
+             |     ltlf_weak_next
+             |     ltlf_not
+             |     ltlf_wrapped
 
-WHITESPACE: (&quot; &quot; | &quot;\n&quot;)+
-%ignore WHITESPACE
-%import .pl.string -&gt; string
-%import .pl.true_prop -&gt; true_prop
-%import .pl.false_prop -&gt; false_prop
+?ltlf_always:      ALWAYS ltlf_unaryop
+?ltlf_eventually:  EVENTUALLY ltlf_unaryop
+?ltlf_next:        NEXT ltlf_unaryop
+?ltlf_weak_next:   WEAK_NEXT ltlf_unaryop
+?ltlf_not:         NOT ltlf_unaryop
+?ltlf_wrapped:     ltlf_atom
+             |     LSEPARATOR ltlf_formula RSEPARATOR
+?ltlf_atom:        ltlf_symbol
+          |        ltlf_true
+          |        ltlf_false
+          |        ltlf_last
+          |        ltlf_end
+
+ltlf_symbol: SYMBOL_NAME
+ltlf_true: prop_true
+ltlf_false: prop_false
+ltlf_last: LAST
+ltlf_end: END
+
+// Operators must not be part of a word
+UNTIL.2: /U(?=[^a-z]|$)/
+RELEASE.2: /R(?=[^a-z]|$)/
+ALWAYS.2: /G(?=[^a-z]|$)/
+EVENTUALLY.2: /F(?=[^a-z]|$)/
+NEXT.2: /X(?=[^a-z]|$)/
+WEAK_NEXT.2: /WX(?=[^a-z]|$)/
+END.2: /(?i:end)/
+LAST.2: /(?i:last)/
+
+// Symbols cannot contain uppercase letters, because these are reserved
+SYMBOL_NAME: /[a-z][a-z0-9_]*/
+
+%ignore /\s+/
+
+%import .pl.prop_true -&gt; prop_true
+%import .pl.prop_false -&gt; prop_false
 %import .pl.NOT -&gt; NOT
 %import .pl.OR -&gt; OR
 %import .pl.AND -&gt; AND
@@ -223,81 +210,73 @@ WHITESPACE: (&quot; &quot; | &quot;\n&quot;)+
 %import .pl.IMPLY -&gt; IMPLY
 %import .pl.LSEPARATOR -&gt; LSEPARATOR
 %import .pl.RSEPARATOR -&gt; RSEPARATOR
-
 </code></pre>
 
 <h2 id="ldlf">LDLf</h2>
-<p><a href="../flloat/parser/ldlf.lark">ldlf.lark</a></p>
+<p><a href="https://github.com/whitemech/flloat/blob/master/flloat/parser/ldlf.lark">ldlf.lark</a></p>
 <pre><code>start: ldlf_formula
-ldlf_formula:  ldlf_wrapped
-             | ldlf_equivalence
-             | ldlf_implication
-             | ldlf_or
-             | ldlf_and
-             | ldlf_box
-             | ldlf_diamond
-             | ldlf_not
-             | ldlf_atom
 
+?ldlf_formula:  ldlf_equivalence
+?ldlf_equivalence: ldlf_implication (EQUIVALENCE ldlf_implication)*
+?ldlf_implication: ldlf_or (IMPLY ldlf_or)*
+?ldlf_or: ldlf_and (OR ldlf_and)*
+?ldlf_and: ldlf_unaryop (AND ldlf_unaryop)*
 
-ldlf_wrapped: LSEPARATOR ldlf_formula RSEPARATOR
-ldlf_equivalence.6: ldlf_formula EQUIVALENCE ldlf_formula
-ldlf_implication.5: ldlf_formula IMPLY ldlf_formula
-ldlf_or.4: ldlf_formula OR ldlf_formula
-ldlf_and.3: ldlf_formula AND ldlf_formula
-ldlf_box.2: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_formula
-ldlf_diamond.2: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_formula
-ldlf_not.1: NOT ldlf_formula
-ldlf_atom:   ldlf_tt
-           | ldlf_ff
-           | ldlf_last
-           | ldlf_end
-           | ldlf_true
-           | ldlf_false
-           | ldlf_symbol
+?ldlf_unaryop:     ldlf_box
+             |     ldlf_diamond
+             |     ldlf_not
+             |     ldlf_wrapped
+?ldlf_box: BOXLSEPARATOR regular_expression BOXRSEPARATOR ldlf_unaryop
+?ldlf_diamond: DIAMONDLSEPARATOR regular_expression DIAMONDRSEPARATOR ldlf_unaryop
+?ldlf_not: NOT ldlf_unaryop
+?ldlf_wrapped:    ldlf_atom
+             |    LSEPARATOR ldlf_formula RSEPARATOR
+?ldlf_atom:   ldlf_tt
+          |   ldlf_ff
+          |   ldlf_last
+          |   ldlf_end
+          |   ldlf_prop_true
+          |   ldlf_prop_false
+          |   ldlf_prop_atom
+
+ldlf_prop_true: TRUE
+ldlf_prop_false: FALSE
+ldlf_prop_atom: SYMBOL_NAME
 
 ldlf_tt: TT
 ldlf_ff: FF
 ldlf_last: LAST
 ldlf_end: END
-ldlf_true: true_prop
-ldlf_false: false_prop
-ldlf_symbol: string
 
-regular_expression: wrapped_regular_expression
-                  | regular_expression_union
-                  | regular_expression_sequence
-                  | regular_expression_test
-                  | regular_expression_star
-                  | regular_expression_propositional
+regular_expression: re_union
 
-wrapped_regular_expression: LSEPARATOR regular_expression RSEPARATOR
-regular_expression_union.3: regular_expression UNION regular_expression
-regular_expression_sequence.3: regular_expression SEQ regular_expression
-regular_expression_test.2: ldlf_formula TEST
-regular_expression_star.2: regular_expression STAR
-regular_expression_propositional.1: propositional_formula
+?re_union:      re_sequence (UNION re_sequence)*
+?re_sequence:   re_star (SEQ re_star)*
+?re_star:       re_test STAR?
+?re_test:       TEST ldlf_formula
+        |       re_wrapped
+?re_wrapped:    re_propositional
+           |    LSEPARATOR regular_expression RSEPARATOR
+re_propositional: propositional_formula
 
 
-%import common.ESCAPED_STRING
-WHITESPACE: (&quot; &quot; | &quot;\n&quot;)+
 BOXLSEPARATOR: &quot;[&quot;
 BOXRSEPARATOR: &quot;]&quot;
 DIAMONDLSEPARATOR: &quot;&lt;&quot;
 DIAMONDRSEPARATOR: &quot;&gt;&quot;
-TT: &quot;tt&quot;
-FF: &quot;ff&quot;
-LAST: &quot;last&quot;
-END: &quot;end&quot;
 UNION: &quot;+&quot;
 SEQ: &quot;;&quot;
 TEST: &quot;?&quot;
 STAR: &quot;*&quot;
-%ignore WHITESPACE
-%import .pl.start -&gt; propositional_formula
-%import .pl.string -&gt; string
-%import .pl.true_prop -&gt; true_prop
-%import .pl.false_prop -&gt; false_prop
+TT.2: /(?i:tt)/
+FF.2: /(?i:ff)/
+
+%ignore /\s+/
+
+%import .pl.propositional_formula
+%import .pl.TRUE -&gt; TRUE
+%import .pl.FALSE -&gt; FALSE
+%import .pl.SYMBOL_NAME -&gt; SYMBOL_NAME
 %import .pl.EQUIVALENCE -&gt; EQUIVALENCE
 %import .pl.IMPLY -&gt; IMPLY
 %import .pl.OR -&gt; OR
@@ -305,6 +284,8 @@ STAR: &quot;*&quot;
 %import .pl.NOT -&gt; NOT
 %import .pl.LSEPARATOR -&gt; LSEPARATOR
 %import .pl.RSEPARATOR -&gt; RSEPARATOR
+%import .ltlf.LAST -&gt; LAST
+%import .ltlf.END -&gt; END
 
 </code></pre>
               
@@ -314,10 +295,10 @@ STAR: &quot;*&quot;
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../references/" class="btn btn-neutral float-right" title="References">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../release-history/" class="btn btn-neutral float-right" title="Release History">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../contributing/" class="btn btn-neutral" title="How to contribute"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -327,9 +308,11 @@ STAR: &quot;*&quot;
   <div role="contentinfo">
     <!-- Copyright etc -->
     
+      <p>Copyright &copy; 2018 - 2020 WhiteMech</p>
+    
   </div>
 
-  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
       
         </div>
@@ -339,20 +322,26 @@ STAR: &quot;*&quot;
 
   </div>
 
-  <div class="rst-versions" role="note" style="cursor: pointer">
+  <div class="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../contributing/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../references/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../release-history/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
     <script>var base_url = '..';</script>
     <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
       <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
 
 </body>
 </html>
