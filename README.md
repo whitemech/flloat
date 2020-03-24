@@ -1,6 +1,7 @@
 # FLLOAT
 
 [![](https://img.shields.io/pypi/v/flloat.svg)](https://pypi.python.org/pypi/flloat)
+[![](https://img.shields.io/pypi/pyversions/flloat.svg)](https://pypi.python.org/pypi/flloat)
 [![FLLOAT Continuous Integration pipeline.](
   https://github.com/whitemech/flloat/workflows/FLLOAT%20Continuous%20Integration%20pipeline./badge.svg)](
   https://github.com/whitemech/flloat/actions?query=workflow%3A%22FLLOAT+Continuous+Integration+pipeline.%22)
