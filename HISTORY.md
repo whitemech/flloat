@@ -1,6 +1,6 @@
 # History
 
-## 0.3.0 (2020-03-XX)
+## 0.3.0 (2020-03-24)
 
 * Refinement of all the grammars. Extensive improvement of the parsing.
 * Integration with Pythomata `>=0.3.0`
