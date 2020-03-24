@@ -1,51 +1,56 @@
 start: ltlf_formula
-ltlf_formula: ltlf_wrapped
-            | ltlf_equivalence
-            | ltlf_implication
-            | ltlf_or
-            | ltlf_and
-            | ltlf_until
-            | ltlf_release
-            | ltlf_always
-            | ltlf_eventually
-            | ltlf_next
-            | ltlf_weak_next
-            | ltlf_not
-            | ltlf_atom
 
-ltlf_wrapped:     LSEPARATOR ltlf_formula RSEPARATOR
-ltlf_equivalence.8: ltlf_formula EQUIVALENCE ltlf_formula
-ltlf_implication.7: ltlf_formula IMPLY ltlf_formula
-ltlf_or.6:          ltlf_formula OR ltlf_formula
-ltlf_and.5:         ltlf_formula AND ltlf_formula
-ltlf_until.4:       ltlf_formula UNTIL ltlf_formula
-ltlf_release.4:     ltlf_formula RELEASE ltlf_formula
-ltlf_always.3:      ALWAYS ltlf_formula
-ltlf_eventually.3:  EVENTUALLY ltlf_formula
-ltlf_next.2:        NEXT ltlf_formula
-ltlf_weak_next.2:   WEAK_NEXT ltlf_formula
-ltlf_not.1:         NOT ltlf_formula
-ltlf_atom:        ltlf_symbol
-         |        ltlf_true
-         |        ltlf_false
+?ltlf_formula:     ltlf_equivalence
+?ltlf_equivalence: ltlf_implication (EQUIVALENCE ltlf_implication)*
+?ltlf_implication: ltlf_or (IMPLY ltlf_or)*
+?ltlf_or:          ltlf_and (OR ltlf_and)*
+?ltlf_and:         ltlf_until (AND ltlf_until)*
+?ltlf_until:       ltlf_release (UNTIL ltlf_release)*
+?ltlf_release:     ltlf_unaryop (RELEASE ltlf_unaryop)*
 
-ltlf_true: true_prop
-ltlf_false: false_prop
-ltlf_symbol: string
-UNTIL: "U"
-RELEASE: "R"
-ALWAYS: "G"
-EVENTUALLY: "F"
-NEXT: "X"
-WEAK_NEXT: "WX"
-END: "END"|"end"|"End"
-LAST: "LAST"|"last"|"Last"
+?ltlf_unaryop:     ltlf_always
+             |     ltlf_eventually
+             |     ltlf_next
+             |     ltlf_weak_next
+             |     ltlf_not
+             |     ltlf_wrapped
 
-WHITESPACE: (" " | "\n")+
-%ignore WHITESPACE
-%import .pl.string -> string
-%import .pl.true_prop -> true_prop
-%import .pl.false_prop -> false_prop
+?ltlf_always:      ALWAYS ltlf_unaryop
+?ltlf_eventually:  EVENTUALLY ltlf_unaryop
+?ltlf_next:        NEXT ltlf_unaryop
+?ltlf_weak_next:   WEAK_NEXT ltlf_unaryop
+?ltlf_not:         NOT ltlf_unaryop
+?ltlf_wrapped:     ltlf_atom
+             |     LSEPARATOR ltlf_formula RSEPARATOR
+?ltlf_atom:        ltlf_symbol
+          |        ltlf_true
+          |        ltlf_false
+          |        ltlf_last
+          |        ltlf_end
+
+ltlf_symbol: SYMBOL_NAME
+ltlf_true: prop_true
+ltlf_false: prop_false
+ltlf_last: LAST
+ltlf_end: END
+
+// Operators must not be part of a word
+UNTIL.2: /U(?=[^a-z]|$)/
+RELEASE.2: /R(?=[^a-z]|$)/
+ALWAYS.2: /G(?=[^a-z]|$)/
+EVENTUALLY.2: /F(?=[^a-z]|$)/
+NEXT.2: /X(?=[^a-z]|$)/
+WEAK_NEXT.2: /WX(?=[^a-z]|$)/
+END.2: /(?i:end)/
+LAST.2: /(?i:last)/
+
+// Symbols cannot contain uppercase letters, because these are reserved
+SYMBOL_NAME: /[a-z][a-z0-9_]*/
+
+%ignore /\s+/
+
+%import .pl.prop_true -> prop_true
+%import .pl.prop_false -> prop_false
 %import .pl.NOT -> NOT
 %import .pl.OR -> OR
 %import .pl.AND -> AND

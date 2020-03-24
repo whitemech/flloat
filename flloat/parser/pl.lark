@@ -1,37 +1,30 @@
 start: propositional_formula
-propositional_formula: wrapped_prop
-                     | equivalence_prop
-                     | implication_prop
-                     | or_prop
-                     | and_prop
-                     | not_prop
-                     | atom_prop
 
-wrapped_prop: LSEPARATOR propositional_formula RSEPARATOR
-equivalence_prop.5: propositional_formula EQUIVALENCE propositional_formula
-implication_prop.4: propositional_formula IMPLY propositional_formula
-or_prop.3: propositional_formula OR propositional_formula
-and_prop.2: propositional_formula AND propositional_formula
-not_prop.1: NOT propositional_formula
-atom_prop: atom
-	     | true_prop
-	     | false_prop
-atom: string*
-true_prop.1: TRUE
-false_prop.1: FALSE
+?propositional_formula: prop_equivalence
+?prop_equivalence: prop_implication (EQUIVALENCE prop_implication)*
+?prop_implication: prop_or (IMPLY prop_or)*
+?prop_or: prop_and (OR prop_and)*
+?prop_and: prop_not (AND prop_not)*
+?prop_not: NOT* prop_wrapped
+?prop_wrapped: prop_atom
+            | LSEPARATOR propositional_formula RSEPARATOR
+?prop_atom: atom
+	     | prop_true
+	     | prop_false
 
-string: /\w/+
-TRUE : "True" | "TRUE" | "true"
-FALSE : "False" | "FALSE" | "false"
-
-EQUIVALENCE : "<->"
-IMPLY : "->"
-OR  : "||"|"|"
-AND : "&&"|"&"
-NOT : "!"
+atom: SYMBOL_NAME
+prop_true: TRUE
+prop_false: FALSE
 
 LSEPARATOR : "("
 RSEPARATOR : ")"
+EQUIVALENCE : "<->"
+IMPLY : "->"
+OR: "||"|"|"
+AND: "&&"|"&"
+NOT: "!"
+SYMBOL_NAME: /(\w+)|(".*")/
+TRUE.2: /(?i:true)/
+FALSE.2: /(?i:false)/
 
-WHITESPACE: (" " | "\n")+
-%ignore WHITESPACE
+%ignore /\s+/

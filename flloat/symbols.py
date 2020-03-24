@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """This module contains the definition to deal with symbols."""
 from enum import Enum
-from typing import Hashable, Union, FrozenSet, Set
+from typing import Set
 
-Symbol = Hashable
-Alphabet = Union[FrozenSet[Symbol], Set[Symbol]]
+
+OpSymbol = str
 
 
 class Symbols(Enum):
@@ -39,7 +39,6 @@ class Symbols(Enum):
     CARET = "^"
     TRUE = "true"
     FALSE = "false"
-    LTLf_LAST = "last"
 
 
 ALL_SYMBOLS = {v.value for v in Symbols}  # type: Set[str]

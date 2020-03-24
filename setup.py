@@ -37,7 +37,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    install_requires=["lark-parser", "pythomata==0.2.0"],
+    install_requires=["lark-parser", "pythomata>=0.3.2", "sympy"],
     license=about["__license__"],
     include_package_data=True,
     data_files=[

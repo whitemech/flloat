@@ -1,76 +1,39 @@
 # -*- coding: utf-8 -*-
+
+"""This module provides support for Propositional Logic."""
+
+import functools
 from abc import abstractmethod, ABC
-from functools import lru_cache
-from typing import Set
+from typing import Set, Any, Dict, Optional
 
-from flloat.base.convertible import ImpliesConvertible, EquivalenceConvertible
-from flloat.base.formulas import Formula, BinaryOperator, AtomicFormula, UnaryOperator
-from flloat.base.nnf import NNF, NotNNF, DualCommutativeOperatorNNF, AtomicNNF
-from flloat.base.symbols import Alphabet, Symbol, Symbols
-from flloat.base.truths import NotTruth, AndTruth, OrTruth, Truth
-from flloat.helpers import MAX_CACHE_SIZE, _powerset
-from flloat.semantics.pl import PLInterpretation
+import sympy
+from sympy.logic.boolalg import Boolean, BooleanTrue, BooleanFalse
+from pythomata import PropositionalInterpretation
 
-
-class PLTruth(Truth, ABC):
-    @abstractmethod
-    def truth(self, i: PLInterpretation, *args) -> bool:
-        """
-        Tell if the formula is true under a propositional interpretation.
-
-        :param i: the propositional interpretation.
-        :return: True if the formula is true under the interpretation i, False otherwise.
-        """
+from flloat.base import (
+    Formula,
+    PropositionalTruth,
+    AtomicFormula,
+    BinaryOperator,
+    UnaryOperator,
+    AtomSymbol,
+)
+from flloat.symbols import Symbols, OpSymbol
 
 
-class PLFormula(Formula, PLTruth, NNF):
+class PLFormula(Formula, PropositionalTruth):
     """A class to represent propositional formulas."""
 
     def __init__(self):
+        """Initialize a PL formula."""
         Formula.__init__(self)
-
-        self._all_models = None
-        self._minimal_models = None
-        self._atoms = None
-
-    def all_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
-        """Find all the possible interpretations given a set of symbols"""
-
-        all_possible_interpretations = _powerset(alphabet)
-        all_models = set()
-        for i in all_possible_interpretations:
-            # compute current Interpretation, considering False
-            # all propositional symbols not present in current interpretation
-            current_interpretation = PLInterpretation(i)
-            if self.truth(current_interpretation):
-                all_models.add(current_interpretation)
-
-        self._all_models = all_models
-        return all_models
-
-    @lru_cache(maxsize=MAX_CACHE_SIZE)
-    def minimal_models(self, alphabet: Alphabet) -> Set[PLInterpretation]:
-        """
-        Find models of min size (i.e. the less number of proposition to True).
-
-        Very trivial (and inefficient) algorithm: BRUTE FORCE on all the possible interpretations.
-        """
-        models = self.all_models(alphabet)
-
-        minimal_models = set()
-        for m in models:
-            min_m = m
-            for m1 in models:
-                if min_m.true_propositions.issuperset(m1.true_propositions):
-                    min_m = m1
-            minimal_models.add(min_m)
-
-        return minimal_models
+        self._atoms = None  # type: Optional[Set[PLAtomic]]
 
     def __repr__(self):
-        return self.__str__()
+        """Return a representation of the formula."""
+        return str(self)
 
-    def find_atomics(self) -> Set[AtomicFormula]:
+    def find_atomics(self) -> Set["PLAtomic"]:
         """
         Find all the atomic formulas in the propositional formulas.
 
@@ -83,107 +46,246 @@ class PLFormula(Formula, PLTruth, NNF):
         return self._atoms
 
     @abstractmethod
-    def _find_atomics(self) -> Set[AtomicFormula]:
+    def _find_atomics(self) -> Set["PLAtomic"]:
         """Find all the atomic formulas in the propositional formulas."""
 
+    @abstractmethod
+    def negate(self) -> "PLFormula":
+        """Negate the formula. Used by 'to_nnf'."""
 
-class PLAtomic(AtomicFormula, AtomicNNF, PLFormula):
+
+def to_sympy(
+    formula: Formula, replace: Optional[Dict[AtomSymbol, sympy.Symbol]] = None
+) -> Boolean:
+    """
+    Translate a PLFormula object into a SymPy expression.
+
+    :param formula: the formula to translate.
+    :param replace: an optional mapping from symbols to replace to other replacement symbols.
+    :return: the SymPy formula object equivalent to the formula.
+    """
+    if replace is None:
+        replace = {}
+
+    if isinstance(formula, PLTrue):
+        return BooleanTrue()
+    elif isinstance(formula, PLFalse):
+        return BooleanFalse()
+    elif isinstance(formula, PLAtomic):
+        symbol = replace.get(formula.s, formula.s)
+        return sympy.Symbol(symbol)
+    elif isinstance(formula, PLNot):
+        return sympy.Not(to_sympy(formula.f, replace=replace))
+    elif isinstance(formula, PLOr):
+        return sympy.simplify(
+            sympy.Or(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
+    elif isinstance(formula, PLAnd):
+        return sympy.simplify(
+            sympy.And(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
+    elif isinstance(formula, PLImplies):
+        return sympy.simplify(
+            sympy.Implies(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
+    elif isinstance(formula, PLEquivalence):
+        return sympy.simplify(
+            sympy.Equivalent(*[to_sympy(f, replace=replace) for f in formula.formulas])
+        )
+    else:
+        raise ValueError("Formula is not valid.")
+
+
+class PLAtomic(AtomicFormula, PLFormula):
     """A class to represent propositional atomic formulas."""
 
-    def truth(self, i: PLInterpretation, *args) -> bool:
-        return self.s in i
+    def truth(self, i: PropositionalInterpretation, *args):
+        """Evaluate the formula."""
+        return i.get(self.s, False)
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return {self.s}
 
     def _find_atomics(self):
         return {self}
 
-
-class PLUnaryOperator(UnaryOperator, PLFormula):
-    """A class to represent propositional unary operators."""
-
-    def _find_atomics(self):
-        return self.f.find_atomics()
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return PLNot(self)
 
 
-class PLBinaryOperator(BinaryOperator, PLFormula):
-    """A class to represent propositional binary formulas."""
+class PLBinaryOperator(BinaryOperator[PLFormula], PLFormula, ABC):
+    """An operator for Propositional Logic."""
 
-    def _find_atomics(self):
-        res = set()
-        for subf in self.formulas:
-            res = res.union(subf.find_atomics())
-        return res
-
-
-class PLCommBinaryOperator(DualCommutativeOperatorNNF, PLBinaryOperator):
-    """A class to represent propositional binary formulas of a commutative operator."""
+    def _find_atomics(self) -> Set[PLAtomic]:
+        return functools.reduce(
+            set.union, [f.find_atomics() for f in self.formulas]  # type: ignore
+        )
 
 
 class PLTrue(PLAtomic):
     """Propositional true."""
 
     def __init__(self):
+        """Initialize the PL true formula."""
         PLAtomic.__init__(self, Symbols.TRUE.value)
 
-    def truth(self, *args) -> bool:
+    def truth(self, *args):
+        """Evaluate the formula."""
         return True
 
     def negate(self) -> "PLFalse":
+        """Negate the formula."""
         return PLFalse()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return set()
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        return self
 
 
 class PLFalse(PLAtomic):
     """Propositional false."""
 
     def __init__(self):
+        """Initialize the formula."""
         PLAtomic.__init__(self, Symbols.FALSE.value)
 
-    def truth(self, *args) -> bool:
+    def truth(self, *args):
+        """Evaluate the formula."""
         return False
 
     def negate(self) -> "PLTrue":
+        """Negate the formula."""
         return PLTrue()
 
-    def find_labels(self) -> Set[Symbol]:
+    def find_labels(self) -> Set[Any]:
         """Return the set of symbols."""
         return set()
 
+    def to_nnf(self):
+        """Transform in NNF."""
+        return self
 
-class PLNot(PLUnaryOperator, NotNNF, NotTruth):
+
+class PLNot(UnaryOperator[PLFormula], PLFormula):
     """Propositional Not."""
 
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.NOT.value
 
-class PLOr(PLCommBinaryOperator, OrTruth):
-    """Propositional Or"""
+    def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
+        return not self.f.truth(i)
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        if not isinstance(self.f, AtomicFormula):
+            return self.f.negate().to_nnf()
+        else:
+            return self
+
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return self.f
+
+    def _find_atomics(self) -> Set["PLAtomic"]:
+        return self.f.find_atomics()
 
 
-class PLAnd(PLCommBinaryOperator, AndTruth):
-    """Propositional And"""
+class PLOr(PLBinaryOperator):
+    """Propositional Or."""
+
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.OR.value
+
+    def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
+        return any(f.truth(i) for f in self.formulas)
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        return PLOr([f.to_nnf() for f in self.formulas])
+
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return PLAnd([f.negate() for f in self.formulas])
 
 
-class PLImplies(PLBinaryOperator, ImpliesConvertible):
-    """Propositional Implication"""
+class PLAnd(PLBinaryOperator):
+    """Propositional And."""
 
-    And = PLAnd
-    Or = PLOr
-    Not = PLNot
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.AND.value
+
+    def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
+        return all(f.truth(i) for f in self.formulas)
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        return PLAnd([f.to_nnf() for f in self.formulas])
+
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return PLOr([f.negate() for f in self.formulas])
 
 
-class PLEquivalence(PLCommBinaryOperator, EquivalenceConvertible):
-    """Propositional Equivalence"""
+class PLImplies(PLBinaryOperator):
+    """Propositional Implication."""
 
-    And = PLAnd
-    Or = PLOr
-    Not = PLNot
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.IMPLIES.value
+
+    def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
+        return self.to_nnf().truth(i)
+
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return self.to_nnf().negate()
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        first, second = self.formulas[0:2]
+        final_formula = PLOr([PLNot(first).to_nnf(), second.to_nnf()])
+        for subformula in self.formulas[2:]:
+            final_formula = PLOr([PLNot(final_formula).to_nnf(), subformula.to_nnf()])
+        return final_formula
 
 
-PLAtomic.Not = PLNot
-PLOr.Dual = PLAnd
-PLAnd.Dual = PLOr
+class PLEquivalence(PLBinaryOperator):
+    """Propositional Equivalence."""
+
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.EQUIVALENCE.value
+
+    def truth(self, i: PropositionalInterpretation):
+        """Evaluate the formula."""
+        return self.to_nnf().truth(i)
+
+    def to_nnf(self):
+        """Transform in NNF."""
+        fs = self.formulas
+        pos = PLAnd(fs)
+        neg = PLAnd([PLNot(f) for f in fs])
+        res = PLOr([pos, neg]).to_nnf()
+        return res
+
+    def negate(self) -> PLFormula:
+        """Negate the formula."""
+        return self.to_nnf().negate()
