@@ -131,6 +131,7 @@ class TestTruth:
         assert not ff.truth(tr_false_a_b_ab, 0)
         assert not LDLfNot(tt).truth(tr_false_a_b_ab, 0)
         assert LDLfNot(ff).truth(tr_false_a_b_ab, 0)
+        assert LDLfDiamond(RegExpPropositional(a), LDLfLogicalTrue()).truth([i_a], 0)
         # assert LDLfAnd([LDLfPropositional(a), LDLfPropositional(b)]).truth(
         #     tr_false_a_b_ab, 3
         # )

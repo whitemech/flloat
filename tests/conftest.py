@@ -96,6 +96,7 @@ class LTLfFixtures:
         "true",
         "false",
         "a -> b",
+        "a -> b -> c",
         "a <-> b",
         "G(a -> b)",
         "G(a -> F(b))",

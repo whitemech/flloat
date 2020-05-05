@@ -763,6 +763,13 @@ def ltlf_formula_nnf_pair(request):
     return formula_obj, nnf
 
 
+@pytest.fixture(scope="session", params=LTLfFixtures.ltlf_formulas)
+def ltlf_formula_to_ldlf_pair(request):
+    formula_obj = parser(request.param)
+    formula_ldlf = formula_obj.to_ldlf()
+    return formula_obj, formula_ldlf
+
+
 @given(propositional_words(["a", "b", "c"], min_size=0, max_size=5))
 def test_nnf_equivalence(ltlf_formula_nnf_pair, word):
     """Test that a formula is equivalent to its NNF form."""
@@ -781,6 +788,13 @@ def test_persistence_is_equivalent_to_response_on_nonempty_words(word):
     formula_1 = LTLfAlways(LTLfEventually(LTLfAtomic("a")))
     formula_2 = LTLfEventually(LTLfAlways(LTLfAtomic("a")))
     assert formula_1.truth(word, 0) == formula_2.truth(word, 0)
+
+
+@given(propositional_words(["a", "b", "c"], min_size=1, max_size=5))
+def test_ltlf_to_ldlf_equivalence(ltlf_formula_to_ldlf_pair, word):
+    """Test that an LTLf formula is equivalent to its LDLf form."""
+    formula_ltlf, formula_ldlf = ltlf_formula_to_ldlf_pair
+    assert formula_ltlf.truth(word, 0) == formula_ldlf.truth(word, 0)
 
 
 def test_persistence_and_response_on_empty_words():
