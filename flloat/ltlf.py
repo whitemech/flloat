@@ -25,6 +25,18 @@ from flloat.base import (
     BinaryOperator,
     AtomSymbol,
 )
+from flloat.ldlf import (
+    LDLfLogicalTrue,
+    LDLfNot,
+    LDLfAnd,
+    LDLfOr,
+    LDLfDiamond,
+    LDLfEnd,
+    RegExpPropositional,
+    RegExpStar,
+    RegExpSequence,
+    RegExpTest,
+)
 from flloat.delta import Delta
 from flloat.flloat import to_automaton
 from flloat.pl import PLFalse, PLTrue, PLAtomic, PLOr, PLAnd, PLFormula
@@ -108,8 +120,10 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
         """Find the labels."""
         return PLAtomic(self.s).find_labels()
 
-    # def to_ldlf(self):
-    #     return LDLfPropositional(PLAtomic(self.s)).convert()
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfDiamond(RegExpPropositional(PLAtomic(self.s)), LDLfLogicalTrue())
+        # return LDLfPropositionalAtom([{PLAtomic(self.s)})
 
 
 class LTLfTrue(LTLfAtomic):
@@ -137,6 +151,10 @@ class LTLfTrue(LTLfAtomic):
     def find_labels(self) -> Set[AtomSymbol]:
         """Find the labels."""
         return set()
+
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfLogicalTrue())
 
 
 class LTLfFalse(LTLfAtomic):
@@ -203,8 +221,9 @@ class LTLfNot(LTLfUnaryOperator):
         else:
             return not self.f.truth(i, pos)
 
-    # def to_ldlf(self):
-    #     return LDLfNot(self.f.to_ldlf())
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfNot(self.f.to_ldlf())
 
 
 class LTLfAnd(LTLfBinaryOperator):
@@ -227,8 +246,9 @@ class LTLfAnd(LTLfBinaryOperator):
         """Negate the formula."""
         return LTLfOr([f.negate() for f in self.formulas])
 
-    # def to_ldlf(self):
-    #     return LDLfAnd([f.to_ldlf() for f in self.formulas])
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfAnd([f.to_ldlf() for f in self.formulas])
 
 
 class LTLfOr(LTLfBinaryOperator):
@@ -250,6 +270,10 @@ class LTLfOr(LTLfBinaryOperator):
     def negate(self) -> LTLfFormula:
         """Negate the formula."""
         return LTLfAnd([f.negate() for f in self.formulas])
+
+    def to_ldlf(self):
+        """Convert LTLf formula to LDLf."""
+        return LDLfOr([f.to_ldlf() for f in self.formulas])
 
 
 class LTLfImplies(LTLfBinaryOperator):
@@ -282,6 +306,16 @@ class LTLfImplies(LTLfBinaryOperator):
             )
         return final_formula
 
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        f1 = (
+            LTLfImplies(self.formulas[:-1]).to_ldlf()
+            if len(self.formulas) > 2
+            else self.formulas[0].to_ldlf()
+        )
+        f2 = self.formulas[-1].to_ldlf()
+        return LDLfOr([LDLfNot(f1), f2])
+
 
 class LTLfEquivalence(LTLfBinaryOperator):
     """Class for the LTLf Equivalente formula."""
@@ -311,6 +345,16 @@ class LTLfEquivalence(LTLfBinaryOperator):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        f1 = (
+            LTLfImplies(self.formulas[:-1]).to_ldlf()
+            if len(self.formulas) > 2
+            else self.formulas[0].to_ldlf()
+        )
+        f2 = self.formulas[-1].to_ldlf()
+        return LDLfAnd([LDLfOr([LDLfNot(f1), f2]), LDLfOr([f1, LDLfNot(f2)])])
+
 
 class LTLfNext(LTLfUnaryOperator):
     """Class for the LTLf Next formula."""
@@ -339,11 +383,12 @@ class LTLfNext(LTLfUnaryOperator):
         else:
             return PLAnd([PLAtomic(self.f), PLAtomic(LTLfNot(LTLfEnd()).to_nnf())])
 
-    # def to_ldlf(self):
-    #     return LDLfDiamond(
-    #         RegExpPropositional(PLTrue()),
-    #         LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
-    #     )
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfDiamond(
+            RegExpPropositional(PLTrue()),
+            LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfWeakNext(LTLfUnaryOperator):
@@ -373,8 +418,14 @@ class LTLfWeakNext(LTLfUnaryOperator):
         else:
             return PLOr([PLAtomic(self.f), PLAtomic(LTLfEnd().to_nnf())])
 
-    # def to_ldlf(self):
-    #     return self.convert().to_ldlf()
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfNot(
+            LDLfDiamond(
+                RegExpPropositional(PLTrue()),
+                LDLfAnd([LDLfNot(self.f.to_ldlf()), LDLfNot(LDLfEnd())]),
+            )
+        )
 
 
 class LTLfUntil(LTLfBinaryOperator):
@@ -420,17 +471,18 @@ class LTLfUntil(LTLfBinaryOperator):
             ]
         )
 
-    # def to_ldlf(self):
-    #     f1 = self.formulas[0].to_ldlf()
-    #     f2 = (
-    #         LTLfUntil(self.formulas[1:]).to_ldlf()
-    #         if len(self.formulas) > 2
-    #         else self.formulas[1].to_ldlf()
-    #     )
-    #     return LDLfDiamond(
-    #         RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
-    #         LDLfAnd([f2, LDLfNot(LDLfEnd())]),
-    #     )
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        f1 = self.formulas[0].to_ldlf()
+        f2 = (
+            LTLfUntil(self.formulas[1:]).to_ldlf()
+            if len(self.formulas) > 2
+            else self.formulas[1].to_ldlf()
+        )
+        return LDLfDiamond(
+            RegExpStar(RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])),
+            LDLfAnd([f2, LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfRelease(LTLfBinaryOperator):
@@ -479,6 +531,23 @@ class LTLfRelease(LTLfBinaryOperator):
             ]
         )
 
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        f1 = LDLfNot(self.formulas[0].to_ldlf())
+        f2 = (
+            LTLfRelease(self.formulas[1:]).to_ldlf()
+            if len(self.formulas) > 2
+            else LDLfNot(self.formulas[1].to_ldlf())
+        )
+        return LDLfNot(
+            LDLfDiamond(
+                RegExpStar(
+                    RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])
+                ),
+                LDLfAnd([f2, LDLfNot(LDLfEnd())]),
+            )
+        )
+
 
 class LTLfEventually(LTLfUnaryOperator):
     """Class for the LTLf Eventually formula."""
@@ -504,11 +573,12 @@ class LTLfEventually(LTLfUnaryOperator):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
 
-    # def to_ldlf(self):
-    #     return LDLfDiamond(
-    #         RegExpStar(RegExpPropositional(PLTrue())),
-    #         LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
-    #     )
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfDiamond(
+            RegExpStar(RegExpPropositional(PLTrue())),
+            LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
+        )
 
 
 class LTLfAlways(LTLfUnaryOperator):
@@ -534,6 +604,15 @@ class LTLfAlways(LTLfUnaryOperator):
     def _delta(self, i: PropositionalInterpretation, epsilon=False):
         """Apply the delta function."""
         return self.to_nnf()._delta(i, epsilon=epsilon)
+
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfNot(
+            LDLfDiamond(
+                RegExpStar(RegExpPropositional(PLTrue())),
+                LDLfAnd([LDLfNot(self.f.to_ldlf()), LDLfNot(LDLfEnd())]),
+            )
+        )
 
 
 class LTLfLast(LTLfFormula):
@@ -566,6 +645,10 @@ class LTLfLast(LTLfFormula):
         """Get the string representation."""
         return Symbols.LAST.value
 
+    def to_ldlf(self):
+        """Convert the formula to LDLf."""
+        return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfEnd())
+
 
 class LTLfEnd(LTLfFormula):
     """Class for the LTLf End formula."""
@@ -596,3 +679,12 @@ class LTLfEnd(LTLfFormula):
     def __str__(self):
         """Get the string representation."""
         return "_".join(map(str, self._members()))
+
+    # def to_ldlf(self):
+    #     """Convert the formula to LDLf."""
+    #     return LDLfNot(
+    #         LDLfDiamond(
+    #             RegExpPropositional(PLTrue()),
+    #             LDLfLogicalTrue()
+    #         )
+    #     )
