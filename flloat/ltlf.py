@@ -31,6 +31,7 @@ from flloat.ldlf import (
     LDLfAnd,
     LDLfOr,
     LDLfDiamond,
+    LDLfBox,
     LDLfEnd,
     RegExpPropositional,
     RegExpStar,
@@ -420,11 +421,8 @@ class LTLfWeakNext(LTLfUnaryOperator):
 
     def to_ldlf(self):
         """Convert the formula to LDLf."""
-        return LDLfNot(
-            LDLfDiamond(
-                RegExpPropositional(PLTrue()),
-                LDLfAnd([LDLfNot(self.f.to_ldlf()), LDLfNot(LDLfEnd())]),
-            )
+        return LDLfBox(
+            RegExpPropositional(PLTrue()), LDLfOr([self.f.to_ldlf(), LDLfEnd()])
         )
 
 
@@ -533,19 +531,17 @@ class LTLfRelease(LTLfBinaryOperator):
 
     def to_ldlf(self):
         """Convert the formula to LDLf."""
-        f1 = LDLfNot(self.formulas[0].to_ldlf())
+        f1 = self.formulas[0].to_ldlf()
         f2 = (
             LTLfRelease(self.formulas[1:]).to_ldlf()
             if len(self.formulas) > 2
-            else LDLfNot(self.formulas[1].to_ldlf())
+            else self.formulas[1].to_ldlf()
         )
-        return LDLfNot(
-            LDLfDiamond(
-                RegExpStar(
-                    RegExpSequence([RegExpTest(f1), RegExpPropositional(PLTrue())])
-                ),
-                LDLfAnd([f2, LDLfNot(LDLfEnd())]),
-            )
+        return LDLfBox(
+            RegExpStar(
+                RegExpSequence([RegExpTest(LDLfNot(f1)), RegExpPropositional(PLTrue())])
+            ),
+            LDLfOr([f2, LDLfEnd()]),
         )
 
 
@@ -607,11 +603,9 @@ class LTLfAlways(LTLfUnaryOperator):
 
     def to_ldlf(self):
         """Convert the formula to LDLf."""
-        return LDLfNot(
-            LDLfDiamond(
-                RegExpStar(RegExpPropositional(PLTrue())),
-                LDLfAnd([LDLfNot(self.f.to_ldlf()), LDLfNot(LDLfEnd())]),
-            )
+        return LDLfBox(
+            RegExpStar(RegExpPropositional(PLTrue())),
+            LDLfOr([self.f.to_ldlf(), LDLfEnd()]),
         )
 
 
