@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+
 import lark
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
+from hypothesis.strategies import sampled_from
 
 from flloat.ldlf import (
     LDLfLogicalTrue,
@@ -400,6 +402,20 @@ def test_nnf_equivalence(ldlf_formula_nnf_pair, word):
 def test_theorems(ldlf_theorem, word):
     """Test that the validity of theorems."""
     formula = parser(ldlf_theorem)
+    assert formula.truth(word, 0)
+
+
+@pytest.mark.parametrize("ldlf_theorem", LDLfFixtures.ldlf_advanced_theorems)
+@given(
+    propositional_words(["a", "b", "c"], min_size=0, max_size=5),
+    sampled_from(LDLfFixtures.ldlf_formulas),
+    sampled_from(LDLfFixtures.ldlf_formulas),
+)
+@settings(max_examples=500)
+def test_advanced_theorems(ldlf_theorem, word, ldlf_formula_1, ldlf_formula_2):
+    """Test that the validity of theorems."""
+    concrete_theorem = ldlf_theorem.format(f1=ldlf_formula_1, f2=ldlf_formula_2)
+    formula = parser(concrete_theorem)
     assert formula.truth(word, 0)
 
 
